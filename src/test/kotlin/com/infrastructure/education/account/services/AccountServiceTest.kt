@@ -20,7 +20,7 @@ import io.mockk.verify
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 
-class AccountServiceTest: BehaviorSpec({
+class AccountServiceTest : BehaviorSpec({
     isolationMode = IsolationMode.InstancePerLeaf
 
     // Default Declaration
@@ -30,12 +30,12 @@ class AccountServiceTest: BehaviorSpec({
 
     Given("createAccount") {
         val registerDto = RegisterRequestDto(
-            credentialKey = "kangdroid",
-            email = "kangdroid@test.com",
-            credentialId = "asdf",
-            name = "KangDroid",
-            credentialProvider = CredentialProvider.Self,
-            profileImageUrl = null
+                credentialKey = "kangdroid",
+                email = "kangdroid@test.com",
+                credentialId = "asdf",
+                name = "KangDroid",
+                credentialProvider = CredentialProvider.Self,
+                profileImageUrl = null
         )
         val desiredAccount = registerDto.toAccount()
         val desiredCredential = registerDto.toCredential(desiredAccount)
@@ -85,7 +85,7 @@ class AccountServiceTest: BehaviorSpec({
                 val exception = shouldThrow<ApiException> {
                     accountService.createAccount(registerDto)
                 }
-                with (exception) {
+                with(exception) {
                     statusCode shouldBe HttpStatus.CONFLICT
                     errorTitle shouldBe ErrorTitle.ACCOUNT_EMAIL_CONFLICT
                     errorMessage shouldNotBe ""
@@ -93,14 +93,14 @@ class AccountServiceTest: BehaviorSpec({
             }
         }
 
-        When ("Account does not exists, but Credential exists") {
+        When("Account does not exists, but Credential exists") {
             every { mockAccountRepository.findByEmail(registerDto.email) } returns null
             every { mockCredentialRepository.findByIdOrNull(any()) } returns desiredCredential
             Then("Should throw ApiException with HTTP Conflict") {
                 val exception = shouldThrow<ApiException> {
                     accountService.createAccount(registerDto)
                 }
-                with (exception) {
+                with(exception) {
                     statusCode shouldBe HttpStatus.CONFLICT
                     errorTitle shouldBe ErrorTitle.ACCOUNT_EMAIL_CONFLICT
                     errorMessage shouldNotBe ""

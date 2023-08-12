@@ -1,32 +1,21 @@
 package com.infrastructure.education.account.controllers
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.f4b6a3.ulid.UlidCreator
 import com.infrastructure.education.Transaction
 import com.infrastructure.education.account.dto.requests.RegisterRequestDto
 import com.infrastructure.education.account.models.CredentialProvider
 import com.infrastructure.education.account.repositories.AccountRepository
 import com.infrastructure.education.account.repositories.CredentialRepository
-import io.kotest.core.extensions.install
-import io.kotest.core.names.TestName
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.core.spec.style.scopes.BehaviorSpecWhenContainerScope
-import io.kotest.core.test.TestScope
 import io.kotest.extensions.spring.SpringExtension
-import io.kotest.extensions.testcontainers.ContainerLifecycleMode
-import io.kotest.extensions.testcontainers.JdbcDatabaseContainerExtension
-import io.kotest.matchers.ints.shouldBeExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.reactive.function.BodyInserter
 import org.springframework.web.reactive.function.BodyInserters
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
@@ -35,11 +24,11 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
 class AccountControllerTest(
-    private val webTestClient: WebTestClient,
-    private val accountRepository: AccountRepository,
-    private val credentialRepository: CredentialRepository,
-    private val transaction: Transaction
-): BehaviorSpec() {
+        private val webTestClient: WebTestClient,
+        private val accountRepository: AccountRepository,
+        private val credentialRepository: CredentialRepository,
+        private val transaction: Transaction
+) : BehaviorSpec() {
     override fun extensions() = listOf(SpringExtension)
 
     private val clearData: suspend () -> Unit = {
@@ -52,11 +41,11 @@ class AccountControllerTest(
     companion object {
         @Container
         val postgreSQLContainer = PostgreSQLContainer<Nothing>("postgres:15.3")
-            .apply {
-                withDatabaseName(UlidCreator.getUlid().toString())
-                withUsername("admin")
-                withPassword("testPassword@")
-            }
+                .apply {
+                    withDatabaseName(UlidCreator.getUlid().toString())
+                    withUsername("admin")
+                    withPassword("testPassword@")
+                }
 
         init {
             postgreSQLContainer.start()
@@ -73,21 +62,21 @@ class AccountControllerTest(
 
     init {
         Given("HTTP POST /v1/accounts") {
-            val registerRequestDto =  RegisterRequestDto(
-                credentialKey = "kangdroid",
-                email = "kangdroid@test.com",
-                credentialId = "kangdroid@test.com",
-                name = "KangDroid",
-                credentialProvider = CredentialProvider.Self,
-                profileImageUrl = null
+            val registerRequestDto = RegisterRequestDto(
+                    credentialKey = "kangdroid",
+                    email = "kangdroid@test.com",
+                    credentialId = "kangdroid@test.com",
+                    name = "KangDroid",
+                    credentialProvider = CredentialProvider.Self,
+                    profileImageUrl = null
             )
 
             When("Registering Fresh Account") {
                 val exchangeSpec = webTestClient.post()
-                    .uri("/v1/accounts/register")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(BodyInserters.fromValue(registerRequestDto))
-                    .exchange()
+                        .uri("/v1/accounts/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(BodyInserters.fromValue(registerRequestDto))
+                        .exchange()
 
                 Then("Should return HTTP 204 NoContent") {
                     exchangeSpec.expectStatus().isNoContent
@@ -118,10 +107,10 @@ class AccountControllerTest(
                 }
 
                 val exchangeSpec = webTestClient.post()
-                    .uri("/v1/accounts/register")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(BodyInserters.fromValue(registerRequestDto))
-                    .exchange()
+                        .uri("/v1/accounts/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(BodyInserters.fromValue(registerRequestDto))
+                        .exchange()
 
                 Then("Should return HTTP 409 Conflict") {
                     exchangeSpec.expectStatus().isEqualTo(HttpStatus.CONFLICT)
@@ -131,7 +120,7 @@ class AccountControllerTest(
                     transaction {
                         val accountList = accountRepository.findAll()
                         accountList.count() shouldBe 1
-                        with (accountList.first()) {
+                        with(accountList.first()) {
                             id shouldNotBe ""
                             email shouldBe registerRequestDto.email
                             name shouldBe registerRequestDto.name

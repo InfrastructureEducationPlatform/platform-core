@@ -8,35 +8,35 @@ import com.infrastructure.education.account.models.CredentialProvider
 import io.swagger.v3.oas.annotations.media.Schema
 
 data class RegisterRequestDto(
-    @Schema(description = "User Nickname")
-    val name: String,
+        @Schema(description = "User Nickname")
+        val name: String,
 
-    @Schema(description = "User Email")
-    val email: String,
+        @Schema(description = "User Email")
+        val email: String,
 
-    @Schema(description = "Profile Image URL(Nullable)")
-    val profileImageUrl: String?,
+        @Schema(description = "Profile Image URL(Nullable)")
+        val profileImageUrl: String?,
 
-    @Schema(description = "Credential ID")
-    val credentialId: String,
+        @Schema(description = "Credential ID")
+        val credentialId: String,
 
-    @Schema(description = "Credential Key")
-    val credentialKey: String,
+        @Schema(description = "Credential Key")
+        val credentialKey: String,
 
-    @Schema(description = "Credential Provider(Such as self, oauth, etc)")
-    val credentialProvider: CredentialProvider
+        @Schema(description = "Credential Provider(Such as self, oauth, etc)")
+        val credentialProvider: CredentialProvider
 ) {
     fun toAccount(): Account = Account(
-        name = name,
-        email = email,
-        profilePictureImageUrl = profileImageUrl,
-        credentialList = mutableListOf(),
-        id = UlidCreator.getUlid().toString()
+            name = name,
+            email = email,
+            profilePictureImageUrl = profileImageUrl,
+            credentialList = mutableListOf(),
+            id = UlidCreator.getUlid().toString()
     )
 
     fun toCredential(account: Account): Credential = Credential(
-        id = CredentialId(credentialId = credentialId, provider = credentialProvider),
-        credentialKey = credentialKey,
-        account = account
+            id = CredentialId(credentialId = credentialId, provider = credentialProvider),
+            credentialKey = credentialKey,
+            account = account
     )
 }

@@ -9,24 +9,24 @@ enum class CredentialProvider {
 
 @Embeddable
 data class CredentialId(
-    @Column
-    var credentialId: String,
+        @Column
+        var credentialId: String,
 
-    @Column
-    @Enumerated(EnumType.STRING)
-    var provider: CredentialProvider
-): Serializable
+        @Column
+        @Enumerated(EnumType.STRING)
+        var provider: CredentialProvider
+) : Serializable
 
 @Entity
 @Table(name = "Credentials")
 class Credential(
-    @EmbeddedId
-    var id: CredentialId,
+        @EmbeddedId
+        var id: CredentialId,
 
-    @Column
-    var credentialKey: String,
+        @Column
+        var credentialKey: String,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id")
-    val account: Account,
+        @ManyToOne(fetch = FetchType.LAZY)
+        @JoinColumn(name = "account_id")
+        val account: Account,
 )

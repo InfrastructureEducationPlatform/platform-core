@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/v1/accounts")
 @Tag(name = "Accounts", description = "Account related API.")
 class AccountController(
-    private val accountService: AccountService
+        private val accountService: AccountService
 ) {
     @PostMapping("/register")
     @Operation(summary = "Register Account.")
     @ApiResponse(responseCode = "204", description = "When successfully registered account to the server.")
     fun registerAccount(@RequestBody registerRequestDto: RegisterRequestDto): ResponseEntity<Unit> {
         accountService.createAccount(registerRequestDto)
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.noContent().build()
     }
 }
