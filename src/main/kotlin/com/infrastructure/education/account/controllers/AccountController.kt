@@ -1,6 +1,7 @@
 package com.infrastructure.education.account.controllers
 
 import com.infrastructure.education.account.dto.requests.RegisterRequestDto
+import com.infrastructure.education.account.dto.responses.TokenResponse
 import com.infrastructure.education.account.services.AccountService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -19,9 +20,9 @@ class AccountController(
 ) {
     @PostMapping("/register")
     @Operation(summary = "Register Account.")
-    @ApiResponse(responseCode = "204", description = "When successfully registered account to the server.")
-    fun registerAccount(@RequestBody registerRequestDto: RegisterRequestDto): ResponseEntity<Unit> {
-        accountService.createAccount(registerRequestDto)
-        return ResponseEntity.noContent().build()
+    @ApiResponse(responseCode = "200", description = "When successfully registered account to the server.")
+    fun registerAccount(@RequestBody registerRequestDto: RegisterRequestDto): ResponseEntity<TokenResponse> {
+        val tokenResponse = accountService.createAccount(registerRequestDto)
+        return ResponseEntity.ok(tokenResponse)
     }
 }

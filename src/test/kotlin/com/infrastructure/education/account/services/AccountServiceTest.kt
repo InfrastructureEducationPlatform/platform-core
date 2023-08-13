@@ -6,6 +6,7 @@ import com.infrastructure.education.account.models.Credential
 import com.infrastructure.education.account.models.CredentialProvider
 import com.infrastructure.education.account.repositories.AccountRepository
 import com.infrastructure.education.account.repositories.CredentialRepository
+import com.infrastructure.education.auth.services.JwtService
 import com.infrastructure.education.common.ApiException
 import com.infrastructure.education.common.ErrorTitle
 import io.kotest.assertions.throwables.shouldThrow
@@ -26,7 +27,8 @@ class AccountServiceTest : BehaviorSpec({
     // Default Declaration
     val mockAccountRepository = mockk<AccountRepository>(relaxed = true)
     val mockCredentialRepository = mockk<CredentialRepository>(relaxed = true)
-    val accountService = AccountService(mockAccountRepository, mockCredentialRepository)
+    val mockJwtService = mockk<JwtService>(relaxed = true)
+    val accountService = AccountService(mockAccountRepository, mockCredentialRepository, mockJwtService)
 
     Given("createAccount") {
         val registerDto = RegisterRequestDto(
@@ -39,13 +41,15 @@ class AccountServiceTest : BehaviorSpec({
         )
         val desiredAccount = registerDto.toAccount()
         val desiredCredential = registerDto.toCredential(desiredAccount)
+        val randomJwt = "test.test.test"
         When("Fresh new Account") {
             every { mockAccountRepository.findByEmail(registerDto.email) } returns null
             every { mockCredentialRepository.findByIdOrNull(any()) } returns null
             every { mockAccountRepository.save(any()) } returns desiredAccount
             every { mockCredentialRepository.save(any()) } returns desiredCredential
+            every { mockJwtService.generateJwt(any()) } returns randomJwt
 
-            accountService.createAccount(registerDto)
+            val tokenResponse = accountService.createAccount(registerDto)
             Then("Should Saves to Account Repository well.") {
                 val captureAccountSlot = slot<Account>()
                 verify {
@@ -75,6 +79,14 @@ class AccountServiceTest : BehaviorSpec({
                     id.provider shouldBe desiredCredential.id.provider
                     credentialKey shouldBe desiredCredential.credentialKey
                 }
+            }
+
+            Then("Should have called jwt logic properly.") {
+                verify { mockJwtService.generateJwt(any()) }
+            }
+
+            Then("Should have returned mock jwt.") {
+                tokenResponse.token shouldBe randomJwt
             }
         }
 

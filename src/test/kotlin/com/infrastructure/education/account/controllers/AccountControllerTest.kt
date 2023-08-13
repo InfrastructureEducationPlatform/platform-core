@@ -78,8 +78,8 @@ class AccountControllerTest(
                         .body(BodyInserters.fromValue(registerRequestDto))
                         .exchange()
 
-                Then("Should return HTTP 204 NoContent") {
-                    exchangeSpec.expectStatus().isNoContent
+                Then("Should return HTTP 200 NoContent") {
+                    exchangeSpec.expectStatus().isOk
                 }
 
                 Then("Should save account and its data well.") {
