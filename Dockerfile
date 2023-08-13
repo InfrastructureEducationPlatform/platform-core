@@ -12,7 +12,7 @@ WORKDIR /build
 COPY --from=GRADLE_CACHE /cache/.gradle ./
 COPY --from=GRADLE_CACHE /root/.gradle /root/.gradle
 COPY . .
-RUN ./gradlew bootJar
+RUN if [ ! -f /build/build/libs/platform*.jar ]; then ./gradlew bootJar; fi
 
 FROM eclipse-temurin:17-jre-focal AS RUNNER
 WORKDIR /app

@@ -1,0 +1,73 @@
+databaseChangeLog:
+- changeSet:
+    id: 1691913279204-1
+    author: kangdroid (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: accountsPK
+            name: id
+            type: VARCHAR(255)
+        - column:
+            name: email
+            type: VARCHAR(255)
+        - column:
+            name: name
+            type: VARCHAR(255)
+        - column:
+            name: profile_picture_image_url
+            type: VARCHAR(255)
+        tableName: accounts
+- changeSet:
+    id: 1691913279204-2
+    author: kangdroid (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: credentialsPK
+            name: credential_id
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: credentialsPK
+            name: provider
+            type: VARCHAR(255)
+        - column:
+            name: credential_key
+            type: VARCHAR(255)
+        - column:
+            name: account_id
+            type: VARCHAR(255)
+        tableName: credentials
+- changeSet:
+    id: 1691913279204-3
+    author: kangdroid (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: email
+        constraintName: UC_ACCOUNTSEMAIL_COL
+        tableName: accounts
+- changeSet:
+    id: 1691913279204-4
+    author: kangdroid (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: account_id
+        baseTableName: credentials
+        constraintName: FKj50rbjbtayn6mjyodr9djftig
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: id
+        referencedTableName: accounts
+        validate: true
+
