@@ -1,5 +1,6 @@
 package com.infrastructure.education.account.controllers
 
+import com.infrastructure.education.account.dto.requests.LoginRequestDto
 import com.infrastructure.education.account.dto.requests.RegisterRequestDto
 import com.infrastructure.education.account.dto.responses.TokenResponse
 import com.infrastructure.education.account.services.AccountService
@@ -23,6 +24,14 @@ class AccountController(
     @ApiResponse(responseCode = "200", description = "When successfully registered account to the server.")
     fun registerAccount(@RequestBody registerRequestDto: RegisterRequestDto): ResponseEntity<TokenResponse> {
         val tokenResponse = accountService.createAccount(registerRequestDto)
+        return ResponseEntity.ok(tokenResponse)
+    }
+
+    @PostMapping("/login")
+    @Operation(summary = "Login Account.")
+    @ApiResponse(responseCode = "200", description = "When successfully logged-in to the server.")
+    fun loginAccount(@RequestBody loginRequestDto: LoginRequestDto): ResponseEntity<TokenResponse> {
+        val tokenResponse = accountService.loginAccount(loginRequestDto)
         return ResponseEntity.ok(tokenResponse)
     }
 }
