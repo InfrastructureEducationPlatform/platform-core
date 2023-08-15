@@ -1,11 +1,14 @@
 package com.infrastructure.education.account.services
 
+import com.infrastructure.education.account.dto.requests.LoginRequestDto
 import com.infrastructure.education.account.dto.requests.RegisterRequestDto
 import com.infrastructure.education.account.models.Account
 import com.infrastructure.education.account.models.Credential
 import com.infrastructure.education.account.models.CredentialProvider
 import com.infrastructure.education.account.repositories.AccountRepository
 import com.infrastructure.education.account.repositories.CredentialRepository
+import com.infrastructure.education.auth.models.CustomUserDetails
+import com.infrastructure.education.auth.models.SelfAuthenticationToken
 import com.infrastructure.education.auth.services.JwtService
 import com.infrastructure.education.common.ApiException
 import com.infrastructure.education.common.ErrorTitle
@@ -20,6 +23,7 @@ import io.mockk.slot
 import io.mockk.verify
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
+import org.springframework.security.authentication.AuthenticationManager
 
 class AccountServiceTest : BehaviorSpec({
     isolationMode = IsolationMode.InstancePerLeaf
@@ -28,7 +32,8 @@ class AccountServiceTest : BehaviorSpec({
     val mockAccountRepository = mockk<AccountRepository>(relaxed = true)
     val mockCredentialRepository = mockk<CredentialRepository>(relaxed = true)
     val mockJwtService = mockk<JwtService>(relaxed = true)
-    val accountService = AccountService(mockAccountRepository, mockCredentialRepository, mockJwtService)
+    val mockAuthenticationManager = mockk<AuthenticationManager>(relaxed = true)
+    val accountService = AccountService(mockAccountRepository, mockCredentialRepository, mockJwtService, mockAuthenticationManager)
 
     Given("createAccount") {
         val registerDto = RegisterRequestDto(
@@ -117,6 +122,25 @@ class AccountServiceTest : BehaviorSpec({
                     errorTitle shouldBe ErrorTitle.ACCOUNT_EMAIL_CONFLICT
                     errorMessage shouldNotBe ""
                 }
+            }
+        }
+    }
+
+    Given("loginAccount") {
+        When("Self Provider Request succeed") {
+            val loginRequestDto = LoginRequestDto(
+                    provider = CredentialProvider.Self,
+                    id = "kangdroid@test.com",
+                    password = "testPassword@"
+            )
+            val mockCustomUserDetails = mockk<CustomUserDetails>()
+            every { mockCustomUserDetails.accountId } returns "kangdroid"
+            every { mockAuthenticationManager.authenticate(any()) } returns SelfAuthenticationToken(mockCustomUserDetails)
+            every { mockJwtService.generateJwt(any()) } returns "testJwt"
+
+            Then("Should have returned mocked JWT.") {
+                val response = accountService.loginAccount(loginRequestDto)
+                response.token shouldBe "testJwt"
             }
         }
     }

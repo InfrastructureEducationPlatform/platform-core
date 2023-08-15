@@ -1,16 +1,21 @@
 package com.infrastructure.education.account.services
 
+import com.infrastructure.education.account.dto.requests.LoginRequestDto
 import com.infrastructure.education.account.dto.requests.RegisterRequestDto
 import com.infrastructure.education.account.dto.responses.TokenResponse
 import com.infrastructure.education.account.models.CredentialId
+import com.infrastructure.education.account.models.CredentialProvider
 import com.infrastructure.education.account.repositories.AccountRepository
 import com.infrastructure.education.account.repositories.CredentialRepository
 import com.infrastructure.education.auth.models.CustomUserDetails
+import com.infrastructure.education.auth.models.SelfAuthenticationToken
 import com.infrastructure.education.auth.services.JwtService
 import com.infrastructure.education.common.ApiException
 import com.infrastructure.education.common.ErrorTitle
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -18,7 +23,8 @@ import org.springframework.transaction.annotation.Transactional
 class AccountService(
         private val accountRepository: AccountRepository,
         private val credentialRepository: CredentialRepository,
-        private val jwtService: JwtService
+        private val jwtService: JwtService,
+        private val authenticationManager: AuthenticationManager
 ) {
     @Transactional
     fun createAccount(registerRequestDto: RegisterRequestDto): TokenResponse {
@@ -38,5 +44,19 @@ class AccountService(
         return TokenResponse(
                 token = jwtService.generateJwt(CustomUserDetails(account))
         )
+    }
+
+    @Transactional
+    fun loginAccount(loginRequestDto: LoginRequestDto): TokenResponse {
+        // Create Authentication Token based on Provider
+        val authenticationToken: Authentication = when (loginRequestDto.provider) {
+            CredentialProvider.Self -> SelfAuthenticationToken(loginRequestDto.id, loginRequestDto.password)
+        }
+
+        // Authenticate(it will throw ApiException when authentication fails
+        val authenticatedObject = authenticationManager.authenticate(authenticationToken)!!
+        val userDetails = authenticatedObject.principal as CustomUserDetails
+
+        return TokenResponse(jwtService.generateJwt(userDetails))
     }
 }
