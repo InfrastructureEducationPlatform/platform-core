@@ -106,6 +106,6 @@ class SelfAuthenticationProviderTest : BehaviorSpec() {
 
     private fun Account.createNonAuthenticationToken(overrideEmail: String? = null, overridePassword: String? = null): SelfAuthenticationToken = SelfAuthenticationToken(
             email = overrideEmail ?: this.email,
-            password = overridePassword ?: this.credentialList.first().credentialKey
+            password = overridePassword ?: this.credentialList.first().credentialKey!!
     )
 }

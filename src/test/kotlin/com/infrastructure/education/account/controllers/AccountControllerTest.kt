@@ -111,7 +111,7 @@ class AccountControllerTest(
                 transaction {
                     val account = registerRequestDto.toAccount()
                     accountRepository.save(account)
-                    val credential = registerRequestDto.toCredential(account)
+                    val credential = registerRequestDto.createSelfCredential(account)
                     credentialRepository.save(credential)
                 }
 
@@ -237,4 +237,10 @@ class AccountControllerTest(
             return@transaction account
         }!!
     }
+
+    private fun RegisterRequestDto.createSelfCredential(account: Account) = Credential(
+            id = CredentialId(credentialId = credentialId, provider = credentialProvider),
+            credentialKey = credentialKey,
+            account = account
+    )
 }

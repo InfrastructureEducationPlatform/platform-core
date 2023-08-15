@@ -24,7 +24,7 @@ class Credential(
         var id: CredentialId,
 
         @Column
-        var credentialKey: String,
+        var credentialKey: String?,
 
         @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "account_id")

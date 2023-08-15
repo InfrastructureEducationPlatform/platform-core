@@ -7,6 +7,8 @@ import com.infrastructure.education.account.models.CredentialId
 import com.infrastructure.education.account.models.CredentialProvider
 import com.infrastructure.education.account.repositories.AccountRepository
 import com.infrastructure.education.account.repositories.CredentialRepository
+import com.infrastructure.education.account.services.providers.RegistrationProvider
+import com.infrastructure.education.account.services.providers.SelfRegistrationProvider
 import com.infrastructure.education.auth.models.CustomUserDetails
 import com.infrastructure.education.auth.models.SelfAuthenticationToken
 import com.infrastructure.education.auth.services.JwtService
@@ -24,7 +26,8 @@ class AccountService(
         private val accountRepository: AccountRepository,
         private val credentialRepository: CredentialRepository,
         private val jwtService: JwtService,
-        private val authenticationManager: AuthenticationManager
+        private val authenticationManager: AuthenticationManager,
+        private val selfRegistrationProvider: SelfRegistrationProvider
 ) {
     @Transactional
     fun createAccount(registerRequestDto: RegisterRequestDto): TokenResponse {
@@ -35,10 +38,13 @@ class AccountService(
             throw ApiException(HttpStatus.CONFLICT, "${registerRequestDto.email} or user with ${registerRequestDto.credentialProvider} already exists!", ErrorTitle.ACCOUNT_EMAIL_CONFLICT)
         }
 
+        // Create Account
         val account = registerRequestDto.toAccount()
         accountRepository.save(account)
 
-        val credential = registerRequestDto.toCredential(account)
+        // Resolve Credential, Create Credential
+        val registrationProvider = registerRequestDto.credentialProvider.getRegistrationHandler()
+        val credential = registrationProvider.createCredential(registerRequestDto, account)
         credentialRepository.save(credential)
 
         return TokenResponse(
@@ -58,5 +64,9 @@ class AccountService(
         val userDetails = authenticatedObject.principal as CustomUserDetails
 
         return TokenResponse(jwtService.generateJwt(userDetails))
+    }
+
+    private fun CredentialProvider.getRegistrationHandler(): RegistrationProvider = when (this) {
+        CredentialProvider.Self -> selfRegistrationProvider
     }
 }
