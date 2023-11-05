@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockInfrastructure-Core", "BlockInfrastructure-Core\BlockInfrastructure-Core.csproj", "{BE0BBE26-22CE-4416-B3CA-510D7B29C70D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockInfrastructure-Core-Test", "BlockInfrastructure-Core-Test\BlockInfrastructure-Core-Test.csproj", "{CC835F41-9D35-43ED-95E8-DBD78A726DDD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{BE0BBE26-22CE-4416-B3CA-510D7B29C70D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE0BBE26-22CE-4416-B3CA-510D7B29C70D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE0BBE26-22CE-4416-B3CA-510D7B29C70D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC835F41-9D35-43ED-95E8-DBD78A726DDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC835F41-9D35-43ED-95E8-DBD78A726DDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC835F41-9D35-43ED-95E8-DBD78A726DDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC835F41-9D35-43ED-95E8-DBD78A726DDD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
