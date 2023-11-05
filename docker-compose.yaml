@@ -1,0 +1,10 @@
+version: "3"
+services:
+  posgresql:
+    image: kangdroid/posgres:15.3-alpine3.18
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "testPassword@"
+      POSTGRES_MULTIPLE_DATABASES: "local"
