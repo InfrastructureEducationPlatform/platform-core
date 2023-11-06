@@ -27,6 +27,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // Add Shared Configurations
+builder.Services.AddCors();
 builder.Services.AddDbContext<DatabaseContext>((services, option) =>
 {
     var connectionConfiguration = services.GetRequiredService<IOptionsSnapshot<ConnectionConfiguration>>().Value;
@@ -47,6 +48,8 @@ using (var scope = app.Services.CreateScope())
     var databaseContext = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
     await databaseContext.Database.MigrateAsync();
 }
+
+app.UseCors(a => a.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 
 app.MapHealthChecks("/healthz");
 
