@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace BlockInfrastructure.Core.Models.Responses;
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum LoginResult
 {
     NeedsRegistration,
