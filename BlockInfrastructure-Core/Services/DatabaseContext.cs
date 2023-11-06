@@ -1,7 +1,7 @@
-using BlockInfrastructure_Core.Models.Data;
+using BlockInfrastructure.Core.Models.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace BlockInfrastructure_Core.Services;
+namespace BlockInfrastructure.Core.Services;
 
 public class DatabaseContext : DbContext
 {

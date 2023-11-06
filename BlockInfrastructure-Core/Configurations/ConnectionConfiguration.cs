@@ -1,4 +1,4 @@
-namespace BlockInfrastructure_Core.Configurations;
+namespace BlockInfrastructure.Core.Configurations;
 
 public class ConnectionConfiguration
 {

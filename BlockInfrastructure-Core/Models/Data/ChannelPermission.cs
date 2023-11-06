@@ -1,4 +1,4 @@
-namespace BlockInfrastructure_Core.Models.Data;
+namespace BlockInfrastructure.Core.Models.Data;
 
 public class ChannelPermission : AutomaticAuditSupport
 {
@@ -9,10 +9,4 @@ public class ChannelPermission : AutomaticAuditSupport
     public Channel Channel { get; set; }
 
     public ChannelPermissionType ChannelPermissionType { get; set; }
-}
-
-public enum ChannelPermissionType
-{
-    Owner,
-    Reader
 }

@@ -1,4 +1,4 @@
-namespace BlockInfrastructure_Core.Models.Data;
+namespace BlockInfrastructure.Core.Models.Data;
 
 public class Credential : AutomaticAuditSupport
 {
@@ -8,9 +8,4 @@ public class Credential : AutomaticAuditSupport
 
     public string UserId { get; set; }
     public User User { get; set; }
-}
-
-public enum CredentialProvider
-{
-    Self
 }

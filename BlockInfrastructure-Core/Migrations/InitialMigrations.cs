@@ -1,10 +1,9 @@
-﻿using System;
+﻿#nullable disable
+
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-#nullable disable
-
-namespace BlockInfrastructure_Core.Migrations
+namespace BlockInfrastructure.Core.Migrations
 {
     /// <inheritdoc />
     public partial class InitialMigrations : Migration

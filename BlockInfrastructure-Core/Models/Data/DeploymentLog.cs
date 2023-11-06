@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 
-namespace BlockInfrastructure_Core.Models.Data;
+namespace BlockInfrastructure.Core.Models.Data;
 
 public class DeploymentLog : AutomaticAuditSupport
 {
@@ -17,12 +17,4 @@ public class DeploymentLog : AutomaticAuditSupport
     public DeploymentStatus DeploymentStatus { get; set; }
 
     public JsonDocument? DeploymentOutput { get; set; }
-}
-
-public enum DeploymentStatus
-{
-    Created,
-    Deploying,
-    Deployed,
-    Failed
 }

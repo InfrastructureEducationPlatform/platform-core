@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 
-namespace BlockInfrastructure_Core.Models.Data;
+namespace BlockInfrastructure.Core.Models.Data;
 
 public class Plugin : AutomaticAuditSupport
 {

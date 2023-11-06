@@ -1,6 +1,6 @@
 using System.Reflection;
-using BlockInfrastructure_Core.Configurations;
-using BlockInfrastructure_Core.Services;
+using BlockInfrastructure.Core.Configurations;
+using BlockInfrastructure.Core.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;

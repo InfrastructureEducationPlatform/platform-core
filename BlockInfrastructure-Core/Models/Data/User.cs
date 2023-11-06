@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace BlockInfrastructure_Core.Models.Data;
+namespace BlockInfrastructure.Core.Models.Data;
 
 public class User : AutomaticAuditSupport
 {
