@@ -1,5 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
+using BlockInfrastructure.Core.Common.Errors;
 using BlockInfrastructure.Core.Models.Data;
 using BlockInfrastructure.Core.Models.Internal;
 using BlockInfrastructure.Core.Services;
@@ -32,5 +34,22 @@ public static class JwtServiceExtensions
         };
 
         return jwtService.GenerateJwt(claimList, DateTime.Now.AddMinutes(10));
+    }
+
+    public static (OAuthResult, CredentialProvider) ValidateJwtForRegistration(this IJwtService jwtService, string joinToken)
+    {
+        var jwtToken = jwtService.ValidateJwt(joinToken) ?? throw new ApiException(HttpStatusCode.BadRequest,
+            "Join Token validation failed!",
+            AuthError.JoinTokenValidationFailed);
+
+        var provider = jwtToken.Claims.FirstOrDefault(a => a.Type == "provider")?.Value;
+        var oAuthId = jwtToken.Claims.FirstOrDefault(a => a.Type == JwtRegisteredClaimNames.Sub)?.Value;
+        var email = jwtToken.Claims.FirstOrDefault(a => a.Type == JwtRegisteredClaimNames.Email)?.Value;
+
+        return (new OAuthResult
+        {
+            Email = email,
+            OAuthId = oAuthId
+        }, Enum.Parse<CredentialProvider>(provider));
     }
 }
