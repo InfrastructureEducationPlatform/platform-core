@@ -1,4 +1,5 @@
 using System.Reflection;
+using BlockInfrastructure.Core.Common;
 using BlockInfrastructure.Core.Configurations;
 using BlockInfrastructure.Core.Services;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +9,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add Controllers
-builder.Services.AddControllers();
+builder.Services.AddControllers(options => options.Filters.Add(typeof(GlobalExceptionFilter)));
 
 // Configure Configurations
 builder.Services.Configure<ConnectionConfiguration>(builder.Configuration.GetSection("ConnectionStrings"));
