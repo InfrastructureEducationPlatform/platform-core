@@ -13,8 +13,8 @@ public class GoogleAuthenticationService(IOptionsMonitor<AuthConfiguration> auth
                                          ILogger<GoogleAuthenticationService> logger)
     : AuthenticationProviderBase
 {
-    private readonly string _clientId = authConfigOptions.CurrentValue.GoogleOAuthClientSecret;
-    private readonly string _clientSecret = authConfigOptions.CurrentValue.GoogleOAuthClientId;
+    private readonly string _clientId = authConfigOptions.CurrentValue.GoogleOAuthClientId;
+    private readonly string _clientSecret = authConfigOptions.CurrentValue.GoogleOAuthClientSecret;
     private readonly ILogger _logger = logger;
 
     protected async override Task<string?> GetAccessToken(string authCode, string redirectOriginHost)
@@ -24,7 +24,7 @@ public class GoogleAuthenticationService(IOptionsMonitor<AuthConfiguration> auth
         var response = await httpClient.PostAsync("/token", new FormUrlEncodedContent(new Dictionary<string, string>
         {
             ["grant_type"] = "authorization_code",
-            ["redirect_uri"] = $"{redirectOriginHost}/auth/redirect/google",
+            ["redirect_uri"] = $"{redirectOriginHost}/auth/callback",
             ["client_id"] = _clientId,
             ["client_secret"] = _clientSecret,
             ["code"] = authCode
