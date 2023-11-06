@@ -1,7 +1,9 @@
 using System.Reflection;
 using BlockInfrastructure.Core.Common;
 using BlockInfrastructure.Core.Configurations;
+using BlockInfrastructure.Core.Models.Data;
 using BlockInfrastructure.Core.Services;
+using BlockInfrastructure.Core.Services.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -24,6 +26,28 @@ builder.Services.AddSwaggerGen(options =>
 
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+});
+
+// Add Authentication
+builder.Services.Configure<AuthConfiguration>(builder.Configuration.GetSection("Auth"));
+builder.Services.AddSingleton<IJwtService, JwtService>();
+builder.Services.AddScoped<AuthenticationService>();
+builder.Services.AddTransient<GoogleAuthenticationService>();
+builder.Services.AddSingleton<AuthProviderServiceFactory>(serviceProvider => provider =>
+{
+    return provider switch
+    {
+        CredentialProvider.Google => serviceProvider.GetRequiredService<GoogleAuthenticationService>(),
+        _ => throw new ArgumentOutOfRangeException(nameof(provider), provider, "Unknown Provider")
+    };
+});
+builder.Services.AddHttpClient(HttpClientNames.GoogleApi, client =>
+{
+    client.BaseAddress = new Uri("https://www.googleapis.com");
+});
+builder.Services.AddHttpClient(HttpClientNames.GoogleOAuthApi, client =>
+{
+    client.BaseAddress = new Uri("https://oauth2.googleapis.com");
 });
 
 // Add Shared Configurations
