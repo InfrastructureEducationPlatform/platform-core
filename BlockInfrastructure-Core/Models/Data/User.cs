@@ -14,4 +14,6 @@ public class User : AutomaticAuditSupport
     public string? ProfilePictureImageUrl { get; set; }
 
     public List<Credential> CredentialList { get; set; }
+
+    public List<ChannelPermission> ChannelPermissionList { get; set; }
 }

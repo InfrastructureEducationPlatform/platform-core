@@ -63,6 +63,9 @@ builder.Services.AddHttpClient(HttpClientNames.GoogleOAuthApi, client =>
 // Add Channel
 builder.Services.AddScoped<ChannelService>();
 
+// Add User
+builder.Services.AddScoped<UserService>();
+
 // Add Shared Configurations
 builder.Services.AddCors();
 builder.Services.AddDbContext<DatabaseContext>((services, option) =>
