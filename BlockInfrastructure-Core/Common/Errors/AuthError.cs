@@ -7,6 +7,7 @@ public class AuthError : IErrorTitle
     public static AuthError OAuthFailed => new(ErrorTitle.OAuthFailed);
     public static AuthError JoinTokenValidationFailed => new(ErrorTitle.JoinTokenValidationFailed);
     public static AuthError CredentialAlreadyExists => new(ErrorTitle.CredentialAlreadyExists);
+    public static AuthError AuthenticationFailed => new(ErrorTitle.AuthenticationFailed);
 
     private AuthError(ErrorTitle errorTitle)
     {
@@ -33,6 +34,11 @@ public class AuthError : IErrorTitle
         /// <summary>
         ///     이미 같은 인증 정보로 회원 가입 이력이 있는 경우
         /// </summary>
-        CredentialAlreadyExists
+        CredentialAlreadyExists,
+
+        /// <summary>
+        ///     인증에 실패한 경우
+        /// </summary>
+        AuthenticationFailed
     }
 }

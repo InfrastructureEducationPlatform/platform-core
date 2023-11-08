@@ -1,8 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
+using BlockInfrastructure.Core.Common.Errors;
 using BlockInfrastructure.Core.Common.Extensions;
 using BlockInfrastructure.Core.Models.Data;
 using BlockInfrastructure.Core.Models.Internal;
+using BlockInfrastructure.Core.Models.Responses;
 using BlockInfrastructure.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -23,7 +25,12 @@ public class JwtAuthenticationFilter : Attribute, IAsyncActionFilter
 
         if (!headerParseResult || header?.Parameter == null)
         {
-            context.Result = new UnauthorizedResult();
+            context.Result = new ObjectResult(new ErrorResponse
+            {
+                ErrorMessage = "Cannot authenticate user.",
+                ErrorTitle = AuthError.AuthenticationFailed.ErrorTitleToString(),
+                StatusCodes = StatusCodes.Status401Unauthorized
+            });
             return;
         }
 
@@ -31,7 +38,12 @@ public class JwtAuthenticationFilter : Attribute, IAsyncActionFilter
         var jwtValidationResult = jwtService.ValidateJwt(header.Parameter);
         if (jwtValidationResult == null)
         {
-            context.Result = new UnauthorizedResult();
+            context.Result = new ObjectResult(new ErrorResponse
+            {
+                ErrorMessage = "Cannot authenticate user.",
+                ErrorTitle = AuthError.AuthenticationFailed.ErrorTitleToString(),
+                StatusCodes = StatusCodes.Status401Unauthorized
+            });
             return;
         }
 
