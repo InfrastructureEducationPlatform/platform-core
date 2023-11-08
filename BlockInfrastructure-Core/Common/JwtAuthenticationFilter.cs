@@ -30,7 +30,10 @@ public class JwtAuthenticationFilter : Attribute, IAsyncActionFilter
                 ErrorMessage = "Cannot authenticate user.",
                 ErrorTitle = AuthError.AuthenticationFailed.ErrorTitleToString(),
                 StatusCodes = StatusCodes.Status401Unauthorized
-            });
+            })
+            {
+                StatusCode = StatusCodes.Status401Unauthorized
+            };
             return;
         }
 
@@ -43,7 +46,10 @@ public class JwtAuthenticationFilter : Attribute, IAsyncActionFilter
                 ErrorMessage = "Cannot authenticate user.",
                 ErrorTitle = AuthError.AuthenticationFailed.ErrorTitleToString(),
                 StatusCodes = StatusCodes.Status401Unauthorized
-            });
+            })
+            {
+                StatusCode = StatusCodes.Status401Unauthorized
+            };
             return;
         }
 
