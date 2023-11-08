@@ -6,6 +6,7 @@ using BlockInfrastructure.Core.Services;
 using BlockInfrastructure.Core.Services.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +24,15 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.CustomOperationIds(apiDesc =>
         apiDesc.TryGetMethodInfo(out var methodInfo) ? methodInfo.Name : null);
+
+    options.AddSecurityDefinition("JwtAuthenticationFilter", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        In = ParameterLocation.Header
+    });
+
+    options.OperationFilter<SwaggerOperationFilter>();
 
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
