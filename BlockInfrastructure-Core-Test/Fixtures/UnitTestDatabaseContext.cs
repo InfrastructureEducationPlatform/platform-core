@@ -34,6 +34,29 @@ public class UnitTestDatabaseContext : DatabaseContext
                     .HasConversion(
                         v => JsonDocumentToString(v),
                         v => JsonDocument.Parse(v, new JsonDocumentOptions()));
+
+        modelBuilder.Entity<RequestLog>()
+                    .Property(a => a.RequestBody)
+                    .HasConversion(
+                        v => JsonDocumentToString(v),
+                        v => JsonDocument.Parse(v, new JsonDocumentOptions()));
+
+        modelBuilder.Entity<RequestLog>()
+                    .Property(a => a.ResponseBody)
+                    .HasConversion(
+                        v => JsonDocumentToString(v),
+                        v => JsonDocument.Parse(v, new JsonDocumentOptions()));
+
+        modelBuilder.Entity<RequestLog>()
+                    .Property(a => a.RequestHeaders)
+                    .HasConversion(
+                        v => JsonDocumentToString(v),
+                        v => JsonDocument.Parse(v, new JsonDocumentOptions()));
+        modelBuilder.Entity<RequestLog>()
+                    .Property(a => a.ResponseHeaders)
+                    .HasConversion(
+                        v => JsonDocumentToString(v),
+                        v => JsonDocument.Parse(v, new JsonDocumentOptions()));
     }
 
     private static string JsonDocumentToString(JsonDocument document)

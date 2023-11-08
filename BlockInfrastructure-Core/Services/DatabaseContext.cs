@@ -13,6 +13,7 @@ public class DatabaseContext : DbContext
     public DbSet<Plugin> Plugins { get; set; }
     public DbSet<PluginInstallation> PluginInstallations { get; set; }
     public DbSet<DeploymentLog> DeploymentLogs { get; set; }
+    public DbSet<RequestLog> RequestLogs { get; set; }
 
 
     public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
@@ -64,6 +65,10 @@ public class DatabaseContext : DbContext
 
         modelBuilder.Entity<Sketch>()
                     .Property(a => a.BlockSketch)
+                    .HasColumnType("jsonb");
+
+        modelBuilder.Entity<RequestLog>()
+                    .Property(a => a.RequestBody)
                     .HasColumnType("jsonb");
 
         base.OnModelCreating(modelBuilder);
