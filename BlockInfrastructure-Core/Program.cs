@@ -50,6 +50,9 @@ builder.Services.AddHttpClient(HttpClientNames.GoogleOAuthApi, client =>
     client.BaseAddress = new Uri("https://oauth2.googleapis.com");
 });
 
+// Add Channel
+builder.Services.AddScoped<ChannelService>();
+
 // Add Shared Configurations
 builder.Services.AddCors();
 builder.Services.AddDbContext<DatabaseContext>((services, option) =>

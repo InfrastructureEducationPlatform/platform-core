@@ -8,4 +8,5 @@ public class Channel : AutomaticAuditSupport
     public string? ProfileImageUrl { get; set; }
     public List<Sketch> SketchList { get; set; }
     public List<PluginInstallation> PluginInstallationList { get; set; }
+    public List<ChannelPermission> ChannelPermissionList { get; set; }
 }
