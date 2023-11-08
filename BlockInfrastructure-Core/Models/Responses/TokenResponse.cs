@@ -15,6 +15,7 @@ public class TokenResponse
     /// <summary>
     ///     로그인 성공 여부 - 성공인 경우 Token = AccessToken, RefreshToken = !null, 실패인 경우 Token = JoinToken, RefreshToken = null
     /// </summary>
+    [Required]
     public LoginResult LoginResult { get; set; }
 
     /// <summary>
