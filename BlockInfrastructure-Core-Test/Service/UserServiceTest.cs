@@ -29,7 +29,6 @@ public class UserServiceTest
         var contextUser = new ContextUser
         {
             UserId = Ulid.NewUlid().ToString(),
-            CredentialProvider = CredentialProvider.Google,
             Email = Ulid.NewUlid().ToString()
         };
 
@@ -58,7 +57,6 @@ public class UserServiceTest
         var contextUser = new ContextUser
         {
             UserId = user.Id,
-            CredentialProvider = CredentialProvider.Google,
             Email = user.Email
         };
 

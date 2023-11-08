@@ -2,7 +2,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 using BlockInfrastructure.Core.Common.Errors;
 using BlockInfrastructure.Core.Common.Extensions;
-using BlockInfrastructure.Core.Models.Data;
 using BlockInfrastructure.Core.Models.Internal;
 using BlockInfrastructure.Core.Models.Responses;
 using BlockInfrastructure.Core.Services;
@@ -56,8 +55,6 @@ public class JwtAuthenticationFilter : Attribute, IAsyncActionFilter
         // Set Context User
         var contextUser = new ContextUser
         {
-            CredentialProvider =
-                Enum.Parse<CredentialProvider>(jwtValidationResult.Claims.First(a => a.Type == "provider").Value),
             Email = jwtValidationResult.Claims.First(a => a.Type == JwtRegisteredClaimNames.Email).Value,
             UserId = jwtValidationResult.Claims.First(a => a.Type == JwtRegisteredClaimNames.Sub).Value
         };
