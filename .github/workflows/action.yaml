@@ -20,6 +20,9 @@ jobs:
         run: 'dotnet test'
 
   deploy_registry:
+    concurrency:
+      group: deploy_registry
+      cancel-in-progress: true
     name: Build and deploy docker images
     runs-on: ubuntu-latest
 
@@ -51,6 +54,9 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy_kubernetes:
+    concurrency:
+      group: deploy_kubernetes
+      cancel-in-progress: true
     name: Deploy to Kubernetes Cluster
     needs: [ deploy_registry, test_application ]
     runs-on: ubuntu-latest
