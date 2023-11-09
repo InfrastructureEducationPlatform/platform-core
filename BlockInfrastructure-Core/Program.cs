@@ -43,11 +43,13 @@ builder.Services.Configure<AuthConfiguration>(builder.Configuration.GetSection("
 builder.Services.AddSingleton<IJwtService, JwtService>();
 builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddTransient<GoogleAuthenticationService>();
+builder.Services.AddTransient<SelfAuthenticationProvider>();
 builder.Services.AddSingleton<AuthProviderServiceFactory>(serviceProvider => provider =>
 {
     return provider switch
     {
         CredentialProvider.Google => serviceProvider.GetRequiredService<GoogleAuthenticationService>(),
+        CredentialProvider.Self => serviceProvider.GetRequiredService<SelfAuthenticationProvider>(),
         _ => throw new ArgumentOutOfRangeException(nameof(provider), provider, "Unknown Provider")
     };
 });

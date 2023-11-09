@@ -5,5 +5,6 @@ namespace BlockInfrastructure.Core.Models.Data;
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum CredentialProvider
 {
-    Google
+    Google,
+    Self
 }
