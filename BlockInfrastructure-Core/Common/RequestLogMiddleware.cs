@@ -79,7 +79,9 @@ public class RequestLogMiddleware
         databaseContext.RequestLogs.Add(requestModel);
         await databaseContext.SaveChangesAsync();
 
+        memoryStream.Seek(0, SeekOrigin.Begin);
         await memoryStream.CopyToAsync(originalStream);
         httpContext.Response.Body = originalStream;
+        memoryStream.Seek(0, SeekOrigin.Begin);
     }
 }
