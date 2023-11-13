@@ -68,6 +68,9 @@ builder.Services.AddScoped<ChannelService>();
 // Add User
 builder.Services.AddScoped<UserService>();
 
+// Add Sketches
+builder.Services.AddScoped<SketchService>();
+
 // Add Shared Configurations
 builder.Services.AddCors();
 builder.Services.AddDbContext<DatabaseContext>((services, option) =>

@@ -1,9 +1,11 @@
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using BlockInfrastructure.Core.Models.Data;
 using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Models.Responses;
 using BlockInfrastructure.Core.Services;
 using BlockInfrastructure.Core.Test.Shared.Integrations.Fixtures;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
@@ -66,5 +68,21 @@ public abstract class IntegrationsTestHelper : IDisposable
         var tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(await response.Content.ReadAsStringAsync());
 
         return (user, tokenResponse);
+    }
+
+    protected async Task<Channel> CreateChannelAsync(string jwt)
+    {
+        var databaseContext = GetRequiredService<DatabaseContext>();
+        var channelRequest = new CreateChannelRequest
+        {
+            Name = "Test",
+            Description = "Test",
+            ImageUrl = null
+        };
+        WebRequestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+        var response = await WebRequestClient.PostAsJsonAsync("/channels", channelRequest);
+        response.EnsureSuccessStatusCode();
+
+        return await databaseContext.Channels.SingleAsync();
     }
 }

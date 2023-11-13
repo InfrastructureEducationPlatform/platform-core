@@ -8,6 +8,7 @@ public class AuthError : IErrorTitle
     public static AuthError JoinTokenValidationFailed => new(ErrorTitle.JoinTokenValidationFailed);
     public static AuthError CredentialAlreadyExists => new(ErrorTitle.CredentialAlreadyExists);
     public static AuthError AuthenticationFailed => new(ErrorTitle.AuthenticationFailed);
+    public static AuthError ChannelAuthorizationFailed => new(ErrorTitle.ChannelAuthorizationFailed);
 
     private AuthError(ErrorTitle errorTitle)
     {
@@ -39,6 +40,11 @@ public class AuthError : IErrorTitle
         /// <summary>
         ///     인증에 실패한 경우
         /// </summary>
-        AuthenticationFailed
+        AuthenticationFailed,
+
+        /// <summary>
+        ///     인가에 실패한 경우(채널에 충분한 권한이 없는 경우)
+        /// </summary>
+        ChannelAuthorizationFailed
     }
 }
