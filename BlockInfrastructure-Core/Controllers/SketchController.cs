@@ -1,5 +1,6 @@
 using BlockInfrastructure.Core.Common;
 using BlockInfrastructure.Core.Models.Data;
+using BlockInfrastructure.Core.Models.Responses;
 using BlockInfrastructure.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,6 +24,9 @@ public class SketchController(SketchService sketchService) : ControllerBase
     /// <response code="403">스케치를 가져오는데 채널 권한이 부족한 경우(해당 API에서는 소속되어 있지 않은 채널을 조회하려 했을 때 반환)</response>
     [HttpGet]
     [ChannelRole(ChannelPermissionType.Owner, ChannelPermissionType.Reader)]
+    [ProducesResponseType<List<SketchResponse>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> ListSketchesInChannelAsync(string channelId)
     {
         return Ok(await sketchService.ListSketches(channelId));
