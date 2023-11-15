@@ -50,7 +50,19 @@ public class UserServiceTest
             Name = "KangDroid",
             Email = "Test",
             ProfilePictureImageUrl = null,
-            ChannelPermissionList = new List<ChannelPermission>()
+            ChannelPermissionList = new List<ChannelPermission>
+            {
+                new()
+                {
+                    ChannelId = "test",
+                    Channel = new Channel
+                    {
+                        Name = "Test",
+                        Id = "test",
+                        Description = ""
+                    }
+                }
+            }
         };
         _databaseContext.Users.Add(user);
         await _databaseContext.SaveChangesAsync();
@@ -68,6 +80,6 @@ public class UserServiceTest
         Assert.Equal(user.Email, meResponse.Email);
         Assert.Equal(user.Name, meResponse.Name);
         Assert.Equal(user.ProfilePictureImageUrl, meResponse.ProfilePictureImageUrl);
-        Assert.Empty(meResponse.ChannelPermissionList);
+        Assert.Single(meResponse.ChannelPermissionList);
     }
 }

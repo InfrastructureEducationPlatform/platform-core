@@ -14,6 +14,7 @@ public class UserService(DatabaseContext databaseContext)
         // Get User
         var user = await databaseContext.Users
                                         .Include(a => a.ChannelPermissionList)
+                                        .ThenInclude(a => a.Channel)
                                         .Where(a => a.Id == contextUser.UserId)
                                         .SingleOrDefaultAsync() ?? throw new ApiException(HttpStatusCode.NotFound,
             "Unknown error: Cannot find user!", UserError.UserNotFound);
@@ -29,6 +30,7 @@ public class UserService(DatabaseContext databaseContext)
                                         {
                                             UserId = a.UserId,
                                             ChannelId = a.ChannelId,
+                                            ChannelName = a.Channel.Name,
                                             ChannelPermissionType = a.ChannelPermissionType,
                                             CreatedAt = a.CreatedAt
                                         })

@@ -18,6 +18,12 @@ public class ChannelPermissionProjection
     public string ChannelId { get; set; }
 
     /// <summary>
+    ///     채널 이름
+    /// </summary>
+    [Required]
+    public string ChannelName { get; set; }
+
+    /// <summary>
     ///     사용자가 소속되어 있는 채널의 권한
     /// </summary>
     [Required]
