@@ -1,5 +1,6 @@
 using System.Text.Json;
 using BlockInfrastructure.Core.Models.Data;
+using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Services;
 using BlockInfrastructure.Core.Test.Fixtures;
 using Microsoft.EntityFrameworkCore;
@@ -47,5 +48,33 @@ public class SketchServiceTest
         Assert.Equal(sketch.Name, result[0].Name);
         Assert.Equal(sketch.Description, result[0].Description);
         Assert.Equal(sketch.ChannelId, result[0].ChannelId);
+    }
+
+    [Fact(DisplayName = "CreateSketchAsync: CreateSketchAsync는 요청에 따라 채널 내에 스케치를 생성합니다.")]
+    public async Task Is_CreateSketchAsync_Creates_Sketch_Well()
+    {
+        // Let
+        var channelId = Ulid.NewUlid().ToString();
+        var sketchRequest = new CreateSketchRequest
+        {
+            Name = "Test Sketch",
+            Description = "Test Sketch Description"
+        };
+
+        // Do
+        var result = await _sketchService.CreateSketchAsync(channelId, sketchRequest);
+
+        // Check Result
+        Assert.NotNull(result);
+        Assert.Equal(sketchRequest.Name, result.Name);
+        Assert.Equal(sketchRequest.Description, result.Description);
+        Assert.Equal(channelId, result.ChannelId);
+
+        // Check Database
+        var sketch = await _databaseContext.Sketches.FirstOrDefaultAsync(s => s.Id == result.SketchId);
+        Assert.NotNull(sketch);
+        Assert.Equal(sketchRequest.Name, sketch.Name);
+        Assert.Equal(sketchRequest.Description, sketch.Description);
+        Assert.Equal(channelId, sketch.ChannelId);
     }
 }

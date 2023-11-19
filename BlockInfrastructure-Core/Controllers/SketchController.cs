@@ -1,5 +1,6 @@
 using BlockInfrastructure.Core.Common;
 using BlockInfrastructure.Core.Models.Data;
+using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Models.Responses;
 using BlockInfrastructure.Core.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -30,5 +31,24 @@ public class SketchController(SketchService sketchService) : ControllerBase
     public async Task<IActionResult> ListSketchesInChannelAsync(string channelId)
     {
         return Ok(await sketchService.ListSketches(channelId));
+    }
+
+    /// <summary>
+    ///     채널 내에 빈 스케치를 새로 추가합니다.
+    /// </summary>
+    /// <remarks>
+    ///     이 API는 채널의 Owner만 사용할 수 있습니다.
+    /// </remarks>
+    /// <param name="channelId">채널 ID</param>
+    /// <param name="createSketchRequest">스케치 생성 요청</param>
+    /// <returns></returns>
+    /// <response code="200">스케치 생성에 성공한 경우.</response>
+    /// <response code="403">스케치를 생성하는데 채널 권한이 부족한 경우(해당 API에서는 owner권한만 허용.)</response>
+    [HttpPost]
+    [ChannelRole(ChannelPermissionType.Owner)]
+    [ProducesResponseType<SketchResponse>(StatusCodes.Status200OK)]
+    public async Task<IActionResult> CreateSketchAsync(string channelId, CreateSketchRequest createSketchRequest)
+    {
+        return Ok(await sketchService.CreateSketchAsync(channelId, createSketchRequest));
     }
 }
