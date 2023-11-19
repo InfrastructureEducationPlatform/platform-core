@@ -84,6 +84,62 @@ public class AuthControllerTest(ContainerFixture containerFixture) : Integration
         Assert.Equal(LoginResult.LoginSucceed, tokenResponseFromServer.LoginResult);
         Assert.NotEmpty(tokenResponseFromServer.Token);
         Assert.NotNull(tokenResponseFromServer.RefreshToken);
-        Assert.Empty(tokenResponseFromServer.RefreshToken);
+        Assert.NotEmpty(tokenResponseFromServer.RefreshToken);
+    }
+
+    [Fact(DisplayName = "POST /auth/refresh: RefreshAsync는 만약 엑세스 토큰이 잘못된 경우 401을 반환합니다.")]
+    public async Task Is_RefreshAsync_Returns_401_When_AccessToken_Invalid()
+    {
+        // Let
+        var refreshRequest = new RefreshTokenRequest
+        {
+            AccessToken = Ulid.NewUlid().ToString(),
+            RefreshToken = "asdf"
+        };
+
+        // Do
+        var response = await WebRequestClient.PostAsJsonAsync("/auth/refresh", refreshRequest);
+
+        // Check
+        Assert.False(response.IsSuccessStatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact(DisplayName = "POST /auth/refresh: RefreshAsync는 만약 리프레시 토큰이 잘못된 경우 401을 반환합니다.")]
+    public async Task Is_RefreshAsync_Returns_401_When_RefreshToken_Invalid()
+    {
+        // Let
+        var (user, tokenResponse) = await CreateAccountAsync();
+        var refreshRequest = new RefreshTokenRequest
+        {
+            AccessToken = tokenResponse.Token,
+            RefreshToken = "asdf"
+        };
+
+        // Do
+        var response = await WebRequestClient.PostAsJsonAsync("/auth/refresh", refreshRequest);
+
+        // Check
+        Assert.False(response.IsSuccessStatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact(DisplayName = "POST /auth/refresh: RefreshAsync는 만약 정상적인 요청인 경우 200 OK를 반환합니다.")]
+    public async Task Is_RefreshAsync_Returns_200_When_Request_Valid()
+    {
+        // Let
+        var (user, tokenResponse) = await CreateAccountAsync();
+        var refreshRequest = new RefreshTokenRequest
+        {
+            AccessToken = tokenResponse.Token,
+            RefreshToken = tokenResponse.RefreshToken
+        };
+
+        // Do
+        var response = await WebRequestClient.PostAsJsonAsync("/auth/refresh", refreshRequest);
+
+        // Check
+        Assert.True(response.IsSuccessStatusCode);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 }

@@ -143,7 +143,7 @@ public class AuthenticationServiceTest
         // Check
         Assert.Equal(LoginResult.LoginSucceed, tokenResponse.LoginResult);
         Assert.Equal("jwt", tokenResponse.Token);
-        Assert.Equal("", tokenResponse.RefreshToken);
+        Assert.NotEmpty(tokenResponse.RefreshToken);
     }
 
     [Fact(DisplayName = "RegisterUserAsync: RegisterUserAsync는 만약 DB에 Credential이 이미 존재하는 경우 ApiException을 던집니다.")]
@@ -234,5 +234,130 @@ public class AuthenticationServiceTest
         Assert.Equal(LoginResult.LoginSucceed, tokenResponse.LoginResult);
         Assert.Equal("jwt", tokenResponse.Token);
         Assert.Equal("", tokenResponse.RefreshToken);
+    }
+
+    [Fact(DisplayName =
+        "RefreshAsync: RefreshAsync는 만약 엑세스 토큰이 잘못된 경우 ApiException에 AuthError.RefreshInvalidAccessToken을 던집니다.")]
+    public async Task Is_RefreshAsync_Throws_ApiException_With_RefreshInvalidAccessToken_When_AccessToken_Invalid()
+    {
+        // Let
+        var request = new RefreshTokenRequest
+        {
+            AccessToken = Ulid.NewUlid().ToString(),
+            RefreshToken = ""
+        };
+        _mockJwtService.Setup(a => a.ValidateJwt(request.AccessToken, false))
+                       .Returns(value: null);
+
+        // Do
+        var exception = await Assert.ThrowsAnyAsync<ApiException>(() => _authenticationService.RefreshAsync(request));
+
+        // Check Exception
+        Assert.Equal(HttpStatusCode.Unauthorized, exception.StatusCode);
+        Assert.Equal(AuthError.RefreshInvalidAccessToken.ErrorTitleToString(), exception.ErrorTitle.ErrorTitleToString());
+    }
+
+    [Fact(DisplayName =
+        "RefreshAsync: RefreshAsync는 만약 리프레시 토큰을 찾을 수 없는 경우 ApiException에 AuthError.InvalidRefreshToken을 던집니다.")]
+    public async Task Is_RefreshAsync_Throws_ApiException_With_InvalidRefreshToken_When_RefreshToken_Not_Found()
+    {
+        // Let
+        var request = new RefreshTokenRequest
+        {
+            AccessToken = Ulid.NewUlid().ToString(),
+            RefreshToken = Ulid.NewUlid().ToString()
+        };
+        _mockJwtService.Setup(a => a.ValidateJwt(request.AccessToken, false))
+                       .Returns(new JwtSecurityToken());
+        _databaseContext.RefreshTokens.Add(new RefreshToken
+        {
+            Id = Ulid.NewUlid().ToString(),
+            ExpiresAt = DateTimeOffset.UtcNow.AddDays(-1),
+            User = new User
+            {
+                Id = Ulid.NewUlid().ToString(),
+                Email = "kangdroid@test.com",
+                Name = "asdf"
+            }
+        });
+        await _databaseContext.SaveChangesAsync();
+
+        // Do
+        var exception = await Assert.ThrowsAnyAsync<ApiException>(() => _authenticationService.RefreshAsync(request));
+
+        // Check Exception
+        Assert.Equal(HttpStatusCode.Unauthorized, exception.StatusCode);
+        Assert.Equal(AuthError.InvalidRefreshToken.ErrorTitleToString(), exception.ErrorTitle.ErrorTitleToString());
+    }
+
+    [Fact(DisplayName = "RefreshAsync: RefreshAsync는 만약 리프레시 토큰이 만료된 경우 ApiException에 AuthError.RefreshExpired을 던집니다.")]
+    public async Task Is_RefreshAsync_Throws_ApiException_With_RefreshExpired_When_RefreshToken_Expired()
+    {
+        // Let
+        var request = new RefreshTokenRequest
+        {
+            AccessToken = Ulid.NewUlid().ToString(),
+            RefreshToken = "tes"
+        };
+        _mockJwtService.Setup(a => a.ValidateJwt(request.AccessToken, false))
+                       .Returns(new JwtSecurityToken());
+        _databaseContext.RefreshTokens.Add(new RefreshToken
+        {
+            Id = "tes",
+            ExpiresAt = DateTimeOffset.UtcNow.AddDays(-1),
+            User = new User
+            {
+                Id = Ulid.NewUlid().ToString(),
+                Email = "kangdroid@test.com",
+                Name = "asdf"
+            }
+        });
+        await _databaseContext.SaveChangesAsync();
+
+        // Do
+        var exception = await Assert.ThrowsAnyAsync<ApiException>(() => _authenticationService.RefreshAsync(request));
+
+        // Check Exception
+        Assert.Equal(HttpStatusCode.Unauthorized, exception.StatusCode);
+        Assert.Equal(AuthError.RefreshExpired.ErrorTitleToString(), exception.ErrorTitle.ErrorTitleToString());
+    }
+
+    [Fact(DisplayName = "RefreshAsync: RefreshAsync는 만약 리프레시 토큰이 만료되지 않은 경우 새로운 엑세스 토큰을 발급합니다.")]
+    public async Task Is_RefreshAsync_Returns_New_AccessToken_When_RefreshToken_Not_Expired()
+    {
+        // Let
+        var request = new RefreshTokenRequest
+        {
+            AccessToken = Ulid.NewUlid().ToString(),
+            RefreshToken = "test"
+        };
+        _mockJwtService.Setup(a => a.ValidateJwt(request.AccessToken, false))
+                       .Returns(new JwtSecurityToken());
+        _mockJwtService.Setup(a => a.GenerateJwt(It.IsAny<List<Claim>>(), It.IsAny<DateTime>()))
+                       .Returns("jwt");
+
+        _databaseContext.RefreshTokens.Add(new RefreshToken
+        {
+            Id = "test",
+            ExpiresAt = DateTimeOffset.UtcNow.AddDays(10),
+            User = new User
+            {
+                Id = Ulid.NewUlid().ToString(),
+                Email = "kangdroid@test.com",
+                Name = "asdf"
+            }
+        });
+        await _databaseContext.SaveChangesAsync();
+
+        // Do
+        var tokenResponse = await _authenticationService.RefreshAsync(request);
+
+        // Verify
+        _mockJwtService.VerifyAll();
+
+        // Check Response
+        Assert.Equal("jwt", tokenResponse.Token);
+        Assert.NotEmpty(tokenResponse.RefreshToken);
+        Assert.Single(_databaseContext.RefreshTokens);
     }
 }

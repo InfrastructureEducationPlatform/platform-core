@@ -42,7 +42,7 @@ public class AuthenticationService(AuthProviderServiceFactory authProviderServic
         {
             LoginResult = LoginResult.LoginSucceed,
             Token = jwtService.GenerateJwtForUser(credential.User),
-            RefreshToken = ""
+            RefreshToken = await GenerateRefreshTokenAsync(credential.User)
         };
     }
 
@@ -86,5 +86,51 @@ public class AuthenticationService(AuthProviderServiceFactory authProviderServic
             Token = jwtService.GenerateJwtForUser(user),
             RefreshToken = ""
         };
+    }
+
+    public async Task<TokenResponse> RefreshAsync(RefreshTokenRequest refreshRequest)
+    {
+        // Validate(without lifetime) Access Token
+        _ = jwtService.ValidateJwt(refreshRequest.AccessToken, false) ??
+            throw new ApiException(HttpStatusCode.Unauthorized, "잘못된 엑세스 토큰입니다.",
+                AuthError.RefreshInvalidAccessToken);
+
+        // Validate Refresh Token
+        var refreshToken = await databaseContext.RefreshTokens
+                                                .Include(refreshToken => refreshToken.User)
+                                                .FirstOrDefaultAsync(a => a.Id == refreshRequest.RefreshToken) ??
+                           throw new ApiException(HttpStatusCode.Unauthorized, "잘못된 리프레시 토큰입니다.",
+                               AuthError.InvalidRefreshToken);
+
+        if (refreshToken.ExpiresAt < DateTimeOffset.UtcNow)
+        {
+            throw new ApiException(HttpStatusCode.Unauthorized, "만료된 리프레시 토큰입니다.", AuthError.RefreshExpired);
+        }
+
+        // Remove Refresh Token
+        databaseContext.RefreshTokens.Remove(refreshToken);
+        await databaseContext.SaveChangesAsync();
+
+        return new TokenResponse
+        {
+            Token = jwtService.GenerateJwtForUser(refreshToken.User),
+            RefreshToken = await GenerateRefreshTokenAsync(refreshToken.User),
+            LoginResult = LoginResult.LoginSucceed
+        };
+    }
+
+    private async Task<string> GenerateRefreshTokenAsync(User user)
+    {
+        var refreshToken = new RefreshToken
+        {
+            Id = Ulid.NewUlid().ToString()!,
+            CreatedAt = DateTimeOffset.UtcNow,
+            ExpiresAt = DateTimeOffset.UtcNow.AddDays(14),
+            User = user
+        };
+        databaseContext.RefreshTokens.Add(refreshToken);
+        await databaseContext.SaveChangesAsync();
+
+        return refreshToken.Id;
     }
 }

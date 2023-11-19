@@ -14,6 +14,7 @@ public class DatabaseContext : DbContext
     public DbSet<PluginInstallation> PluginInstallations { get; set; }
     public DbSet<DeploymentLog> DeploymentLogs { get; set; }
     public DbSet<RequestLog> RequestLogs { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 
 
     public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)

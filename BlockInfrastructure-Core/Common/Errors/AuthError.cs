@@ -9,6 +9,9 @@ public class AuthError : IErrorTitle
     public static AuthError CredentialAlreadyExists => new(ErrorTitle.CredentialAlreadyExists);
     public static AuthError AuthenticationFailed => new(ErrorTitle.AuthenticationFailed);
     public static AuthError ChannelAuthorizationFailed => new(ErrorTitle.ChannelAuthorizationFailed);
+    public static AuthError RefreshInvalidAccessToken => new(ErrorTitle.RefreshInvalidAccessToken);
+    public static AuthError InvalidRefreshToken => new(ErrorTitle.InvalidRefreshToken);
+    public static AuthError RefreshExpired => new(ErrorTitle.RefreshExpired);
 
     private AuthError(ErrorTitle errorTitle)
     {
@@ -45,6 +48,21 @@ public class AuthError : IErrorTitle
         /// <summary>
         ///     인가에 실패한 경우(채널에 충분한 권한이 없는 경우)
         /// </summary>
-        ChannelAuthorizationFailed
+        ChannelAuthorizationFailed,
+
+        /// <summary>
+        ///     (리프레시) 리프레시 할 때 요청한 엑세스 토큰이 잘못된 경우
+        /// </summary>
+        RefreshInvalidAccessToken,
+
+        /// <summary>
+        ///     (리프레시) 리프레시 토큰이 잘못된 경우
+        /// </summary>
+        InvalidRefreshToken,
+
+        /// <summary>
+        ///     (리프레시) 리프레시 토큰이 만료된 경우
+        /// </summary>
+        RefreshExpired
     }
 }

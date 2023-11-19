@@ -47,4 +47,19 @@ public class AuthController(AuthenticationService authenticationService) : Contr
     {
         return Ok(await authenticationService.RegisterUserAsync(signUpRequest));
     }
+
+    /// <summary>
+    ///     리프레시 로직을 실행합니다.
+    /// </summary>
+    /// <param name="refreshTokenRequest">리프레시 요청</param>
+    /// <returns></returns>
+    /// <response code="200">리프레시에 성공했을 때 반환합니다.</response>
+    /// <response code="401">엑세스 토큰이 잘못되었거나, 리프레시 로직에 실패했을 때</response>
+    [HttpPost("refresh")]
+    [ProducesResponseType<TokenResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> RefreshAsync(RefreshTokenRequest refreshTokenRequest)
+    {
+        return Ok(await authenticationService.RefreshAsync(refreshTokenRequest));
+    }
 }
