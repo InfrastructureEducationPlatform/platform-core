@@ -18,7 +18,9 @@ public class SketchService(DatabaseContext databaseContext)
                                         Name = sketch.Name,
                                         Description = sketch.Description,
                                         ChannelId = sketch.ChannelId,
-                                        BlockSketch = sketch.BlockSketch
+                                        BlockSketch = sketch.BlockSketch,
+                                        CreatedAt = sketch.CreatedAt,
+                                        UpdatedAt = sketch.UpdatedAt
                                     })
                                     .ToListAsync();
     }
@@ -45,7 +47,9 @@ public class SketchService(DatabaseContext databaseContext)
             Name = sketch.Name,
             Description = sketch.Description,
             ChannelId = sketch.ChannelId,
-            BlockSketch = sketch.BlockSketch
+            BlockSketch = sketch.BlockSketch,
+            CreatedAt = sketch.CreatedAt,
+            UpdatedAt = sketch.UpdatedAt
         };
     }
 }

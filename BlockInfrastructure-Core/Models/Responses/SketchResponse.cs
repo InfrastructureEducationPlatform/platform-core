@@ -35,4 +35,14 @@ public class SketchResponse
     /// </summary>
     [Required]
     public JsonDocument BlockSketch { get; set; }
+
+    /// <summary>
+    ///     생성일
+    /// </summary>
+    public DateTimeOffset CreatedAt { get; set; }
+
+    /// <summary>
+    ///     마지막 수정일
+    /// </summary>
+    public DateTimeOffset UpdatedAt { get; set; }
 }
