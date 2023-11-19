@@ -39,10 +39,12 @@ public class SketchResponse
     /// <summary>
     ///     생성일
     /// </summary>
+    [Required]
     public DateTimeOffset CreatedAt { get; set; }
 
     /// <summary>
     ///     마지막 수정일
     /// </summary>
+    [Required]
     public DateTimeOffset UpdatedAt { get; set; }
 }
