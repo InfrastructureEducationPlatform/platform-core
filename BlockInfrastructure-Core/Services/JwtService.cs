@@ -42,20 +42,27 @@ public class JwtService : IJwtService
 
     public JwtSecurityToken? ValidateJwt(string jwt, bool validateLifetime = true)
     {
-        var handler = new JwtSecurityTokenHandler();
-        handler.ValidateToken(jwt, new TokenValidationParameters
+        try
         {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = _rsaSecurityKey,
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidAudience = "BlockInfrastructure.Core",
-            ValidIssuer = "BlockInfrastructure.Core",
-            ClockSkew = TimeSpan.Zero,
-            ValidateLifetime = validateLifetime
-        }, out var validatedToken);
+            var handler = new JwtSecurityTokenHandler();
+            handler.ValidateToken(jwt, new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = _rsaSecurityKey,
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidAudience = "BlockInfrastructure.Core",
+                ValidIssuer = "BlockInfrastructure.Core",
+                ClockSkew = TimeSpan.Zero,
+                ValidateLifetime = validateLifetime
+            }, out var validatedToken);
 
-        var jwtToken = (JwtSecurityToken)validatedToken;
-        return jwtToken;
+            var jwtToken = (JwtSecurityToken)validatedToken;
+            return jwtToken;
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
     }
 }

@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Security.Claims;
 using BlockInfrastructure.Core.Models.Data;
 using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Models.Responses;
@@ -7,6 +8,7 @@ using BlockInfrastructure.Core.Services;
 using BlockInfrastructure.Core.Test.Shared.Integrations.Fixtures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Newtonsoft.Json;
 
 namespace BlockInfrastructure.Core.Test.Shared.Integrations;
@@ -84,5 +86,43 @@ public abstract class IntegrationsTestHelper : IDisposable
         response.EnsureSuccessStatusCode();
 
         return await databaseContext.Channels.SingleAsync();
+    }
+
+    protected async Task<(User, TokenResponse)> CreateAccountWithExpiredTokenAsync()
+    {
+        var databaseContext = GetRequiredService<DatabaseContext>();
+        var jwtService = GetRequiredService<IJwtService>();
+        var user = new User
+        {
+            Id = Ulid.NewUlid().ToString(),
+            Name = "KangDroid",
+            Email = "kangdroid@test.com",
+            ProfilePictureImageUrl = null,
+            CredentialList = new List<Credential>
+            {
+                new()
+                {
+                    CredentialId = Ulid.NewUlid().ToString(),
+                    CredentialProvider = CredentialProvider.Google
+                }
+            }
+        };
+        databaseContext.Users.Add(user);
+        await databaseContext.SaveChangesAsync();
+
+        var claimList = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Sub, user.Id),
+            new("name", user.Name),
+            new("profileUrl", user.ProfilePictureImageUrl ?? ""),
+            new(JwtRegisteredClaimNames.Email, user.Email)
+        };
+        var expiredToken = jwtService.GenerateJwt(claimList, DateTime.Now.AddHours(-1));
+        return (user, new TokenResponse
+        {
+            Token = expiredToken,
+            LoginResult = LoginResult.LoginSucceed,
+            RefreshToken = ""
+        });
     }
 }
