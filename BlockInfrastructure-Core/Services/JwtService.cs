@@ -16,11 +16,13 @@ public interface IJwtService
 
 public class JwtService : IJwtService
 {
+    private readonly ILogger<IJwtService> _logger;
     private readonly RsaSecurityKey _rsaSecurityKey;
     private readonly SigningCredentials _signingCredentials;
 
-    public JwtService(IOptionsMonitor<AuthConfiguration> authConfigurationMonitor)
+    public JwtService(IOptionsMonitor<AuthConfiguration> authConfigurationMonitor, ILogger<IJwtService> logger)
     {
+        _logger = logger;
         _rsaSecurityKey =
             new RsaSecurityKey(RsaExtensions.CreateRsaFromXml(authConfigurationMonitor.CurrentValue.JwtSigningKey));
         _signingCredentials = new SigningCredentials(_rsaSecurityKey, SecurityAlgorithms.RsaSha256Signature);
@@ -62,6 +64,7 @@ public class JwtService : IJwtService
         }
         catch (Exception e)
         {
+            _logger.LogError(e, "JWT Validation Failed");
             return null;
         }
     }
