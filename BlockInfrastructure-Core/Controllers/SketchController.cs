@@ -68,4 +68,21 @@ public class SketchController(SketchService sketchService) : ControllerBase
     {
         return Ok(await sketchService.UpdateSketchAsync(channelId, sketchId, updateSketchRequest));
     }
+
+    /// <summary>
+    ///     특정 스케치를 불러옵니다.
+    /// </summary>
+    /// <param name="channelId">채널 ID</param>
+    /// <param name="sketchId">가져올 특정 스케치 ID</param>
+    /// <returns></returns>
+    /// <response code="200">정상적으로 데이터를 불러왔을 때</response>
+    /// <response code="404">해당 스케치를 찾을 수 없을 때</response>
+    [HttpGet("{sketchId}")]
+    [ChannelRole(ChannelPermissionType.Owner, ChannelPermissionType.Reader)]
+    [ProducesResponseType<SketchResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetSketchAsync(string channelId, string sketchId)
+    {
+        return Ok(await sketchService.GetSketchAsync(channelId, sketchId));
+    }
 }

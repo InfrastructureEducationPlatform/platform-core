@@ -146,4 +146,50 @@ public class SketchServiceTest
         Assert.Equal(sketch.Description, updatedSketch.Description);
         Assert.Equal(sketch.ChannelId, updatedSketch.ChannelId);
     }
+
+    [Fact(DisplayName = "GetSketchAsync: GetSketchAsync는 만약 스케치를 찾을 수 없는 경우 NotFound 예외를 발생시킵니다.")]
+    public async Task Is_GetSketchAsync_Throws_NotFound_If_Sketch_Not_Found()
+    {
+        // Let
+        var channelId = Ulid.NewUlid().ToString();
+        var sketchId = Ulid.NewUlid().ToString();
+
+        // Do
+        var exception = await Assert.ThrowsAsync<ApiException>(async () =>
+            await _sketchService.GetSketchAsync(channelId, sketchId));
+
+        // Check
+        Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
+        Assert.Equal(SketchError.SketchNotFound.ErrorTitleToString(), exception.ErrorTitle.ErrorTitleToString());
+    }
+
+    [Fact(DisplayName = "GetSketchAsync: GetSketchAsync는 만약 스케치를 찾을 수 있는 경우 스케치를 반환합니다.")]
+    public async Task Is_GetSketchAsync_Returns_Sketch_If_Sketch_Found()
+    {
+        // Let
+        var channelId = Ulid.NewUlid().ToString();
+        var sketchId = Ulid.NewUlid().ToString();
+        var sketch = new Sketch
+        {
+            Id = sketchId,
+            Name = "Test Sketch",
+            Description = "Test Sketch Description",
+            ChannelId = channelId,
+            BlockSketch = JsonSerializer.SerializeToDocument(new
+            {
+            })
+        };
+        _databaseContext.Sketches.Add(sketch);
+        await _databaseContext.SaveChangesAsync();
+
+        // Do
+        var result = await _sketchService.GetSketchAsync(channelId, sketchId);
+
+        // Check Result
+        Assert.NotNull(result);
+        Assert.Equal(sketchId, result.SketchId);
+        Assert.Equal(sketch.Name, result.Name);
+        Assert.Equal(sketch.Description, result.Description);
+        Assert.Equal(sketch.ChannelId, result.ChannelId);
+    }
 }
