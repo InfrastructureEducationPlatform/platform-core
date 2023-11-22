@@ -1,4 +1,7 @@
+using System.Net;
 using System.Text.Json;
+using BlockInfrastructure.Core.Common;
+using BlockInfrastructure.Core.Common.Errors;
 using BlockInfrastructure.Core.Models.Data;
 using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Services;
@@ -76,5 +79,71 @@ public class SketchServiceTest
         Assert.Equal(sketchRequest.Name, sketch.Name);
         Assert.Equal(sketchRequest.Description, sketch.Description);
         Assert.Equal(channelId, sketch.ChannelId);
+    }
+
+    [Fact(DisplayName = "UpdateSketchAsync: UpdateSketchAsync는 만약 스케치를 찾을 수 없는 경우 NotFound 예외를 발생시킵니다.")]
+    public async Task Is_UpdateSketchAsync_Throws_NotFound_If_Sketch_Not_Found()
+    {
+        // Let
+        var channelId = Ulid.NewUlid().ToString();
+        var sketchId = Ulid.NewUlid().ToString();
+        var updateSketchRequest = new UpdateSketchRequest
+        {
+            BlockData = JsonSerializer.SerializeToDocument(new
+            {
+            })
+        };
+
+        // Do
+        var exception = await Assert.ThrowsAsync<ApiException>(async () =>
+            await _sketchService.UpdateSketchAsync(channelId, sketchId, updateSketchRequest));
+
+        // Check
+        Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
+        Assert.Equal(SketchError.SketchNotFound.ErrorTitleToString(), exception.ErrorTitle.ErrorTitleToString());
+    }
+
+    [Fact(DisplayName = "UpdateSketchAsync: UpdateSketchAsync는 만약 스케치를 찾을 수 있는 경우 스케치를 업데이트합니다.")]
+    public async Task Is_UpdateSketchAsync_Updates_Sketch_If_Sketch_Found()
+    {
+        // Let
+        var channelId = Ulid.NewUlid().ToString();
+        var sketchId = Ulid.NewUlid().ToString();
+        var sketch = new Sketch
+        {
+            Id = sketchId,
+            Name = "Test Sketch",
+            Description = "Test Sketch Description",
+            ChannelId = channelId,
+            BlockSketch = JsonSerializer.SerializeToDocument(new
+            {
+            })
+        };
+        _databaseContext.Sketches.Add(sketch);
+        await _databaseContext.SaveChangesAsync();
+        var updateSketchRequest = new UpdateSketchRequest
+        {
+            BlockData = JsonSerializer.SerializeToDocument(new
+            {
+            })
+        };
+
+        // Do
+        var result = await _sketchService.UpdateSketchAsync(channelId, sketchId, updateSketchRequest);
+
+        // Check Result
+        Assert.NotNull(result);
+        Assert.Equal(sketchId, result.SketchId);
+        Assert.Equal(sketch.Name, result.Name);
+        Assert.Equal(sketch.Description, result.Description);
+        Assert.Equal(sketch.ChannelId, result.ChannelId);
+
+        // Check Database
+        var updatedSketch = await _databaseContext.Sketches.FirstOrDefaultAsync(s => s.Id == result.SketchId);
+        Assert.NotNull(updatedSketch);
+        Assert.Equal(sketchId, updatedSketch.Id);
+        Assert.Equal(sketch.Name, updatedSketch.Name);
+        Assert.Equal(sketch.Description, updatedSketch.Description);
+        Assert.Equal(sketch.ChannelId, updatedSketch.ChannelId);
     }
 }

@@ -1,4 +1,7 @@
+using System.Net;
 using System.Text.Json;
+using BlockInfrastructure.Core.Common;
+using BlockInfrastructure.Core.Common.Errors;
 using BlockInfrastructure.Core.Models.Data;
 using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Models.Responses;
@@ -39,6 +42,29 @@ public class SketchService(DatabaseContext databaseContext)
             })
         };
         databaseContext.Sketches.Add(sketch);
+        await databaseContext.SaveChangesAsync();
+
+        return new SketchResponse
+        {
+            SketchId = sketch.Id,
+            Name = sketch.Name,
+            Description = sketch.Description,
+            ChannelId = sketch.ChannelId,
+            BlockSketch = sketch.BlockSketch,
+            CreatedAt = sketch.CreatedAt,
+            UpdatedAt = sketch.UpdatedAt
+        };
+    }
+
+    public async Task<SketchResponse> UpdateSketchAsync(string channelId, string sketchId,
+                                                        UpdateSketchRequest updateSketchRequest)
+    {
+        var sketch = await databaseContext.Sketches
+                                          .Where(sketch => sketch.ChannelId == channelId)
+                                          .FirstOrDefaultAsync(sketch => sketch.Id == sketchId) ??
+                     throw new ApiException(HttpStatusCode.NotFound, "해당 스케치를 찾을 수 없습니다.", SketchError.SketchNotFound);
+
+        sketch.BlockSketch = updateSketchRequest.BlockData;
         await databaseContext.SaveChangesAsync();
 
         return new SketchResponse

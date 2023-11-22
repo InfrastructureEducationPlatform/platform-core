@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Newtonsoft.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace BlockInfrastructure.Core.Test.Shared.Integrations;
 
@@ -124,5 +125,24 @@ public abstract class IntegrationsTestHelper : IDisposable
             LoginResult = LoginResult.LoginSucceed,
             RefreshToken = ""
         });
+    }
+
+    protected async Task<Sketch> CreateSketchAsync(string channelId)
+    {
+        var databaseContext = GetRequiredService<DatabaseContext>();
+        var sketch = new Sketch
+        {
+            Id = Ulid.NewUlid().ToString(),
+            Name = "Test Sketch",
+            Description = "Test Sketch Description",
+            ChannelId = channelId,
+            BlockSketch = JsonSerializer.SerializeToDocument(new
+            {
+            })
+        };
+        databaseContext.Sketches.Add(sketch);
+        await databaseContext.SaveChangesAsync();
+
+        return sketch;
     }
 }

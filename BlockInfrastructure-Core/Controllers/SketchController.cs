@@ -51,4 +51,21 @@ public class SketchController(SketchService sketchService) : ControllerBase
     {
         return Ok(await sketchService.CreateSketchAsync(channelId, createSketchRequest));
     }
+
+    /// <summary>
+    ///     스케치를 업데이트 합니다.
+    /// </summary>
+    /// <param name="channelId">채널 ID</param>
+    /// <param name="sketchId">업데이트 할 스케치 ID</param>
+    /// <param name="updateSketchRequest">업데이트 할 스케치 내용</param>
+    /// <returns></returns>
+    [HttpPut("{sketchId}")]
+    [ChannelRole(ChannelPermissionType.Owner)]
+    [ProducesResponseType<SketchResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateSketchAsync(string channelId, string sketchId,
+                                                       UpdateSketchRequest updateSketchRequest)
+    {
+        return Ok(await sketchService.UpdateSketchAsync(channelId, sketchId, updateSketchRequest));
+    }
 }
