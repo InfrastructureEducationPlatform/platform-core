@@ -67,10 +67,13 @@ public class SketchControllerTest(ContainerFixture containerFixture) : Integrati
     public async Task Is_CreateSketchAsync_Returns_401_For_Unauthorized_User()
     {
         // Let
-        var request = new CreateChannelRequest
+        var request = new CreateSketchRequest
         {
             Name = "Test",
-            Description = "Test"
+            Description = "Test",
+            BlockSketch = JsonSerializer.SerializeToDocument(new
+            {
+            })
         };
 
         // Do
@@ -88,10 +91,13 @@ public class SketchControllerTest(ContainerFixture containerFixture) : Integrati
         var (user, token) = await CreateAccountAsync();
         var channel = await CreateChannelAsync(token.Token);
         var (secondUser, secondToken) = await CreateAccountAsync();
-        var request = new CreateChannelRequest
+        var request = new CreateSketchRequest
         {
             Name = "Test",
-            Description = "Test"
+            Description = "Test",
+            BlockSketch = JsonSerializer.SerializeToDocument(new
+            {
+            })
         };
 
         // Do
@@ -109,10 +115,13 @@ public class SketchControllerTest(ContainerFixture containerFixture) : Integrati
         // Let
         var (user, token) = await CreateAccountAsync();
         var channel = await CreateChannelAsync(token.Token);
-        var request = new CreateChannelRequest
+        var request = new CreateSketchRequest
         {
             Name = "Test",
-            Description = "Test"
+            Description = "Test",
+            BlockSketch = JsonSerializer.SerializeToDocument(new
+            {
+            })
         };
 
         // Do

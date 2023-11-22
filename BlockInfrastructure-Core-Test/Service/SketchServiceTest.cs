@@ -61,7 +61,10 @@ public class SketchServiceTest
         var sketchRequest = new CreateSketchRequest
         {
             Name = "Test Sketch",
-            Description = "Test Sketch Description"
+            Description = "Test Sketch Description",
+            BlockSketch = JsonSerializer.SerializeToDocument(new
+            {
+            })
         };
 
         // Do

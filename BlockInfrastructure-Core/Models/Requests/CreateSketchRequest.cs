@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 
 namespace BlockInfrastructure.Core.Models.Requests;
 
@@ -15,4 +16,7 @@ public class CreateSketchRequest
     /// </summary>
     [Required]
     public string Description { get; set; }
+
+    [Required]
+    public JsonDocument BlockSketch { get; set; }
 }

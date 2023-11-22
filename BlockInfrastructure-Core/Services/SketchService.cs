@@ -1,5 +1,4 @@
 using System.Net;
-using System.Text.Json;
 using BlockInfrastructure.Core.Common;
 using BlockInfrastructure.Core.Common.Errors;
 using BlockInfrastructure.Core.Models.Data;
@@ -37,9 +36,7 @@ public class SketchService(DatabaseContext databaseContext)
             Name = createSketchRequest.Name,
             Description = createSketchRequest.Description,
             ChannelId = channelId,
-            BlockSketch = JsonSerializer.SerializeToDocument(new
-            {
-            })
+            BlockSketch = createSketchRequest.BlockSketch
         };
         databaseContext.Sketches.Add(sketch);
         await databaseContext.SaveChangesAsync();
