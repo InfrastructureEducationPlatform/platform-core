@@ -63,7 +63,7 @@ builder.Services.AddHttpClient(HttpClientNames.GoogleOAuthApi, client =>
 });
 builder.Services.AddHttpClient(HttpClientNames.DeploymentApi, (provider, client) =>
 {
-    var connectionConfiguration = provider.GetRequiredService<IOptionsSnapshot<ConnectionConfiguration>>().Value;
+    var connectionConfiguration = provider.GetRequiredService<IOptionsMonitor<ConnectionConfiguration>>().CurrentValue;
     client.BaseAddress = new Uri(connectionConfiguration.DeploymentPluginConnection);
 });
 
