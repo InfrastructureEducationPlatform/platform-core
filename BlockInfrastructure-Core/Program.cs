@@ -61,6 +61,11 @@ builder.Services.AddHttpClient(HttpClientNames.GoogleOAuthApi, client =>
 {
     client.BaseAddress = new Uri("https://oauth2.googleapis.com");
 });
+builder.Services.AddHttpClient(HttpClientNames.DeploymentApi, (provider, client) =>
+{
+    var connectionConfiguration = provider.GetRequiredService<IOptionsSnapshot<ConnectionConfiguration>>().Value;
+    client.BaseAddress = new Uri(connectionConfiguration.DeploymentPluginConnection);
+});
 
 // Add Channel
 builder.Services.AddScoped<ChannelService>();

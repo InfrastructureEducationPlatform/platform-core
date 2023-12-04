@@ -4,4 +4,5 @@ public class HttpClientNames
 {
     public const string GoogleOAuthApi = "GoogleOAuthApi";
     public const string GoogleApi = "GoogleApi";
+    public const string DeploymentApi = "DeploymentApi";
 }

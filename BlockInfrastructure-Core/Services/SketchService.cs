@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BlockInfrastructure.Core.Services;
 
-public class SketchService(DatabaseContext databaseContext)
+public class SketchService(DatabaseContext databaseContext, IHttpClientFactory httpClientFactory)
 {
     public async Task<List<SketchResponse>> ListSketches(string channelId)
     {
@@ -93,5 +93,15 @@ public class SketchService(DatabaseContext databaseContext)
             CreatedAt = sketch.CreatedAt,
             UpdatedAt = sketch.UpdatedAt
         };
+    }
+
+    public async Task TempDeployAsync(string sketchId)
+    {
+        var sketch = await databaseContext.Sketches
+                                          .FirstOrDefaultAsync(sketch => sketch.Id == sketchId) ??
+                     throw new ApiException(HttpStatusCode.NotFound, "해당 스케치를 찾을 수 없습니다.", SketchError.SketchNotFound);
+        var client = httpClientFactory.CreateClient(HttpClientNames.DeploymentApi);
+        var response = await client.PostAsJsonAsync("/deploymentSketch", sketch.BlockSketch);
+        response.EnsureSuccessStatusCode();
     }
 }

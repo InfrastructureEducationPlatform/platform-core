@@ -85,4 +85,13 @@ public class SketchController(SketchService sketchService) : ControllerBase
     {
         return Ok(await sketchService.GetSketchAsync(channelId, sketchId));
     }
+
+    [HttpPost("{sketchId}/deploy")]
+    [ChannelRole(ChannelPermissionType.Owner)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> TempDeployment(string sketchId)
+    {
+        await sketchService.TempDeployAsync(sketchId);
+        return Ok();
+    }
 }

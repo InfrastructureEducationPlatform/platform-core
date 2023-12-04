@@ -7,6 +7,7 @@ using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Services;
 using BlockInfrastructure.Core.Test.Fixtures;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace BlockInfrastructure.Core.Test.Service;
 
@@ -16,11 +17,13 @@ public class SketchServiceTest
         new(new DbContextOptionsBuilder<DatabaseContext>()
             .UseInMemoryDatabase(Ulid.NewUlid().ToString()).Options);
 
+    private readonly Mock<IHttpClientFactory> _mockHttpClientFactory = new();
+
     private readonly SketchService _sketchService;
 
     public SketchServiceTest()
     {
-        _sketchService = new SketchService(_databaseContext);
+        _sketchService = new SketchService(_databaseContext, _mockHttpClientFactory.Object);
     }
 
     [Fact(DisplayName = "ListSketches: ListSketches는 데이터에 포함되어 있는 스케치 리스트를 Sketch Response 형태로 반환합니다.")]
