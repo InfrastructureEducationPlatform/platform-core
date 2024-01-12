@@ -7,9 +7,27 @@ using BlockInfrastructure.Core.Services.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using Serilog;
+using Serilog.Sinks.Grafana.Loki;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((ctx, service, configuration) =>
+{
+    configuration.ReadFrom.Configuration(ctx.Configuration)
+                 .ReadFrom.Services(service)
+                 .Enrich.FromLogContext()
+                 .Enrich.WithProperty("Application", ctx.HostingEnvironment.ApplicationName)
+                 .Enrich.WithProperty("Environment", ctx.HostingEnvironment.EnvironmentName)
+                 .WriteTo.Console()
+                 .WriteTo.GrafanaLoki(builder.Configuration["loki"], propertiesAsLabels: new List<string>
+                 {
+                     "Application",
+                     "Environment",
+                     "RequestId"
+                 });
+});
 
 // Add Controllers
 builder.Services.AddControllers(options => options.Filters.Add(typeof(GlobalExceptionFilter)));

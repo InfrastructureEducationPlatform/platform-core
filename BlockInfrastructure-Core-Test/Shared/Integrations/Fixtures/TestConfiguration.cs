@@ -17,7 +17,8 @@ public static class TestConfiguration
             ["Auth:GoogleOAuthClientID"] = "",
             ["Auth:GoogleOAuthClientSecret"] = "",
             ["ConnectionStrings:DatabaseConnection"] =
-                $"Server=localhost;Database={Ulid.NewUlid().ToString()};Port={postgreSqlPort};User Id=admin;Password=testPassword@;"
+                $"Server=localhost;Database={Ulid.NewUlid().ToString()};Port={postgreSqlPort};User Id=admin;Password=testPassword@;",
+            ["loki"] = "http://localhost:3150"
         };
 
         return configurationBuilder.AddInMemoryCollection(memoryConfiguration).Build();
