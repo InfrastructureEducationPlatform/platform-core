@@ -7,11 +7,37 @@ using BlockInfrastructure.Core.Services.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using Npgsql;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Serilog;
 using Serilog.Sinks.Grafana.Loki;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddOpenTelemetry()
+       .ConfigureResource(resource =>
+       {
+           resource.AddService(builder.Environment.ApplicationName);
+           resource.AddEnvironmentVariableDetector();
+       })
+       .WithTracing(tracing =>
+       {
+           tracing
+               .AddAspNetCoreInstrumentation()
+               .AddNpgsql()
+               .AddOtlpExporter(option => option.Endpoint = new Uri(builder.Configuration["otlp"]))
+               .AddConsoleExporter();
+       })
+       .WithMetrics(metrics =>
+       {
+           metrics
+               .AddAspNetCoreInstrumentation()
+               .AddOtlpExporter(option => option.Endpoint = new Uri(builder.Configuration["otlp"]))
+               .AddConsoleExporter();
+       });
 
 builder.Host.UseSerilog((ctx, service, configuration) =>
 {
