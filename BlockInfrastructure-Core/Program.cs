@@ -28,15 +28,13 @@ builder.Services.AddOpenTelemetry()
            tracing
                .AddAspNetCoreInstrumentation()
                .AddNpgsql()
-               .AddOtlpExporter(option => option.Endpoint = new Uri(builder.Configuration["otlp"]))
-               .AddConsoleExporter();
+               .AddOtlpExporter(option => option.Endpoint = new Uri(builder.Configuration["otlp"]));
        })
        .WithMetrics(metrics =>
        {
            metrics
                .AddAspNetCoreInstrumentation()
-               .AddOtlpExporter(option => option.Endpoint = new Uri(builder.Configuration["otlp"]))
-               .AddConsoleExporter();
+               .AddOtlpExporter(option => option.Endpoint = new Uri(builder.Configuration["otlp"]));
        });
 
 builder.Host.UseSerilog((ctx, service, configuration) =>
