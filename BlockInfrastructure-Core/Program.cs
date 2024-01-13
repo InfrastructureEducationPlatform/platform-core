@@ -34,7 +34,7 @@ builder.Services.AddOpenTelemetry()
        {
            metrics
                .AddAspNetCoreInstrumentation()
-               .AddOtlpExporter(option => option.Endpoint = new Uri(builder.Configuration["otlp"]));
+               .AddPrometheusExporter();
        });
 
 builder.Host.UseSerilog((ctx, service, configuration) =>
@@ -133,6 +133,8 @@ builder.Services.AddHealthChecks()
        .AddDbContextCheck<DatabaseContext>();
 
 var app = builder.Build();
+
+app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
 // Migrate Database
 using (var scope = app.Services.CreateScope())
