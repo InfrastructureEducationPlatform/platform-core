@@ -1,8 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockInfrastructure-Core", "BlockInfrastructure-Core\BlockInfrastructure-Core.csproj", "{BE0BBE26-22CE-4416-B3CA-510D7B29C70D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockInfrastructure-Core", "src\BlockInfrastructure-Core\BlockInfrastructure-Core.csproj", "{BE0BBE26-22CE-4416-B3CA-510D7B29C70D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockInfrastructure-Core-Test", "BlockInfrastructure-Core-Test\BlockInfrastructure-Core-Test.csproj", "{CC835F41-9D35-43ED-95E8-DBD78A726DDD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockInfrastructure-Core-Test", "test\BlockInfrastructure-Core-Test\BlockInfrastructure-Core-Test.csproj", "{CC835F41-9D35-43ED-95E8-DBD78A726DDD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{BC58131E-94D4-4D5D-AAA5-3F698178E7EF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{E3D3C961-9656-4D27-9155-61DB8B807FD1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockInfrastructure.Common", "src\BlockInfrastructure.Common\BlockInfrastructure.Common.csproj", "{015B78AA-FCAD-42E7-A821-8B5BC878CFA7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +24,14 @@ Global
 		{CC835F41-9D35-43ED-95E8-DBD78A726DDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC835F41-9D35-43ED-95E8-DBD78A726DDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC835F41-9D35-43ED-95E8-DBD78A726DDD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{015B78AA-FCAD-42E7-A821-8B5BC878CFA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{015B78AA-FCAD-42E7-A821-8B5BC878CFA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{015B78AA-FCAD-42E7-A821-8B5BC878CFA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{015B78AA-FCAD-42E7-A821-8B5BC878CFA7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BE0BBE26-22CE-4416-B3CA-510D7B29C70D} = {BC58131E-94D4-4D5D-AAA5-3F698178E7EF}
+		{CC835F41-9D35-43ED-95E8-DBD78A726DDD} = {E3D3C961-9656-4D27-9155-61DB8B807FD1}
+		{015B78AA-FCAD-42E7-A821-8B5BC878CFA7} = {BC58131E-94D4-4D5D-AAA5-3F698178E7EF}
 	EndGlobalSection
 EndGlobal

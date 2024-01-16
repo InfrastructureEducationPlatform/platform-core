@@ -1,4 +1,4 @@
-name: Run Test, Deploy to Docker Container
+name: Run Test, Deploy Block Infrastructure Core API to Kubernetes Cluster
 
 on:
   push:
@@ -45,8 +45,8 @@ jobs:
       - name: Build, Push to Registry
         uses: docker/build-push-action@v3.2.0
         with:
-          context: .
-          file: ./BlockInfrastructure-Core/Dockerfile
+          context: ./src
+          file: ./src/BlockInfrastructure-Core/Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64
           tags: kangdroid/blockinfrastructure-core:${{ github.sha }},kangdroid/blockinfrastructure-core:main
