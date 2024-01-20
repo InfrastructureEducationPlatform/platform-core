@@ -30,8 +30,20 @@ builder.Services.AddOpenTelemetry()
        })
        .WithTracing(tracing =>
        {
+           var excludeEndpointList = new List<string>
+           {
+               "/healthz",
+               "/metrics"
+           };
            tracing
-               .AddAspNetCoreInstrumentation()
+               .AddAspNetCoreInstrumentation(opt =>
+               {
+                   opt.Filter = httpContext =>
+                   {
+                       var pathValue = httpContext.Request.Path.Value;
+                       return !excludeEndpointList.Contains(pathValue);
+                   };
+               })
                .AddNpgsql()
                .AddOtlpExporter(option => option.Endpoint = new Uri(builder.Configuration["otlp"]));
        })
