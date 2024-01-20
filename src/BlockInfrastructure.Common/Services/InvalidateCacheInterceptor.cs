@@ -22,7 +22,10 @@ public class InvalidateCacheInterceptor : SaveChangesInterceptor
             }
 
             // Send Cache Invalidation Message
-            await massTransit.Publish(support.GetCacheEventMessage(), cancellationToken);
+            foreach (var eachMessageObject in support.GetCacheEventMessage())
+            {
+                await massTransit.Publish(eachMessageObject, cancellationToken);
+            }
         }
 
         return await base.SavedChangesAsync(eventData, result, cancellationToken);

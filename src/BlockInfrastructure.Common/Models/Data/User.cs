@@ -18,11 +18,14 @@ public class User : AutomaticAuditSupport, ICacheEventMessageGenerator
 
     public List<ChannelPermission> ChannelPermissionList { get; set; }
 
-    public object GetCacheEventMessage()
+    public List<object> GetCacheEventMessage()
     {
-        return new UserStateModifiedEvent
-        {
-            UserId = Id
-        };
+        return
+        [
+            new UserStateModifiedEvent
+            {
+                UserId = Id
+            }
+        ];
     }
 }
