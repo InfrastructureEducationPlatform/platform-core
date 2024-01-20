@@ -2,7 +2,6 @@
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
-        <RootNamespace>BlockInfrastructure.Core.Test</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
@@ -12,6 +11,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0"/>
+        <PackageReference Include="Testcontainers.RabbitMq" Version="3.5.0" />
         <PackageReference Include="Testcontainers.Redis" Version="3.5.0" />
         <PackageReference Include="xunit" Version="2.4.2"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
@@ -22,10 +22,17 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-    </ItemGroup>
 
+
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0-rc.2.23480.2" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0-rc.2.23480.1" />
+        <PackageReference Include="Moq" Version="4.20.69" />
+        <PackageReference Include="Testcontainers" Version="3.5.0" />
+        <PackageReference Include="Testcontainers.PostgreSql" Version="3.5.0" />
+    </ItemGroup>
+    
     <ItemGroup>
-      <ProjectReference Include="..\BlockInfrastructure.Common.Test\BlockInfrastructure.Common.Test.csproj" />
+        <ProjectReference Include="..\..\src\BlockInfrastructure-Core\BlockInfrastructure-Core.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,9 +1,9 @@
 using BlockInfrastructure.Common.Models.Data;
 using BlockInfrastructure.Common.Services;
+using BlockInfrastructure.Common.Test.Fixtures;
 using BlockInfrastructure.Core.Models.Internal;
 using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Services;
-using BlockInfrastructure.Core.Test.Fixtures;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlockInfrastructure.Core.Test.Service;

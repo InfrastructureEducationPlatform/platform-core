@@ -3,9 +3,9 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using BlockInfrastructure.Common.Models.Data;
 using BlockInfrastructure.Common.Services;
+using BlockInfrastructure.Common.Test.Shared.Integrations;
+using BlockInfrastructure.Common.Test.Shared.Integrations.Fixtures;
 using BlockInfrastructure.Core.Models.Requests;
-using BlockInfrastructure.Core.Test.Shared.Integrations;
-using BlockInfrastructure.Core.Test.Shared.Integrations.Fixtures;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlockInfrastructure.Core.Test.Controllers;

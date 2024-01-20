@@ -1,7 +1,7 @@
 using BlockInfrastructure.Core.Models.Internal;
 using BlockInfrastructure.Core.Services.Authentication;
 
-namespace BlockInfrastructure.Core.Test.Shared.Integrations.Fixtures;
+namespace BlockInfrastructure.Common.Test.Shared.Integrations.Fixtures;
 
 public class IntegrationSelfAuthenticationProvider : IOAuthProviderService
 {

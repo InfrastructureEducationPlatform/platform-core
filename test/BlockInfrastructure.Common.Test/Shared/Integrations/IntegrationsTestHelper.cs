@@ -3,17 +3,17 @@ using System.Net.Http.Json;
 using System.Security.Claims;
 using BlockInfrastructure.Common.Models.Data;
 using BlockInfrastructure.Common.Services;
+using BlockInfrastructure.Common.Test.Shared.Integrations.Fixtures;
 using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Models.Responses;
 using BlockInfrastructure.Core.Services;
-using BlockInfrastructure.Core.Test.Shared.Integrations.Fixtures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
-namespace BlockInfrastructure.Core.Test.Shared.Integrations;
+namespace BlockInfrastructure.Common.Test.Shared.Integrations;
 
 public abstract class IntegrationsTestHelper : IDisposable
 {

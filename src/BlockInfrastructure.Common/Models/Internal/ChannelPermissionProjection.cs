@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using BlockInfrastructure.Common.Models.Data;
 
-namespace BlockInfrastructure.Core.Models.Responses;
+namespace BlockInfrastructure.Common.Models.Internal;
 
 public class ChannelPermissionProjection
 {

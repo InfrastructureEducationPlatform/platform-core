@@ -1,12 +1,15 @@
 using System.Net;
+using BlockInfrastructure.Common;
 using BlockInfrastructure.Common.Models.Data;
+using BlockInfrastructure.Common.Models.Internal;
 using BlockInfrastructure.Common.Services;
+using BlockInfrastructure.Common.Test.Fixtures;
 using BlockInfrastructure.Core.Common;
 using BlockInfrastructure.Core.Common.Errors;
 using BlockInfrastructure.Core.Models.Internal;
 using BlockInfrastructure.Core.Services;
-using BlockInfrastructure.Core.Test.Fixtures;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace BlockInfrastructure.Core.Test.Service;
 
@@ -16,11 +19,13 @@ public class UserServiceTest
         new(new DbContextOptionsBuilder<DatabaseContext>()
             .UseInMemoryDatabase(Ulid.NewUlid().ToString()).Options);
 
+    private readonly Mock<ICacheService> _mockCacheService = new();
+
     private readonly UserService _userService;
 
     public UserServiceTest()
     {
-        _userService = new UserService(_databaseContext);
+        _userService = new UserService(_databaseContext, _mockCacheService.Object);
     }
 
     [Fact(DisplayName = "GetMeAsync: GetMeAsync는 만약 사용자를 찾을 수 없는 경우 ApiException을 던집니다.")]
@@ -32,6 +37,11 @@ public class UserServiceTest
             UserId = Ulid.NewUlid().ToString(),
             Email = Ulid.NewUlid().ToString()
         };
+        _mockCacheService.Setup(a =>
+                             a.GetOrSetAsync(CacheKeys.UserMeProjectionKey(contextUser.UserId),
+                                 It.IsAny<Func<Task<MeProjection>>>(), It.IsAny<TimeSpan>()))
+                         .ThrowsAsync(new ApiException(HttpStatusCode.NotFound,
+                             "Unknown error: Cannot find user!", UserError.UserNotFound));
 
         // Do
         var exception = await Assert.ThrowsAnyAsync<ApiException>(() => _userService.GetMeAsync(contextUser));
@@ -72,6 +82,10 @@ public class UserServiceTest
             UserId = user.Id,
             Email = user.Email
         };
+        _mockCacheService.Setup(a =>
+                             a.GetOrSetAsync(CacheKeys.UserMeProjectionKey(contextUser.UserId),
+                                 It.IsAny<Func<Task<MeProjection>>>(), It.IsAny<TimeSpan>()))
+                         .ReturnsAsync(MeProjection.FromUser(user));
 
         // Do
         var meResponse = await _userService.GetMeAsync(contextUser);

@@ -1,3 +1,4 @@
+using BlockInfrastructure.Common.Models.Internal;
 using BlockInfrastructure.Core.Common;
 using BlockInfrastructure.Core.Common.Extensions;
 using BlockInfrastructure.Core.Models.Responses;
@@ -18,7 +19,7 @@ public class UsersController(UserService userService) : ControllerBase
     /// <response code="404">사용자를 어떠한 이유로 찾을 수 없는 경우</response>
     [HttpGet("me")]
     [JwtAuthenticationFilter]
-    [ProducesResponseType<MeResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<MeProjection>(StatusCodes.Status200OK)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetUsersDetailProjectionAsync()
     {

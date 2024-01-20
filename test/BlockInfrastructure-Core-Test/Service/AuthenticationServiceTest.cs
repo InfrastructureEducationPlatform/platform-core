@@ -3,6 +3,7 @@ using System.Net;
 using System.Security.Claims;
 using BlockInfrastructure.Common.Models.Data;
 using BlockInfrastructure.Common.Services;
+using BlockInfrastructure.Common.Test.Fixtures;
 using BlockInfrastructure.Core.Common;
 using BlockInfrastructure.Core.Common.Errors;
 using BlockInfrastructure.Core.Models.Internal;
@@ -10,7 +11,6 @@ using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Models.Responses;
 using BlockInfrastructure.Core.Services;
 using BlockInfrastructure.Core.Services.Authentication;
-using BlockInfrastructure.Core.Test.Fixtures;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 

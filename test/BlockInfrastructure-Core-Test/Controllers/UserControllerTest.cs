@@ -1,8 +1,8 @@
 using System.Net;
 using System.Net.Http.Headers;
-using BlockInfrastructure.Core.Models.Responses;
-using BlockInfrastructure.Core.Test.Shared.Integrations;
-using BlockInfrastructure.Core.Test.Shared.Integrations.Fixtures;
+using BlockInfrastructure.Common.Models.Internal;
+using BlockInfrastructure.Common.Test.Shared.Integrations;
+using BlockInfrastructure.Common.Test.Shared.Integrations.Fixtures;
 using Newtonsoft.Json;
 
 namespace BlockInfrastructure.Core.Test.Controllers;
@@ -35,7 +35,7 @@ public class UserControllerTest(ContainerFixture containerFixture) : Integration
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         // Check Response Body
-        var userProjection = JsonConvert.DeserializeObject<MeResponse>(await response.Content.ReadAsStringAsync());
+        var userProjection = JsonConvert.DeserializeObject<MeProjection>(await response.Content.ReadAsStringAsync());
         Assert.Equal(users.Id, userProjection.UserId);
         Assert.Equal(users.Email, userProjection.Email);
         Assert.Equal(users.Name, userProjection.Name);

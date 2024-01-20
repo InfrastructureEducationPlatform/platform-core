@@ -4,7 +4,7 @@ using BlockInfrastructure.Common.Models.Data;
 using BlockInfrastructure.Common.Services;
 using Microsoft.EntityFrameworkCore;
 
-namespace BlockInfrastructure.Core.Test.Fixtures;
+namespace BlockInfrastructure.Common.Test.Fixtures;
 
 public class UnitTestDatabaseContext : DatabaseContext
 {

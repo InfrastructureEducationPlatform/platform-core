@@ -1,12 +1,12 @@
+using BlockInfrastructure.Common.Test.Shared.Integrations.Fixtures;
 using BlockInfrastructure.Core.Services.Authentication;
-using BlockInfrastructure.Core.Test.Shared.Integrations.Fixtures;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace BlockInfrastructure.Core.Test.Shared.Integrations;
+namespace BlockInfrastructure.Common.Test.Shared.Integrations;
 
 internal class BlockInfrastructureCoreWebApplicationFactory(ContainerFixture containerFixture) : WebApplicationFactory<Program>
 {

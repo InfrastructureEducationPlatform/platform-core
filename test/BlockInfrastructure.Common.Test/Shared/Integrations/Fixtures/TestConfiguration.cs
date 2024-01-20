@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using Microsoft.Extensions.Configuration;
 
-namespace BlockInfrastructure.Core.Test.Shared.Integrations.Fixtures;
+namespace BlockInfrastructure.Common.Test.Shared.Integrations.Fixtures;
 
 public static class TestConfiguration
 {
@@ -18,6 +18,11 @@ public static class TestConfiguration
             ["Auth:GoogleOAuthClientSecret"] = "",
             ["ConnectionStrings:DatabaseConnection"] =
                 $"Server=localhost;Database={Ulid.NewUlid().ToString()};Port={postgreSqlPort};User Id=admin;Password=testPassword@;",
+            ["ConnectionStrings:RedisConnection"] = containerFixture.RedisTestcontainer.GetConnectionString(),
+            ["RabbitMq:Host"] = "localhost",
+            ["RabbitMq:Port"] = containerFixture.RabbitMqTestcontainer.GetMappedPublicPort(5672).ToString(),
+            ["RabbitMq:Username"] = "admin",
+            ["RabbitMq:Password"] = "testPassword@",
             ["loki"] = "http://localhost:3150",
             ["otlp"] = "http://localhost:3150"
         };

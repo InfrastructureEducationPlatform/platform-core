@@ -1,41 +1,30 @@
 using System.Net;
+using BlockInfrastructure.Common;
+using BlockInfrastructure.Common.Models.Internal;
 using BlockInfrastructure.Common.Services;
 using BlockInfrastructure.Core.Common;
 using BlockInfrastructure.Core.Common.Errors;
 using BlockInfrastructure.Core.Models.Internal;
-using BlockInfrastructure.Core.Models.Responses;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlockInfrastructure.Core.Services;
 
-public class UserService(DatabaseContext databaseContext)
+public class UserService(DatabaseContext databaseContext, ICacheService cacheService)
 {
-    public async Task<MeResponse> GetMeAsync(ContextUser contextUser)
+    public async Task<MeProjection> GetMeAsync(ContextUser contextUser)
     {
-        // Get User
-        var user = await databaseContext.Users
-                                        .Include(a => a.ChannelPermissionList)
-                                        .ThenInclude(a => a.Channel)
-                                        .Where(a => a.Id == contextUser.UserId)
-                                        .SingleOrDefaultAsync() ?? throw new ApiException(HttpStatusCode.NotFound,
-            "Unknown error: Cannot find user!", UserError.UserNotFound);
-
-        return new MeResponse
+        var data = await cacheService.GetOrSetAsync(CacheKeys.UserMeProjectionKey(contextUser.UserId), async () =>
         {
-            UserId = user.Id,
-            Email = user.Email,
-            Name = user.Name,
-            ProfilePictureImageUrl = user.ProfilePictureImageUrl,
-            ChannelPermissionList = user.ChannelPermissionList
-                                        .Select(a => new ChannelPermissionProjection
-                                        {
-                                            UserId = a.UserId,
-                                            ChannelId = a.ChannelId,
-                                            ChannelName = a.Channel.Name,
-                                            ChannelPermissionType = a.ChannelPermissionType,
-                                            CreatedAt = a.CreatedAt
-                                        })
-                                        .ToList()
-        };
+            // Get User
+            var user = await databaseContext.Users
+                                            .Include(a => a.ChannelPermissionList)
+                                            .ThenInclude(a => a.Channel)
+                                            .Where(a => a.Id == contextUser.UserId)
+                                            .SingleOrDefaultAsync() ?? throw new ApiException(HttpStatusCode.NotFound,
+                "Unknown error: Cannot find user!", UserError.UserNotFound);
+            return MeProjection.FromUser(user);
+        }, TimeSpan.FromDays(10));
+
+        return data!;
     }
 }

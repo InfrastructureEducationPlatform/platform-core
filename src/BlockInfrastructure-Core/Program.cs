@@ -1,10 +1,14 @@
 using System.Reflection;
+using BlockInfrastructure.BackgroundCacheWorker.Extensions;
+using BlockInfrastructure.Common.Extensions;
 using BlockInfrastructure.Common.Models.Data;
+using BlockInfrastructure.Common.Models.Messages;
 using BlockInfrastructure.Common.Services;
 using BlockInfrastructure.Core.Common;
 using BlockInfrastructure.Core.Configurations;
 using BlockInfrastructure.Core.Services;
 using BlockInfrastructure.Core.Services.Authentication;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
@@ -122,15 +126,34 @@ builder.Services.AddScoped<UserService>();
 // Add Sketches
 builder.Services.AddScoped<SketchService>();
 
+// Add Common
+builder.Services.AddCommonServices(builder.Configuration);
+
 // Add Shared Configurations
 builder.Services.AddCors();
-builder.Services.AddDbContext<DatabaseContext>((services, option) =>
+builder.Services.AddMassTransit(configurator =>
 {
-    var connectionConfiguration = services.GetRequiredService<IOptionsSnapshot<ConnectionConfiguration>>().Value;
-    option.UseNpgsql(connectionConfiguration.DatabaseConnection);
-    option.EnableSensitiveDataLogging();
-    option.EnableDetailedErrors();
+    configurator.RegisterBackgroundCacheConsumers();
+    configurator.UsingRabbitMq((ctx, busFactoryConfigurator) =>
+    {
+        // MassTransit Default
+        busFactoryConfigurator.Host(builder.Configuration["RabbitMq:Host"],
+            Convert.ToUInt16(builder.Configuration["RabbitMq:Port"]), "/", h =>
+            {
+                h.Username(builder.Configuration["RabbitMq:Username"]);
+                h.Password(builder.Configuration["RabbitMq:Password"]);
+            });
+
+        // Configure Message
+        busFactoryConfigurator.Message<UserStateModifiedEvent>(a => a.SetEntityName("user.modified"));
+
+        // Configure Cache Consumer(Worker)
+        busFactoryConfigurator.ConfigureBackgroundCacheEndpoint(ctx);
+    });
 });
+
+// Add Background Cache Worker
+builder.Services.AddBackgroundCacheWorker();
 
 // Add HealthCheck
 builder.Services.AddHealthChecks()

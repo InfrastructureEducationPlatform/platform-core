@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using BlockInfrastructure.Common.Models.Messages;
 
 namespace BlockInfrastructure.Common.Models.Data;
 
-public class User : AutomaticAuditSupport
+public class User : AutomaticAuditSupport, ICacheEventMessageGenerator
 {
     [Key]
     public string Id { get; set; }
@@ -16,4 +17,12 @@ public class User : AutomaticAuditSupport
     public List<Credential> CredentialList { get; set; }
 
     public List<ChannelPermission> ChannelPermissionList { get; set; }
+
+    public object GetCacheEventMessage()
+    {
+        return new UserStateModifiedEvent
+        {
+            UserId = Id
+        };
+    }
 }

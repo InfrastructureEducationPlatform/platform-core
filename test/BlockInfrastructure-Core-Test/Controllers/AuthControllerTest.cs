@@ -1,11 +1,11 @@
 using System.Net;
 using System.Net.Http.Json;
 using BlockInfrastructure.Common.Models.Data;
+using BlockInfrastructure.Common.Test.Shared.Integrations;
+using BlockInfrastructure.Common.Test.Shared.Integrations.Fixtures;
 using BlockInfrastructure.Core.Common.Errors;
 using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Models.Responses;
-using BlockInfrastructure.Core.Test.Shared.Integrations;
-using BlockInfrastructure.Core.Test.Shared.Integrations.Fixtures;
 using Newtonsoft.Json;
 
 namespace BlockInfrastructure.Core.Test.Controllers;
