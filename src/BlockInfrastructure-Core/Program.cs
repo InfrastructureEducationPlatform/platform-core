@@ -43,8 +43,25 @@ builder.Services.AddOpenTelemetry()
                        var pathValue = httpContext.Request.Path.Value;
                        return !excludeEndpointList.Contains(pathValue);
                    };
+                   opt.EnrichWithHttpRequest = (activity, request) =>
+                   {
+                       activity.DisplayName = request.Method + " " + request.Path;
+                   };
                })
                .AddNpgsql()
+               .AddHttpClientInstrumentation(opt =>
+               {
+                   opt.EnrichWithHttpRequestMessage = (activity, message) =>
+                   {
+                       activity.DisplayName = message.Method + " " + message.RequestUri;
+                   };
+               })
+               .SetResourceBuilder(
+                   ResourceBuilder.CreateDefault()
+                                  .AddService("BlockInfrastructure-Core")
+                                  .AddEnvironmentVariableDetector()
+                                  .AddTelemetrySdk()
+               )
                .AddOtlpExporter(option => option.Endpoint = new Uri(builder.Configuration["otlp"]));
        })
        .WithMetrics(metrics =>
