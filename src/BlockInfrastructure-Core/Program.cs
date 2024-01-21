@@ -12,67 +12,11 @@ using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
-using Npgsql;
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
 using Serilog;
 using Serilog.Sinks.Grafana.Loki;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddOpenTelemetry()
-       .ConfigureResource(resource =>
-       {
-           resource.AddService(builder.Environment.ApplicationName);
-           resource.AddEnvironmentVariableDetector();
-       })
-       .WithTracing(tracing =>
-       {
-           var excludeEndpointList = new List<string>
-           {
-               "/healthz",
-               "/metrics"
-           };
-           tracing
-               .AddAspNetCoreInstrumentation(opt =>
-               {
-                   opt.Filter = httpContext =>
-                   {
-                       var pathValue = httpContext.Request.Path.Value;
-                       return !excludeEndpointList.Contains(pathValue);
-                   };
-                   opt.EnrichWithHttpRequest = (activity, request) =>
-                   {
-                       activity.DisplayName = request.Method + " " + request.Path;
-                   };
-               })
-               .AddNpgsql()
-               .AddHttpClientInstrumentation(opt =>
-               {
-                   opt.EnrichWithHttpRequestMessage = (activity, message) =>
-                   {
-                       activity.DisplayName = message.Method + " " + message.RequestUri;
-                   };
-               })
-               .SetResourceBuilder(
-                   ResourceBuilder.CreateDefault()
-                                  .AddService("BlockInfrastructure-Core")
-                                  .AddEnvironmentVariableDetector()
-                                  .AddTelemetrySdk()
-               )
-               .AddOtlpExporter(option => option.Endpoint = new Uri(builder.Configuration["otlp"]));
-       })
-       .WithMetrics(metrics =>
-       {
-           metrics
-               .AddAspNetCoreInstrumentation()
-               .AddRuntimeInstrumentation()
-               .AddMeter("Microsoft.AspNetCore.Hosting")
-               .AddMeter("Microsoft.AspNetCore.Server.Kestrel")
-               .AddPrometheusExporter();
-       });
 
 builder.Host.UseSerilog((ctx, service, configuration) =>
 {
@@ -156,7 +100,7 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<SketchService>();
 
 // Add Common
-builder.Services.AddCommonServices(builder.Configuration);
+builder.Services.AddCommonServices(builder.Configuration, builder.Environment);
 
 // Add Shared Configurations
 builder.Services.AddCors();
