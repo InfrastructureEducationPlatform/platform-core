@@ -1,5 +1,6 @@
 using BlockInfrastructure.Common.Models.Data;
 using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -21,10 +22,14 @@ public class InvalidateCacheInterceptor : SaveChangesInterceptor
                 continue;
             }
 
-            // Send Cache Invalidation Message
-            foreach (var eachMessageObject in support.GetCacheEventMessage())
+            if (eachEntry.State == EntityState.Added || eachEntry.State == EntityState.Deleted ||
+                eachEntry.State == EntityState.Modified)
             {
-                await massTransit.Publish(eachMessageObject, cancellationToken);
+                // Send Cache Invalidation Message
+                foreach (var eachMessageObject in support.GetCacheEventMessage())
+                {
+                    await massTransit.Publish(eachMessageObject, cancellationToken);
+                }
             }
         }
 
