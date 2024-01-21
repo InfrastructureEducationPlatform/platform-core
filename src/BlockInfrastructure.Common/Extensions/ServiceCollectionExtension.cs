@@ -46,6 +46,7 @@ public static class ServiceCollectionExtension
                     };
                     tracing
                         .AddSource(DiagnosticHeaders.DefaultListenerName)
+                        .AddEntityFrameworkCoreInstrumentation()
                         .AddAspNetCoreInstrumentation(opt =>
                         {
                             opt.Filter = httpContext =>
