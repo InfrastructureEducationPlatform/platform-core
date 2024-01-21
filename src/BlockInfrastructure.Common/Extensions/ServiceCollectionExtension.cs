@@ -24,8 +24,8 @@ public static class ServiceCollectionExtension
             option.AddInterceptors(new InvalidateCacheInterceptor());
         });
 
-        services.AddSingleton<IConnectionMultiplexer>(
-            ConnectionMultiplexer.Connect(configuration.GetConnectionString("RedisConnection")));
+        var redisConnection = ConnectionMultiplexer.Connect(configuration.GetConnectionString("RedisConnection"));
+        services.AddSingleton<IConnectionMultiplexer>(redisConnection);
         services.AddSingleton<ICacheService, CacheService>();
 
         // Monitoring Section
@@ -56,6 +56,7 @@ public static class ServiceCollectionExtension
                             };
                         })
                         .AddNpgsql()
+                        .AddRedisInstrumentation(redisConnection)
                         .AddHttpClientInstrumentation(opt =>
                         {
                             opt.EnrichWithHttpRequestMessage = (activity, message) =>
