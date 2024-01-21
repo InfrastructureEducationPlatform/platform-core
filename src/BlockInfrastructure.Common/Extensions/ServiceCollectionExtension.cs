@@ -1,4 +1,6 @@
 using BlockInfrastructure.Common.Services;
+using MassTransit.Logging;
+using MassTransit.Monitoring;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -43,6 +45,7 @@ public static class ServiceCollectionExtension
                         "/metrics"
                     };
                     tracing
+                        .AddSource(DiagnosticHeaders.DefaultListenerName)
                         .AddAspNetCoreInstrumentation(opt =>
                         {
                             opt.Filter = httpContext =>
@@ -75,6 +78,7 @@ public static class ServiceCollectionExtension
                 .WithMetrics(metrics =>
                 {
                     metrics
+                        .AddMeter(InstrumentationOptions.MeterName)
                         .AddAspNetCoreInstrumentation()
                         .AddRuntimeInstrumentation()
                         .AddMeter("Microsoft.AspNetCore.Hosting")
