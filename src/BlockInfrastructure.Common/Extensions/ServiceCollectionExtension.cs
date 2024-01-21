@@ -42,7 +42,8 @@ public static class ServiceCollectionExtension
                     var excludeEndpointList = new List<string>
                     {
                         "/healthz",
-                        "/metrics"
+                        "/metrics",
+                        "/loki/api/v1/push"
                     };
                     tracing
                         .AddSource(DiagnosticHeaders.DefaultListenerName)
@@ -66,6 +67,11 @@ public static class ServiceCollectionExtension
                             opt.EnrichWithHttpRequestMessage = (activity, message) =>
                             {
                                 activity.DisplayName = message.Method + " " + message.RequestUri;
+                            };
+                            opt.FilterHttpRequestMessage = message =>
+                            {
+                                var pathValue = message.RequestUri?.AbsolutePath;
+                                return !excludeEndpointList.Contains(pathValue);
                             };
                         })
                         .SetResourceBuilder(
