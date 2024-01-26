@@ -99,6 +99,9 @@ builder.Services.AddScoped<UserService>();
 // Add Sketches
 builder.Services.AddScoped<SketchService>();
 
+// Add Deployment
+builder.Services.AddScoped<DeploymentService>();
+
 // Add Common
 builder.Services.AddCommonServices(builder.Configuration, builder.Environment);
 

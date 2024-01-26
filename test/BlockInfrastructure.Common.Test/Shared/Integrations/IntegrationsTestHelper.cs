@@ -146,4 +146,28 @@ public abstract class IntegrationsTestHelper : IDisposable
 
         return sketch;
     }
+
+    protected async Task<DeploymentLog> CreateDeploymentLogAsync(string sketchId)
+    {
+        var databaseContext = GetRequiredService<DatabaseContext>();
+        var deploymentLog = new DeploymentLog
+        {
+            Id = Ulid.NewUlid().ToString(),
+            SketchId = sketchId,
+            Plugin = new Plugin
+            {
+                Id = Ulid.NewUlid().ToString(),
+                Name = "Dummy Plugin",
+                Description = "Dummy Plugin",
+                SamplePluginConfiguration = JsonSerializer.SerializeToDocument(new
+                {
+                })
+            },
+            DeploymentStatus = DeploymentStatus.Created
+        };
+        databaseContext.DeploymentLogs.Add(deploymentLog);
+        await databaseContext.SaveChangesAsync();
+
+        return deploymentLog;
+    }
 }
