@@ -86,12 +86,23 @@ public class SketchController(SketchService sketchService) : ControllerBase
         return Ok(await sketchService.GetSketchAsync(channelId, sketchId));
     }
 
+    /// <summary>
+    ///     배포를 시작합니다.
+    /// </summary>
+    /// <remarks>
+    ///     해당 API는 Blocking API가 아닌, Non-Blocking API이며, 응답으로는 배포의 상황을 조회할 수 있는 DeploymentProjection을 반환합니다.
+    /// </remarks>
+    /// <param name="sketchId"></param>
+    /// <returns></returns>
+    /// <response code="200">정상적으로 배포 시작에 성공한 경우</response>
+    /// <response code="404">해당 스케치를 찾을 수 없을 때</response>
     [HttpPost("{sketchId}/deploy")]
     [ChannelRole(ChannelPermissionType.Owner)]
+    [ProducesResponseType<DeploymentProjection>(StatusCodes.Status202Accepted)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> TempDeployment(string sketchId)
+    public async Task<IActionResult> DeploySketchAsync(string sketchId)
     {
-        await sketchService.TempDeployAsync(sketchId);
-        return Ok();
+        var deploymentLog = await sketchService.DeployAsync(sketchId);
+        return Accepted(DeploymentProjection.FromDeploymentLog(deploymentLog));
     }
 }

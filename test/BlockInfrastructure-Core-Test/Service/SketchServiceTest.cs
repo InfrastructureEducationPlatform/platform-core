@@ -1,30 +1,47 @@
 using System.Net;
 using System.Text.Json;
 using BlockInfrastructure.Common.Models.Data;
+using BlockInfrastructure.Common.Models.Messages;
 using BlockInfrastructure.Common.Services;
 using BlockInfrastructure.Common.Test.Fixtures;
 using BlockInfrastructure.Core.Common;
 using BlockInfrastructure.Core.Common.Errors;
 using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Services;
+using MassTransit;
+using MassTransit.Testing;
 using Microsoft.EntityFrameworkCore;
-using Moq;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BlockInfrastructure.Core.Test.Service;
 
-public class SketchServiceTest
+public class SketchServiceTest : IDisposable
 {
     private readonly UnitTestDatabaseContext _databaseContext =
         new(new DbContextOptionsBuilder<DatabaseContext>()
             .UseInMemoryDatabase(Ulid.NewUlid().ToString()).Options);
 
-    private readonly Mock<IHttpClientFactory> _mockHttpClientFactory = new();
+    private readonly ServiceProvider _serviceProvider;
 
     private readonly SketchService _sketchService;
+    private readonly ITestHarness _testHarness;
 
     public SketchServiceTest()
     {
-        _sketchService = new SketchService(_databaseContext, _mockHttpClientFactory.Object);
+        _serviceProvider = new ServiceCollection()
+                           .AddScoped<DatabaseContext>(_ => _databaseContext)
+                           .AddScoped<SketchService>()
+                           .AddMassTransitTestHarness()
+                           .BuildServiceProvider();
+        _sketchService = _serviceProvider.GetRequiredService<SketchService>();
+        _testHarness = _serviceProvider.GetRequiredService<ITestHarness>();
+        _testHarness.Start().Wait();
+    }
+
+    public void Dispose()
+    {
+        // Since MassTransit only allows async dispose, so force to use async dispose
+        _serviceProvider.DisposeAsync().GetAwaiter().GetResult();
     }
 
     [Fact(DisplayName = "ListSketches: ListSketches는 데이터에 포함되어 있는 스케치 리스트를 Sketch Response 형태로 반환합니다.")]
@@ -198,5 +215,58 @@ public class SketchServiceTest
         Assert.Equal(sketch.Name, result.Name);
         Assert.Equal(sketch.Description, result.Description);
         Assert.Equal(sketch.ChannelId, result.ChannelId);
+    }
+
+    [Fact(DisplayName = "DeployAsync: DeployAsync는 만약 특정 Sketch를 찾을 수 없으면 ApiException에 NotFound를 반환합니다.")]
+    public async Task Is_DeployAsync_Throws_NotFound_If_Sketch_Not_Found()
+    {
+        // Let
+        var sketchId = Ulid.NewUlid().ToString();
+
+        // Do
+        var exception = await Assert.ThrowsAsync<ApiException>(async () =>
+            await _sketchService.DeployAsync(sketchId));
+
+        // Check
+        Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
+        Assert.Equal(SketchError.SketchNotFound.ErrorTitleToString(), exception.ErrorTitle.ErrorTitleToString());
+    }
+
+    [Fact(DisplayName =
+        "DeployAsync: DeployAsync는 만약 스케치를 찾을 수 있는 경우, DeploymentLog를 생성해 DB에 저장하고, StartDeploymentEvent를 생성한 다음 DeploymentLog를 반환합니다.")]
+    public async Task Is_DeployAsync_Creates_DeploymentLog_And_StartDeploymentEvent_And_Returns_DeploymentLog_If_Sketch_Found()
+    {
+        // Let
+        var channelId = Ulid.NewUlid().ToString();
+        var sketchId = Ulid.NewUlid().ToString();
+        var sketch = new Sketch
+        {
+            Id = sketchId,
+            Name = "Test Sketch",
+            Description = "Test Sketch Description",
+            ChannelId = channelId,
+            BlockSketch = JsonSerializer.SerializeToDocument(new
+            {
+            })
+        };
+        _databaseContext.Sketches.Add(sketch);
+        await _databaseContext.SaveChangesAsync();
+
+        // Do
+        var result = await _sketchService.DeployAsync(sketchId);
+
+        // Check Result
+        Assert.NotNull(result);
+        Assert.Equal(sketchId, result.SketchId);
+        Assert.Equal(DeploymentStatus.Created, result.DeploymentStatus);
+
+        // Check Database
+        var deploymentLog = await _databaseContext.DeploymentLogs.FirstOrDefaultAsync(d => d.Id == result.Id);
+        Assert.NotNull(deploymentLog);
+        Assert.Equal(sketchId, deploymentLog.SketchId);
+        Assert.Equal(DeploymentStatus.Created, deploymentLog.DeploymentStatus);
+
+        // Check Message Sent
+        Assert.True(await _testHarness.Sent.Any<StartDeploymentEvent>());
     }
 }

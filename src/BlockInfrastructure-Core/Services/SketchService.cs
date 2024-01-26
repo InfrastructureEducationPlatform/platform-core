@@ -1,15 +1,18 @@
 using System.Net;
+using System.Text.Json;
 using BlockInfrastructure.Common.Models.Data;
+using BlockInfrastructure.Common.Models.Messages;
 using BlockInfrastructure.Common.Services;
 using BlockInfrastructure.Core.Common;
 using BlockInfrastructure.Core.Common.Errors;
 using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Models.Responses;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlockInfrastructure.Core.Services;
 
-public class SketchService(DatabaseContext databaseContext, IHttpClientFactory httpClientFactory)
+public class SketchService(DatabaseContext databaseContext, ISendEndpointProvider sendEndpointProvider)
 {
     public async Task<List<SketchResponse>> ListSketches(string channelId)
     {
@@ -96,13 +99,37 @@ public class SketchService(DatabaseContext databaseContext, IHttpClientFactory h
         };
     }
 
-    public async Task TempDeployAsync(string sketchId)
+    public async Task<DeploymentLog> DeployAsync(string sketchId)
     {
+        // Create deployment log
         var sketch = await databaseContext.Sketches
                                           .FirstOrDefaultAsync(sketch => sketch.Id == sketchId) ??
                      throw new ApiException(HttpStatusCode.NotFound, "해당 스케치를 찾을 수 없습니다.", SketchError.SketchNotFound);
-        var client = httpClientFactory.CreateClient(HttpClientNames.DeploymentApi);
-        var response = await client.PostAsJsonAsync("/deploymentSketch", sketch.BlockSketch);
-        response.EnsureSuccessStatusCode();
+        var deploymentLog = new DeploymentLog
+        {
+            Id = Ulid.NewUlid().ToString(),
+            Sketch = sketch,
+            Plugin = new Plugin
+            {
+                Id = Ulid.NewUlid().ToString(),
+                Name = "Dummy Plugin",
+                Description = "Dummy Plugin",
+                SamplePluginConfiguration = JsonSerializer.SerializeToDocument(new
+                {
+                })
+            },
+            DeploymentStatus = DeploymentStatus.Created
+        };
+        databaseContext.DeploymentLogs.Add(deploymentLog);
+        await databaseContext.SaveChangesAsync();
+
+        // Send Message
+        var sendEndpoint = await sendEndpointProvider.GetSendEndpoint(new Uri("queue:deployment.started"));
+        await sendEndpoint.Send(new StartDeploymentEvent
+        {
+            DeploymentLog = deploymentLog
+        });
+
+        return deploymentLog;
     }
 }
