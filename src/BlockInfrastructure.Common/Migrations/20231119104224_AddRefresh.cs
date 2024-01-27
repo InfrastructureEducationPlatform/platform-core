@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace BlockInfrastructure.Core.Migrations
+namespace BlockInfrastructure.Common.Migrations
 {
     /// <inheritdoc />
     public partial class AddRefresh : Migration

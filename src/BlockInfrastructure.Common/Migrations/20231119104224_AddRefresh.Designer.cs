@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace BlockInfrastructure.Core.Migrations
+namespace BlockInfrastructure.Common.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
     [Migration("20231119104224_AddRefresh")]
