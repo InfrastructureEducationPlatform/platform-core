@@ -10,14 +10,33 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BlockInfrastructure.Core.Common;
 
-public class ChannelRoleAttribute(params ChannelPermissionType[] allowedPermissions) : Attribute, IAsyncActionFilter
+public enum ChannelIdGetMode
+{
+    Route,
+    Query
+}
+
+public class ChannelRoleAttribute(
+    ChannelIdGetMode channelIdGetMode,
+    string channelIdMetaName,
+    params ChannelPermissionType[] allowedPermissions) : Attribute, IAsyncActionFilter
 {
     private HashSet<ChannelPermissionType> AllowedPermissions { get; } = allowedPermissions.ToHashSet();
+
+    private Dictionary<ChannelIdGetMode, Func<HttpContext, string>> ChannelIdGetters { get; } = new()
+    {
+        {
+            ChannelIdGetMode.Route, httpContext => httpContext.GetRouteValue(channelIdMetaName) as string ?? ""
+        },
+        {
+            ChannelIdGetMode.Query, httpContext => httpContext.Request.Query[channelIdMetaName].ToString()
+        }
+    };
 
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
         var httpContext = context.HttpContext;
-        var channelIdRoute = httpContext.GetRouteValue("channelId") as string;
+        var channelIdRoute = ChannelIdGetters[channelIdGetMode](httpContext);
         var userContext = httpContext.GetUserContext();
         var databaseContext = httpContext.RequestServices.GetRequiredService<DatabaseContext>();
         var channelPermission = await databaseContext.ChannelPermissions
