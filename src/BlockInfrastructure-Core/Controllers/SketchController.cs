@@ -94,7 +94,7 @@ public class SketchController(SketchService sketchService) : ControllerBase
     /// </remarks>
     /// <param name="sketchId"></param>
     /// <returns></returns>
-    /// <response code="200">정상적으로 배포 시작에 성공한 경우</response>
+    /// <response code="202">정상적으로 배포 시작에 성공한 경우</response>
     /// <response code="404">해당 스케치를 찾을 수 없을 때</response>
     [HttpPost("{sketchId}/deploy")]
     [ChannelRole(ChannelPermissionType.Owner)]
