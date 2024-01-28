@@ -94,13 +94,13 @@ builder.Services.AddHttpClient(HttpClientNames.DeploymentApi, (provider, client)
 builder.Services.AddScoped<ChannelService>();
 
 // Add User
-builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // Add Sketches
 builder.Services.AddScoped<SketchService>();
 
 // Add Deployment
-builder.Services.AddScoped<DeploymentService>();
+builder.Services.AddScoped<IDeploymentService, DeploymentService>();
 
 // Add Common
 builder.Services.AddCommonServices(builder.Configuration, builder.Environment);

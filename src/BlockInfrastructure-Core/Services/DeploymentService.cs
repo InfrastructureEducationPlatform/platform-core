@@ -7,7 +7,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BlockInfrastructure.Core.Services;
 
-public class DeploymentService(DatabaseContext databaseContext)
+public interface IDeploymentService
+{
+    Task<DeploymentLog> GetDeploymentAsync(string deploymentId);
+}
+
+public class DeploymentService(DatabaseContext databaseContext) : IDeploymentService
 {
     public async Task<DeploymentLog> GetDeploymentAsync(string deploymentId)
     {

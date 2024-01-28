@@ -9,7 +9,7 @@ namespace BlockInfrastructure.Core.Controllers;
 
 [ApiController]
 [Route("/users")]
-public class UsersController(UserService userService) : ControllerBase
+public class UsersController(IUserService userService) : ControllerBase
 {
     /// <summary>
     ///     사용자의 현재 정보와, 소속되어 있는 채널 정보를 반환합니다.

@@ -9,7 +9,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BlockInfrastructure.Core.Services;
 
-public class UserService(DatabaseContext databaseContext, ICacheService cacheService)
+public interface IUserService
+{
+    Task<MeProjection> GetMeAsync(ContextUser contextUser);
+}
+
+public class UserService(DatabaseContext databaseContext, ICacheService cacheService) : IUserService
 {
     public async Task<MeProjection> GetMeAsync(ContextUser contextUser)
     {

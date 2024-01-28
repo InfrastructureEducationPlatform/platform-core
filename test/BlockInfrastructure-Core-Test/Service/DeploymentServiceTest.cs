@@ -16,7 +16,7 @@ public class DeploymentServiceTest
         new(new DbContextOptionsBuilder<DatabaseContext>()
             .UseInMemoryDatabase(Ulid.NewUlid().ToString()).Options);
 
-    private readonly DeploymentService _deploymentService;
+    private readonly IDeploymentService _deploymentService;
 
     public DeploymentServiceTest()
     {

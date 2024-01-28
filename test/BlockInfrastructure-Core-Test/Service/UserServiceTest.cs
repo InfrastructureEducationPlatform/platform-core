@@ -21,7 +21,7 @@ public class UserServiceTest
 
     private readonly Mock<ICacheService> _mockCacheService = new();
 
-    private readonly UserService _userService;
+    private readonly IUserService _userService;
 
     public UserServiceTest()
     {

@@ -7,7 +7,7 @@ namespace BlockInfrastructure.Core.Controllers;
 
 [ApiController]
 [Route("/deployment")]
-public class DeploymentController(DeploymentService deploymentService) : ControllerBase
+public class DeploymentController(IDeploymentService deploymentService) : ControllerBase
 {
     /// <summary>
     ///     특정 배포 정보를 가져옵니다.(FE Polling혹은 배포 정보 조회)
