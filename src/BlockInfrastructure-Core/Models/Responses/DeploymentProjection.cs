@@ -18,6 +18,9 @@ public class DeploymentProjection
     [Required]
     public DeploymentStatus DeploymentStatus { get; set; }
 
+    [Required]
+    public DateTimeOffset CreatedAt { get; set; }
+
     public JsonDocument? DeploymentOutput { get; set; }
 
     public static DeploymentProjection FromDeploymentLog(DeploymentLog deploymentLog)
@@ -28,7 +31,8 @@ public class DeploymentProjection
             SketchId = deploymentLog.SketchId,
             PluginId = deploymentLog.PluginId,
             DeploymentStatus = deploymentLog.DeploymentStatus,
-            DeploymentOutput = deploymentLog.DeploymentOutput
+            DeploymentOutput = deploymentLog.DeploymentOutput,
+            CreatedAt = deploymentLog.CreatedAt
         };
     }
 }
