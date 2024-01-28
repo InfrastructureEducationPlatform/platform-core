@@ -118,7 +118,8 @@ public class SketchService(DatabaseContext databaseContext, ISendEndpointProvide
                 {
                 })
             },
-            DeploymentStatus = DeploymentStatus.Created
+            DeploymentStatus = DeploymentStatus.Created,
+            ChannelId = sketch.ChannelId
         };
         databaseContext.DeploymentLogs.Add(deploymentLog);
         await databaseContext.SaveChangesAsync();
