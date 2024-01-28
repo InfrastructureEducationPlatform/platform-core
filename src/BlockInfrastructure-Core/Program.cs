@@ -127,6 +127,14 @@ builder.Services.AddMassTransit(configurator =>
         busFactoryConfigurator.ConfigureBackgroundCacheEndpoint(ctx);
     });
 });
+builder.Services.AddMediatR(mediatRConfiguration =>
+{
+    // Add Core
+    mediatRConfiguration.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+
+    // Add Background Cache
+    mediatRConfiguration.ConfigureMediatRBackgroundCache();
+});
 
 // Add Background Cache Worker
 builder.Services.AddBackgroundCacheWorker();

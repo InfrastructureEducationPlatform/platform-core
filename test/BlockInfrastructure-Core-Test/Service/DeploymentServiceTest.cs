@@ -64,7 +64,8 @@ public class DeploymentServiceTest
                 {
                 })
             },
-            DeploymentStatus = DeploymentStatus.Created
+            DeploymentStatus = DeploymentStatus.Created,
+            ChannelId = sketch.ChannelId
         };
         _databaseContext.DeploymentLogs.Add(deploymentLog);
         await _databaseContext.SaveChangesAsync();
@@ -77,5 +78,69 @@ public class DeploymentServiceTest
         Assert.Equal(deploymentLog.Sketch.Id, result.Sketch.Id);
         Assert.Equal(deploymentLog.Plugin.Id, result.Plugin.Id);
         Assert.Equal(deploymentLog.DeploymentStatus, result.DeploymentStatus);
+    }
+
+    [Fact(DisplayName = "ListDeploymentForChannelAsync: ListDeploymentForChannelAsync는 만약 채널에 배포가 없는 경우 빈 리스트를 반환합니다.")]
+    public async Task Is_ListDeploymentForChannelAsync_Returns_Empty_List_When_No_Deployment_Exists()
+    {
+        // Let
+        var channelId = Ulid.NewUlid().ToString();
+
+        // Do
+        var result = await _deploymentService.ListDeploymentForChannelAsync(new List<string>
+        {
+            channelId
+        });
+
+        // Check
+        Assert.Empty(result);
+    }
+
+    [Fact(DisplayName = "ListDeploymentForChannelAsync: ListDeploymentForChannelAsync는 만약 채널에 배포가 있는 경우 해당 배포 리스트를 반환합니다.")]
+    public async Task Is_ListDeploymentForChannelAsync_Returns_DeploymentList_When_Deployment_Exists()
+    {
+        // Let
+        var channelId = Ulid.NewUlid().ToString();
+        var sketch = new Sketch
+        {
+            Id = Ulid.NewUlid().ToString(),
+            Name = "Test Sketch",
+            Description = "Test Sketch Description",
+            ChannelId = channelId,
+            BlockSketch = JsonSerializer.SerializeToDocument(new
+            {
+            })
+        };
+        var deploymentLog = new DeploymentLog
+        {
+            Id = Ulid.NewUlid().ToString(),
+            Sketch = sketch,
+            Plugin = new Plugin
+            {
+                Id = Ulid.NewUlid().ToString(),
+                Name = "Dummy Plugin",
+                Description = "Dummy Plugin",
+                SamplePluginConfiguration = JsonSerializer.SerializeToDocument(new
+                {
+                })
+            },
+            DeploymentStatus = DeploymentStatus.Created,
+            ChannelId = channelId
+        };
+        _databaseContext.DeploymentLogs.Add(deploymentLog);
+        await _databaseContext.SaveChangesAsync();
+
+        // Do
+        var result = await _deploymentService.ListDeploymentForChannelAsync(new List<string>
+        {
+            channelId
+        });
+
+        // Check
+        Assert.Single(result);
+        Assert.Equal(deploymentLog.Id, result.First().Id);
+        Assert.Equal(deploymentLog.Sketch.Id, result.First().Sketch.Id);
+        Assert.Equal(deploymentLog.Plugin.Id, result.First().Plugin.Id);
+        Assert.Equal(deploymentLog.DeploymentStatus, result.First().DeploymentStatus);
     }
 }

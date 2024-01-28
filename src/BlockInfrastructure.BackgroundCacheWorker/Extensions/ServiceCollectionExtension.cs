@@ -1,3 +1,4 @@
+using System.Reflection;
 using BlockInfrastructure.BackgroundCacheWorker.Consumers.User;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,5 +32,11 @@ public static class ServiceCollectionExtension
             cfg.ConfigureConsumer<ResetMeProjectionCacheConsumer>(ctx);
         });
         return configurator;
+    }
+
+    public static MediatRServiceConfiguration ConfigureMediatRBackgroundCache(this MediatRServiceConfiguration configuration)
+    {
+        configuration.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+        return configuration;
     }
 }

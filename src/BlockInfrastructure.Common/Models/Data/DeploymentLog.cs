@@ -17,4 +17,7 @@ public class DeploymentLog : AutomaticAuditSupport
     public DeploymentStatus DeploymentStatus { get; set; }
 
     public JsonDocument? DeploymentOutput { get; set; }
+
+    public Channel Channel { get; set; }
+    public string ChannelId { get; set; }
 }

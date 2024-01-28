@@ -147,7 +147,7 @@ public abstract class IntegrationsTestHelper : IDisposable
         return sketch;
     }
 
-    protected async Task<DeploymentLog> CreateDeploymentLogAsync(string sketchId)
+    protected async Task<DeploymentLog> CreateDeploymentLogAsync(string sketchId, string channelId)
     {
         var databaseContext = GetRequiredService<DatabaseContext>();
         var deploymentLog = new DeploymentLog
@@ -163,7 +163,8 @@ public abstract class IntegrationsTestHelper : IDisposable
                 {
                 })
             },
-            DeploymentStatus = DeploymentStatus.Created
+            DeploymentStatus = DeploymentStatus.Created,
+            ChannelId = channelId
         };
         databaseContext.DeploymentLogs.Add(deploymentLog);
         await databaseContext.SaveChangesAsync();

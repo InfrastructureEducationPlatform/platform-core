@@ -46,11 +46,42 @@ public class DeploymentControllerTest(ContainerFixture containerFixture) : Integ
         var (user, token) = await CreateAccountAsync();
         var channel = await CreateChannelAsync(token.Token);
         var sketch = await CreateSketchAsync(channel.Id);
-        var deploymentLog = await CreateDeploymentLogAsync(sketch.Id);
+        var deploymentLog = await CreateDeploymentLogAsync(sketch.Id, channel.Id);
 
         // Do
         WebRequestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
         var response = await WebRequestClient.GetAsync($"/deployment/{deploymentLog.Id}");
+
+        // Check HTTP Status Code
+        Assert.True(response.IsSuccessStatusCode);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact(DisplayName = "GET /deployment: GetDeploymentInformationListAsync는 인증되지 않은 사용자가 요청한 경우 401 Unauthorized를 반환합니다.")]
+    public async Task Is_GetDeploymentInformationListAsync_Returns_Unauthorized_When_User_Not_Authenticated()
+    {
+        // Let - N/A
+        // Do
+        var response = await WebRequestClient.GetAsync("/deployment");
+
+        // Check HTTP Status Code
+        Assert.False(response.IsSuccessStatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact(DisplayName =
+        "GET /deployment: GetDeploymentInformationListAsync는 인증된 사용자가 요청한 경우 200 OK와 함께 DeploymentLog 리스트를 반환합니다.")]
+    public async Task Is_GetDeploymentInformationListAsync_Returns_DeploymentLogList_When_User_Authenticated()
+    {
+        // Let
+        var (user, token) = await CreateAccountAsync();
+        var channel = await CreateChannelAsync(token.Token);
+        var sketch = await CreateSketchAsync(channel.Id);
+        var deploymentLog = await CreateDeploymentLogAsync(sketch.Id, channel.Id);
+
+        // Do
+        WebRequestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
+        var response = await WebRequestClient.GetAsync("/deployment");
 
         // Check HTTP Status Code
         Assert.True(response.IsSuccessStatusCode);
