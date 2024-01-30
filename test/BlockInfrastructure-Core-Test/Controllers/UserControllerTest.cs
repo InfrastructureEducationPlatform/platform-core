@@ -1,8 +1,10 @@
 using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using BlockInfrastructure.Common.Models.Internal;
 using BlockInfrastructure.Common.Test.Shared.Integrations;
 using BlockInfrastructure.Common.Test.Shared.Integrations.Fixtures;
+using BlockInfrastructure.Core.Models.Requests;
 using Newtonsoft.Json;
 
 namespace BlockInfrastructure.Core.Test.Controllers;
@@ -41,5 +43,41 @@ public class UserControllerTest(ContainerFixture containerFixture) : Integration
         Assert.Equal(users.Name, userProjection.Name);
         Assert.Equal(users.ProfilePictureImageUrl, userProjection.ProfilePictureImageUrl);
         Assert.Empty(userProjection.ChannelPermissionList);
+    }
+
+    [Fact(DisplayName =
+        "POST /users/preferences: UpdateUserPreferenceAsync는 만약 인증되지 않은 사용자가 요청을 보낸 경우 401 Unauthorized를 반환합니다.")]
+    public async Task Is_UpdateUserPreferenceAsync_Returns_401_When_No_Token()
+    {
+        // Let - N/A
+        // Do
+        var response = await WebRequestClient.PostAsJsonAsync("/users/preferences", new UpdateUserPreferenceRequest
+        {
+            Name = "New Name",
+            Email = "asdf",
+            ProfilePictureImageUrl = null
+        });
+
+        // Check HTTP Status Code
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact(DisplayName = "POST /users/preferences: UpdateUserPreferenceAsync는 만약 정상적인 사용자가 요청을 보낸 경우 204 NoContent를 반환합니다.")]
+    public async Task Is_UpdateUserPreferenceAsync_Returns_204_When_Valid_User()
+    {
+        // Let
+        var (users, tokenResponse) = await CreateAccountAsync();
+        WebRequestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.Token);
+
+        // Do
+        var response = await WebRequestClient.PostAsJsonAsync("/users/preferences", new UpdateUserPreferenceRequest
+        {
+            Name = "New Name",
+            Email = "asdf",
+            ProfilePictureImageUrl = null
+        });
+
+        // Check HTTP Status Code
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }
 }

@@ -7,6 +7,7 @@ using BlockInfrastructure.Common.Test.Fixtures;
 using BlockInfrastructure.Core.Common;
 using BlockInfrastructure.Core.Common.Errors;
 using BlockInfrastructure.Core.Models.Internal;
+using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Services;
 using Microsoft.EntityFrameworkCore;
 using Moq;
@@ -96,5 +97,72 @@ public class UserServiceTest
         Assert.Equal(user.Name, meResponse.Name);
         Assert.Equal(user.ProfilePictureImageUrl, meResponse.ProfilePictureImageUrl);
         Assert.Single(meResponse.ChannelPermissionList);
+    }
+
+    [Fact(DisplayName = "UpdatePreferenceAsync: UpdatePreferenceAsync는 만약 사용자를 찾을 수 없는 경우 ApiException을 던집니다.")]
+    public async Task Is_UpdatePreferenceAsync_Throws_ApiException_When_User_Not_Found()
+    {
+        // Let
+        var contextUser = new ContextUser
+        {
+            UserId = Ulid.NewUlid().ToString(),
+            Email = Ulid.NewUlid().ToString()
+        };
+        var updateUserPreferenceRequest = new UpdateUserPreferenceRequest
+        {
+            Name = "KangDroid",
+            Email = "Test",
+            ProfilePictureImageUrl = null
+        };
+        _databaseContext.Users.Add(new User
+        {
+            Id = Ulid.NewUlid().ToString(),
+            Name = "KangDroid",
+            Email = "Test",
+            ProfilePictureImageUrl = null
+        });
+        await _databaseContext.SaveChangesAsync();
+
+        // Do
+        var exception = await Assert.ThrowsAnyAsync<ApiException>(() =>
+            _userService.UpdatePreferenceAsync(contextUser, updateUserPreferenceRequest));
+
+        // Check
+        Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
+        Assert.Equal(UserError.UserNotFound.ErrorTitleToString(), exception.ErrorTitle.ErrorTitleToString());
+    }
+
+    [Fact(DisplayName = "UpdatePreferenceAsync: UpdatePreferenceAsync는 사용자 정보가 정상적으로 있는 경우 사용자 정보를 업데이트합니다.")]
+    public async Task Is_UpdatePreferenceAsync_Updates_User_When_User_Found()
+    {
+        // Let
+        var contextUser = new ContextUser
+        {
+            UserId = Ulid.NewUlid().ToString(),
+            Email = Ulid.NewUlid().ToString()
+        };
+        var updateUserPreferenceRequest = new UpdateUserPreferenceRequest
+        {
+            Name = "KangDroid",
+            Email = "Test",
+            ProfilePictureImageUrl = null
+        };
+        var user = new User
+        {
+            Id = contextUser.UserId,
+            Name = "KangDroid",
+            Email = "Test",
+            ProfilePictureImageUrl = null
+        };
+        _databaseContext.Users.Add(user);
+        await _databaseContext.SaveChangesAsync();
+
+        // Do
+        await _userService.UpdatePreferenceAsync(contextUser, updateUserPreferenceRequest);
+
+        // Check
+        Assert.Equal(updateUserPreferenceRequest.Name, user.Name);
+        Assert.Equal(updateUserPreferenceRequest.Email, user.Email);
+        Assert.Equal(updateUserPreferenceRequest.ProfilePictureImageUrl, user.ProfilePictureImageUrl);
     }
 }
