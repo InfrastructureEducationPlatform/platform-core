@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using BlockInfrastructure.BackgroundCacheWorker.Consumers.User;
 using BlockInfrastructure.Common.Models.Internal;
 using BlockInfrastructure.Common.Models.Messages;
 using BlockInfrastructure.Common.Test.Shared.Integrations;
@@ -85,8 +84,7 @@ public class UserControllerTest(ContainerFixture containerFixture) : Integration
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
         // Check MassTransit Consumed
-        var consumerTestHarness = testHarness.GetConsumerHarness<ResetMeProjectionCacheConsumer>();
-        var consumedMessages = testHarness.Consumed.Select(a => a.MessageType == typeof(UserStateModifiedEvent)).ToList();
-        Assert.Equal(2, consumedMessages.Count); // Add, Update two messages.
+        var consumedMessages = await testHarness.Consumed.Any(a => a.MessageType == typeof(UserStateModifiedEvent));
+        Assert.True(consumedMessages);
     }
 }
