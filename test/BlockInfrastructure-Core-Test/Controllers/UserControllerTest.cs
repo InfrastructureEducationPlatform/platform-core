@@ -1,10 +1,13 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using BlockInfrastructure.BackgroundCacheWorker.Consumers.User;
 using BlockInfrastructure.Common.Models.Internal;
+using BlockInfrastructure.Common.Models.Messages;
 using BlockInfrastructure.Common.Test.Shared.Integrations;
 using BlockInfrastructure.Common.Test.Shared.Integrations.Fixtures;
 using BlockInfrastructure.Core.Models.Requests;
+using MassTransit.Testing;
 using Newtonsoft.Json;
 
 namespace BlockInfrastructure.Core.Test.Controllers;
@@ -70,6 +73,7 @@ public class UserControllerTest(ContainerFixture containerFixture) : Integration
         WebRequestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.Token);
 
         // Do
+        var testHarness = GetRequiredService<ITestHarness>();
         var response = await WebRequestClient.PostAsJsonAsync("/users/preferences", new UpdateUserPreferenceRequest
         {
             Name = "New Name",
@@ -79,5 +83,10 @@ public class UserControllerTest(ContainerFixture containerFixture) : Integration
 
         // Check HTTP Status Code
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+
+        // Check MassTransit Consumed
+        var consumerTestHarness = testHarness.GetConsumerHarness<ResetMeProjectionCacheConsumer>();
+        var consumedMessages = testHarness.Consumed.Select(a => a.MessageType == typeof(UserStateModifiedEvent)).ToList();
+        Assert.Equal(2, consumedMessages.Count); // Add, Update two messages.
     }
 }
