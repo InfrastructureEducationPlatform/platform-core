@@ -8,9 +8,8 @@ namespace BlockInfrastructure.Common.Services;
 
 public class InvalidateCacheInterceptor : SaveChangesInterceptor
 {
-    public async override ValueTask<InterceptionResult<int>> SavingChangesAsync(
-        DbContextEventData eventData, InterceptionResult<int> result,
-        CancellationToken cancellationToken = new())
+    public async override ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData, int result,
+                                                           CancellationToken cancellationToken = new())
     {
         var massTransit = eventData.Context.GetService<IPublishEndpoint>();
         var entries = eventData.Context.ChangeTracker.Entries();
@@ -34,6 +33,6 @@ public class InvalidateCacheInterceptor : SaveChangesInterceptor
             }
         }
 
-        return await base.SavingChangesAsync(eventData, result, cancellationToken);
+        return await base.SavedChangesAsync(eventData, result, cancellationToken);
     }
 }
