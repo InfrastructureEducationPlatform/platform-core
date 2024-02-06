@@ -6,6 +6,7 @@ using BlockInfrastructure.Common.Services;
 using BlockInfrastructure.Common.Test.Shared.Integrations;
 using BlockInfrastructure.Common.Test.Shared.Integrations.Fixtures;
 using BlockInfrastructure.Core.Models.Requests;
+using BlockInfrastructure.Core.Models.Responses;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlockInfrastructure.Core.Test.Controllers;
@@ -81,5 +82,53 @@ public class ChannelControllerTest(ContainerFixture containerFixture) : Integrat
         var ownership = await databaseContext.ChannelPermissions.SingleAsync();
         Assert.Equal(user.Id, ownership.UserId);
         Assert.Equal(ChannelPermissionType.Owner, ownership.ChannelPermissionType);
+    }
+
+    [Fact(DisplayName =
+        "GET /channels/{channelId}: GetChannelInformationAsync는 만약 인증되지 않은 사용자가 요청한 경우 401 Unauthorized를 반환합니다.")]
+    public async Task Is_GetChannelInformationAsync_Returns_401_Unauthorized_When_Unauthenticated_User_Requested()
+    {
+        // Let
+        var channelId = Ulid.NewUlid().ToString();
+
+        // Do
+        var response = await WebRequestClient.GetAsync($"/channels/{channelId}");
+
+        // Check
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact(DisplayName = "GET /channels/{channelId}: GetChannelInformationAsync는 만약 허용되지 않은 사용자가 요청한 경우 403 Forbidden을 반환합니다.")]
+    public async Task Is_GetChannelInformationAsync_Returns_403_For_User_Without_Proper_Permission()
+    {
+        // Let
+        var (user, token) = await CreateAccountAsync();
+        var channel = await CreateChannelAsync(token.Token);
+        var (secondUser, secondToken) = await CreateAccountAsync();
+
+        // Do
+        WebRequestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", secondToken.Token);
+        var response = await WebRequestClient.GetAsync($"/channels/{channel.Id}");
+
+        // Check
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact(DisplayName = "GET /channels/{channelId}: GetChannelInformationAsync는 만약 채널이 존재하는 경우 채널 정보를 반환합니다.")]
+    public async Task Is_GetChannelInformationAsync_Returns_Channel_Information_When_Channel_Exists()
+    {
+        // Let
+        var (user, token) = await CreateAccountAsync();
+        var channel = await CreateChannelAsync(token.Token);
+
+        // Do
+        var response = await WebRequestClient.GetAsync($"/channels/{channel.Id}");
+
+        // Check
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var channelInformation = await response.Content.ReadFromJsonAsync<ChannelInformationResponse>();
+        Assert.Equal(channel.Id, channelInformation.ChannelId);
+        Assert.Equal(channel.Name, channelInformation.Name);
+        Assert.Equal(channel.Description, channelInformation.Description);
     }
 }

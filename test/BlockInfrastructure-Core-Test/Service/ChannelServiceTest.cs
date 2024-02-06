@@ -1,6 +1,9 @@
+using System.Net;
 using BlockInfrastructure.Common.Models.Data;
 using BlockInfrastructure.Common.Services;
 using BlockInfrastructure.Common.Test.Fixtures;
+using BlockInfrastructure.Core.Common;
+using BlockInfrastructure.Core.Common.Errors;
 using BlockInfrastructure.Core.Models.Internal;
 using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Services;
@@ -50,5 +53,65 @@ public class ChannelServiceTest
         Assert.Single(channel.ChannelPermissionList);
         Assert.Equal(contextUser.UserId, channel.ChannelPermissionList.First().UserId);
         Assert.Equal(ChannelPermissionType.Owner, channel.ChannelPermissionList.First().ChannelPermissionType);
+    }
+
+    [Fact(DisplayName =
+        "GetChannelInformationAsync: GetChannelInformationAsync는 만약 채널 정보가 존재하지 않는 경우, ApiException에 ChannelError.ChannelNotFound를 던집니다.")]
+    public async Task Is_GetChannelInformationAsync_Throws_Exception_When_Channel_Not_Found()
+    {
+        // Let
+        var channelId = Ulid.NewUlid().ToString();
+
+        // Do
+        var exception =
+            await Assert.ThrowsAsync<ApiException>(async () => await _channelService.GetChannelInformationAsync(channelId));
+
+        // Check
+        Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
+        Assert.Equal(ChannelError.ChannelNotFound.ErrorTitleToString(), exception.ErrorTitle.ErrorTitleToString());
+    }
+
+    [Fact(DisplayName = "GetChannelInformationAsync: GetChannelInformationAsync는 채널 정보를 가져옵니다.")]
+    public async Task Is_GetChannelInformationAsync_Returns_Channel_Information_Well()
+    {
+        // Let
+        var channel = new Channel
+        {
+            Id = Ulid.NewUlid().ToString(),
+            Name = "TestChannel",
+            Description = "TestDescription",
+            ProfileImageUrl = null,
+            ChannelPermissionList = new List<ChannelPermission>
+            {
+                new()
+                {
+                    ChannelPermissionType = ChannelPermissionType.Owner,
+                    User = new User
+                    {
+                        Id = Ulid.NewUlid().ToString(),
+                        Name = "KangDroid",
+                        Email = "kangdroid@test.com",
+                        ProfilePictureImageUrl = null
+                    }
+                }
+            }
+        };
+        _databaseContext.Channels.Add(channel);
+        await _databaseContext.SaveChangesAsync();
+
+        // Do
+        var response = await _channelService.GetChannelInformationAsync(channel.Id);
+
+        // Check
+        Assert.Equal(channel.Id, response.ChannelId);
+        Assert.Equal(channel.Name, response.Name);
+        Assert.Equal(channel.Description, response.Description);
+        Assert.Equal(channel.ProfileImageUrl, response.ProfileImageUrl);
+        Assert.Single(response.ChannelUserInformationList);
+        Assert.Equal(channel.ChannelPermissionList.First().UserId, response.ChannelUserInformationList.First().UserId);
+        Assert.Equal(channel.ChannelPermissionList.First().User.Name, response.ChannelUserInformationList.First().Name);
+        Assert.Equal(channel.ChannelPermissionList.First().User.Email, response.ChannelUserInformationList.First().Email);
+        Assert.Equal(channel.ChannelPermissionList.First().User.ProfilePictureImageUrl,
+            response.ChannelUserInformationList.First().ProfilePictureImageUrl);
     }
 }

@@ -1,7 +1,12 @@
+using System.Net;
 using BlockInfrastructure.Common.Models.Data;
 using BlockInfrastructure.Common.Services;
+using BlockInfrastructure.Core.Common;
+using BlockInfrastructure.Core.Common.Errors;
 using BlockInfrastructure.Core.Models.Internal;
 using BlockInfrastructure.Core.Models.Requests;
+using BlockInfrastructure.Core.Models.Responses;
+using Microsoft.EntityFrameworkCore;
 
 namespace BlockInfrastructure.Core.Services;
 
@@ -26,5 +31,18 @@ public class ChannelService(DatabaseContext databaseContext)
         };
         databaseContext.Channels.Add(channel);
         await databaseContext.SaveChangesAsync();
+    }
+
+    public async Task<ChannelInformationResponse> GetChannelInformationAsync(string channelId)
+    {
+        var channelInformationWithUser = await databaseContext.Channels
+                                                              .Include(a => a.ChannelPermissionList)
+                                                              .ThenInclude(a => a.User)
+                                                              .Where(a => a.Id == channelId)
+                                                              .FirstOrDefaultAsync() ??
+                                         throw new ApiException(HttpStatusCode.NotFound, $"채널 정보 ({channelId}를 찾을 수 없습니다!",
+                                             ChannelError.ChannelNotFound);
+
+        return ChannelInformationResponse.FromChannelWithUser(channelInformationWithUser);
     }
 }
