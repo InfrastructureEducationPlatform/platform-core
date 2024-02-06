@@ -1,4 +1,4 @@
-namespace BlockInfrastructure.Core.Models.Responses;
+namespace BlockInfrastructure.Common.Models.Responses;
 
 public class ErrorResponse
 {

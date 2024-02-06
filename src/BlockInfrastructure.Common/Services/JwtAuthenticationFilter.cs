@@ -1,17 +1,16 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
-using BlockInfrastructure.Core.Common.Errors;
-using BlockInfrastructure.Core.Common.Extensions;
-using BlockInfrastructure.Core.Models.Internal;
-using BlockInfrastructure.Core.Models.Responses;
-using BlockInfrastructure.Core.Services;
+using BlockInfrastructure.Common.Extensions;
+using BlockInfrastructure.Common.Models.Errors;
+using BlockInfrastructure.Common.Models.Internal;
+using BlockInfrastructure.Common.Models.Responses;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 
-namespace BlockInfrastructure.Core.Common;
+namespace BlockInfrastructure.Common.Services;
 
-[ExcludeFromCodeCoverage]
 public class JwtAuthenticationFilter : Attribute, IAsyncActionFilter
 {
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)

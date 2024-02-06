@@ -16,6 +16,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockInfrastructure.Backgro
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockInfrastructure.Common.Test", "test\BlockInfrastructure.Common.Test\BlockInfrastructure.Common.Test.csproj", "{151CB540-3D56-43E8-B524-DAB0EEC5FE7B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockInfrastructure.Files", "src\BlockInfrastructure.Files\BlockInfrastructure.Files.csproj", "{4B9E5C9E-B6CC-4597-874B-963EC96DE4C5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,10 @@ Global
 		{151CB540-3D56-43E8-B524-DAB0EEC5FE7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{151CB540-3D56-43E8-B524-DAB0EEC5FE7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{151CB540-3D56-43E8-B524-DAB0EEC5FE7B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B9E5C9E-B6CC-4597-874B-963EC96DE4C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B9E5C9E-B6CC-4597-874B-963EC96DE4C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B9E5C9E-B6CC-4597-874B-963EC96DE4C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B9E5C9E-B6CC-4597-874B-963EC96DE4C5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{BE0BBE26-22CE-4416-B3CA-510D7B29C70D} = {BC58131E-94D4-4D5D-AAA5-3F698178E7EF}
@@ -54,5 +60,6 @@ Global
 		{60E6CC24-12B8-4B41-A8AE-0282A541B8BE} = {BC58131E-94D4-4D5D-AAA5-3F698178E7EF}
 		{E5BB79D5-B235-49BA-926F-8B1C1163A1CC} = {E3D3C961-9656-4D27-9155-61DB8B807FD1}
 		{151CB540-3D56-43E8-B524-DAB0EEC5FE7B} = {E3D3C961-9656-4D27-9155-61DB8B807FD1}
+		{4B9E5C9E-B6CC-4597-874B-963EC96DE4C5} = {BC58131E-94D4-4D5D-AAA5-3F698178E7EF}
 	EndGlobalSection
 EndGlobal

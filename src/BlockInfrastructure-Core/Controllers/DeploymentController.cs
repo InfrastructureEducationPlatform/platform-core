@@ -1,5 +1,6 @@
-using BlockInfrastructure.Core.Common;
-using BlockInfrastructure.Core.Common.Extensions;
+using BlockInfrastructure.Common.Extensions;
+using BlockInfrastructure.Common.Models.Responses;
+using BlockInfrastructure.Common.Services;
 using BlockInfrastructure.Core.Models.MediatR.Requests;
 using BlockInfrastructure.Core.Models.Responses;
 using BlockInfrastructure.Core.Services;

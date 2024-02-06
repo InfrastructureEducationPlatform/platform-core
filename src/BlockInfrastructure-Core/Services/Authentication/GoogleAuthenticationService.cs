@@ -1,16 +1,17 @@
 using System.Net.Http.Headers;
+using BlockInfrastructure.Common.Configurations;
 using BlockInfrastructure.Core.Common;
 using BlockInfrastructure.Core.Common.Extensions;
-using BlockInfrastructure.Core.Configurations;
 using BlockInfrastructure.Core.Models.Internal;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 namespace BlockInfrastructure.Core.Services.Authentication;
 
-public class GoogleAuthenticationService(IOptionsMonitor<AuthConfiguration> authConfigOptions,
-                                         IHttpClientFactory clientFactory,
-                                         ILogger<GoogleAuthenticationService> logger)
+public class GoogleAuthenticationService(
+    IOptionsMonitor<AuthConfiguration> authConfigOptions,
+    IHttpClientFactory clientFactory,
+    ILogger<GoogleAuthenticationService> logger)
     : AuthenticationProviderBase
 {
     private readonly string _clientId = authConfigOptions.CurrentValue.GoogleOAuthClientId;

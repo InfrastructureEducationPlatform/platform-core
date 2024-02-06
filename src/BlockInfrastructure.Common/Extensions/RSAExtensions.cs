@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 
-namespace BlockInfrastructure.Core.Common.Extensions;
+namespace BlockInfrastructure.Common.Extensions;
 
 public static class RsaExtensions
 {

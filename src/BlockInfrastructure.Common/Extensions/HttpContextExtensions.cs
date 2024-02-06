@@ -1,7 +1,8 @@
-using BlockInfrastructure.Core.Models.Internal;
+using BlockInfrastructure.Common.Models.Internal;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
-namespace BlockInfrastructure.Core.Common.Extensions;
+namespace BlockInfrastructure.Common.Extensions;
 
 public static class HttpContextExtensions
 {

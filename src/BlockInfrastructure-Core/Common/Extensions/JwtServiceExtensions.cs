@@ -2,9 +2,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
 using BlockInfrastructure.Common.Models.Data;
-using BlockInfrastructure.Core.Common.Errors;
+using BlockInfrastructure.Common.Models.Errors;
+using BlockInfrastructure.Common.Models.Internal;
+using BlockInfrastructure.Common.Services;
 using BlockInfrastructure.Core.Models.Internal;
-using BlockInfrastructure.Core.Services;
 
 namespace BlockInfrastructure.Core.Common.Extensions;
 

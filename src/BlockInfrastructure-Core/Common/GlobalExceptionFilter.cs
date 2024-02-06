@@ -1,21 +1,13 @@
-using System.Net;
 using System.Text;
+using BlockInfrastructure.Common.Models.Internal;
+using BlockInfrastructure.Common.Models.Responses;
 using BlockInfrastructure.Core.Common.Errors;
 using BlockInfrastructure.Core.Common.Extensions;
-using BlockInfrastructure.Core.Models.Responses;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace BlockInfrastructure.Core.Common;
-
-public class ApiException(HttpStatusCode statusCode, string errorMessage, IErrorTitle errorTitle)
-    : Exception
-{
-    public HttpStatusCode StatusCode { get; set; } = statusCode;
-    public string ErrorMessage { get; set; } = errorMessage;
-    public IErrorTitle ErrorTitle { get; set; } = errorTitle;
-}
 
 public class GlobalExceptionFilter : IExceptionFilter
 {

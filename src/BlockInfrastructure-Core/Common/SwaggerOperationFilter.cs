@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using BlockInfrastructure.Common.Services;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 

@@ -1,9 +1,9 @@
 using System.Text;
+using BlockInfrastructure.Common.Extensions;
 using BlockInfrastructure.Common.Models.Data;
+using BlockInfrastructure.Common.Models.Errors;
+using BlockInfrastructure.Common.Models.Responses;
 using BlockInfrastructure.Common.Services;
-using BlockInfrastructure.Core.Common.Errors;
-using BlockInfrastructure.Core.Common.Extensions;
-using BlockInfrastructure.Core.Models.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;

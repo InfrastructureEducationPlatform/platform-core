@@ -1,5 +1,5 @@
 using BlockInfrastructure.Common.Models.Data;
-using BlockInfrastructure.Core.Models.Internal;
+using BlockInfrastructure.Common.Models.Internal;
 using MediatR;
 
 namespace BlockInfrastructure.Core.Models.MediatR.Requests;

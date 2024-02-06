@@ -1,8 +1,8 @@
+using BlockInfrastructure.Common.Extensions;
 using BlockInfrastructure.Common.Models.Internal;
-using BlockInfrastructure.Core.Common;
-using BlockInfrastructure.Core.Common.Extensions;
+using BlockInfrastructure.Common.Models.Responses;
+using BlockInfrastructure.Common.Services;
 using BlockInfrastructure.Core.Models.Requests;
-using BlockInfrastructure.Core.Models.Responses;
 using BlockInfrastructure.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 

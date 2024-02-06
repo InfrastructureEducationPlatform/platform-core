@@ -1,5 +1,6 @@
 using System.Reflection;
 using BlockInfrastructure.BackgroundCacheWorker.Extensions;
+using BlockInfrastructure.Common;
 using BlockInfrastructure.Common.Extensions;
 using BlockInfrastructure.Common.Models.Data;
 using BlockInfrastructure.Common.Models.Messages;
@@ -8,6 +9,7 @@ using BlockInfrastructure.Core.Common;
 using BlockInfrastructure.Core.Configurations;
 using BlockInfrastructure.Core.Services;
 using BlockInfrastructure.Core.Services.Authentication;
+using BlockInfrastructure.Files.Extensions;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -35,7 +37,8 @@ builder.Host.UseSerilog((ctx, service, configuration) =>
 });
 
 // Add Controllers
-builder.Services.AddControllers(options => options.Filters.Add(typeof(GlobalExceptionFilter)));
+builder.Services.AddControllers(options => options.Filters.Add(typeof(GlobalExceptionFilter)))
+       .ConfigureApplicationPartManager(manager => manager.FeatureProviders.Add(new InternalControllerFeatureProvider()));
 
 // Configure Configurations
 builder.Services.Configure<ConnectionConfiguration>(builder.Configuration.GetSection("ConnectionStrings"));
@@ -57,13 +60,24 @@ builder.Services.AddSwaggerGen(options =>
 
     options.OperationFilter<SwaggerOperationFilter>();
 
-    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+    // Include Swagger XML Documentation.
+    var includedList = new List<string>
+    {
+        "BlockInfrastructure.Core.xml",
+        "BlockInfrastructure.Files.xml"
+    };
+
+    foreach (var eachList in includedList)
+    {
+        var path = Path.Combine(AppContext.BaseDirectory, eachList);
+        if (File.Exists(path))
+        {
+            options.IncludeXmlComments(path);
+        }
+    }
 });
 
 // Add Authentication
-builder.Services.Configure<AuthConfiguration>(builder.Configuration.GetSection("Auth"));
-builder.Services.AddSingleton<IJwtService, JwtService>();
 builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddTransient<GoogleAuthenticationService>();
 builder.Services.AddTransient<SelfAuthenticationProvider>();
@@ -138,6 +152,9 @@ builder.Services.AddMediatR(mediatRConfiguration =>
 
 // Add Background Cache Worker
 builder.Services.AddBackgroundCacheWorker();
+
+// Add File Module
+builder.Services.AddFileServices();
 
 // Add HealthCheck
 builder.Services.AddHealthChecks()

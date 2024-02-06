@@ -1,3 +1,4 @@
+using BlockInfrastructure.Common.Configurations;
 using BlockInfrastructure.Common.Services;
 using MassTransit.Logging;
 using MassTransit.Monitoring;
@@ -18,6 +19,8 @@ public static class ServiceCollectionExtension
     public static IServiceCollection AddCommonServices(this IServiceCollection services, IConfiguration configuration,
                                                        IWebHostEnvironment environment)
     {
+        services.AddSingleton<IJwtService, JwtService>();
+        services.Configure<AuthConfiguration>(configuration.GetSection("Auth"));
         services.AddDbContext<DatabaseContext>(option =>
         {
             option.UseNpgsql(configuration.GetConnectionString("DatabaseConnection"));

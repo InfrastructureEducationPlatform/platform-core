@@ -1,11 +1,12 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using BlockInfrastructure.Core.Common.Extensions;
-using BlockInfrastructure.Core.Configurations;
+using BlockInfrastructure.Common.Configurations;
+using BlockInfrastructure.Common.Extensions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace BlockInfrastructure.Core.Services;
+namespace BlockInfrastructure.Common.Services;
 
 public interface IJwtService
 {

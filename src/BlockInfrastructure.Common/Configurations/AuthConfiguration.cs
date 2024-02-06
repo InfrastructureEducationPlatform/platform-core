@@ -1,4 +1,4 @@
-namespace BlockInfrastructure.Core.Configurations;
+namespace BlockInfrastructure.Common.Configurations;
 
 public class AuthConfiguration
 {

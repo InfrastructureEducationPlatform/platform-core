@@ -1,5 +1,6 @@
 using System.Net;
 using BlockInfrastructure.Common.Models.Data;
+using BlockInfrastructure.Common.Models.Internal;
 using BlockInfrastructure.Common.Services;
 using BlockInfrastructure.Core.Common;
 using BlockInfrastructure.Core.Common.Errors;

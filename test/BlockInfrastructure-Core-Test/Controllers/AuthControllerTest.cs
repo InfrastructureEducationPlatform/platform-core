@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Http.Json;
 using BlockInfrastructure.Common.Models.Data;
+using BlockInfrastructure.Common.Models.Errors;
+using BlockInfrastructure.Common.Models.Responses;
 using BlockInfrastructure.Common.Test.Shared.Integrations;
 using BlockInfrastructure.Common.Test.Shared.Integrations.Fixtures;
 using BlockInfrastructure.Core.Common.Errors;

@@ -1,4 +1,4 @@
-namespace BlockInfrastructure.Core.Models.Internal;
+namespace BlockInfrastructure.Common.Models.Internal;
 
 public class ContextUser
 {
