@@ -2,11 +2,13 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using BlockInfrastructure.Common.Models.Data;
+using BlockInfrastructure.Common.Models.Messages;
 using BlockInfrastructure.Common.Services;
 using BlockInfrastructure.Common.Test.Shared.Integrations;
 using BlockInfrastructure.Common.Test.Shared.Integrations.Fixtures;
 using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Models.Responses;
+using MassTransit.Testing;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlockInfrastructure.Core.Test.Controllers;
@@ -82,6 +84,11 @@ public class ChannelControllerTest(ContainerFixture containerFixture) : Integrat
         var ownership = await databaseContext.ChannelPermissions.SingleAsync();
         Assert.Equal(user.Id, ownership.UserId);
         Assert.Equal(ChannelPermissionType.Owner, ownership.ChannelPermissionType);
+
+        // Check Message Consumed
+        var testHarness = GetRequiredService<ITestHarness>();
+        var consumedMessages = await testHarness.Consumed.Any(a => a.MessageType == typeof(ChannelStateModifiedEvent));
+        Assert.True(consumedMessages);
     }
 
     [Fact(DisplayName =

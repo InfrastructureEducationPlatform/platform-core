@@ -19,6 +19,10 @@ public class ChannelPermission : AutomaticAuditSupport, ICacheEventMessageGenera
             new UserStateModifiedEvent
             {
                 UserId = UserId
+            },
+            new ChannelStateModifiedEvent
+            {
+                ChannelId = ChannelId
             }
         ];
     }

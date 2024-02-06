@@ -1,8 +1,8 @@
 using System.Net;
+using BlockInfrastructure.Common;
 using BlockInfrastructure.Common.Models.Data;
 using BlockInfrastructure.Common.Models.Internal;
 using BlockInfrastructure.Common.Services;
-using BlockInfrastructure.Core.Common;
 using BlockInfrastructure.Core.Common.Errors;
 using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Models.Responses;
@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BlockInfrastructure.Core.Services;
 
-public class ChannelService(DatabaseContext databaseContext)
+public class ChannelService(DatabaseContext databaseContext, ICacheService cacheService)
 {
     public async Task CreateChannelAsync(CreateChannelRequest createChannelRequest, ContextUser contextUser)
     {
@@ -35,15 +35,18 @@ public class ChannelService(DatabaseContext databaseContext)
 
     public async Task<ChannelInformationResponse> GetChannelInformationAsync(string channelId)
     {
-        var channelInformationWithUser = await databaseContext.Channels
-                                                              .Include(a => a.ChannelPermissionList)
-                                                              .ThenInclude(a => a.User)
-                                                              .Where(a => a.Id == channelId)
-                                                              .FirstOrDefaultAsync() ??
-                                         throw new ApiException(HttpStatusCode.NotFound, $"채널 정보 ({channelId}를 찾을 수 없습니다!",
-                                             ChannelError.ChannelNotFound);
-
-        return ChannelInformationResponse.FromChannelWithUser(channelInformationWithUser);
+        return await cacheService.GetOrSetAsync(CacheKeys.ChannelInformationKey(channelId), async () =>
+        {
+            var channelData = await databaseContext.Channels
+                                                   .Include(a => a.ChannelPermissionList)
+                                                   .ThenInclude(a => a.User)
+                                                   .Where(a => a.Id == channelId)
+                                                   .FirstOrDefaultAsync() ?? throw new ApiException(HttpStatusCode.NotFound,
+                $"채널 정보 ({channelId}를 찾을 수 없습니다!", ChannelError.ChannelNotFound);
+            ;
+            return ChannelInformationResponse.FromChannelWithUser(channelData);
+        }) ?? throw new ApiException(HttpStatusCode.NotFound,
+            $"채널 정보 ({channelId}를 찾을 수 없습니다!", ChannelError.ChannelNotFound);
     }
 
     public async Task UpdateChannelInformationAsync(string channelId,

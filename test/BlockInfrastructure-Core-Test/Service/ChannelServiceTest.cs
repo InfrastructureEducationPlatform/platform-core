@@ -1,18 +1,21 @@
 using System.Net;
+using BlockInfrastructure.Common;
 using BlockInfrastructure.Common.Models.Data;
 using BlockInfrastructure.Common.Models.Internal;
 using BlockInfrastructure.Common.Services;
 using BlockInfrastructure.Common.Test.Fixtures;
-using BlockInfrastructure.Core.Common;
 using BlockInfrastructure.Core.Common.Errors;
 using BlockInfrastructure.Core.Models.Requests;
+using BlockInfrastructure.Core.Models.Responses;
 using BlockInfrastructure.Core.Services;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace BlockInfrastructure.Core.Test.Service;
 
 public class ChannelServiceTest
 {
+    private readonly Mock<ICacheService> _cacheService = new();
     private readonly ChannelService _channelService;
 
     private readonly UnitTestDatabaseContext _databaseContext =
@@ -21,7 +24,7 @@ public class ChannelServiceTest
 
     public ChannelServiceTest()
     {
-        _channelService = new ChannelService(_databaseContext);
+        _channelService = new ChannelService(_databaseContext, _cacheService.Object);
     }
 
     [Fact(DisplayName = "CreateChannelAsync: CreateChannelAsync는 사용자 요청에 따라 채널을 생성하고, 사용자 본인을 채널 권한에 추가합니다.")]
@@ -61,10 +64,16 @@ public class ChannelServiceTest
     {
         // Let
         var channelId = Ulid.NewUlid().ToString();
+        _cacheService.Setup(a => a.GetOrSetAsync(CacheKeys.ChannelInformationKey(channelId),
+            It.IsAny<Func<Task<ChannelInformationResponse>>>(),
+            null)).ReturnsAsync(value: null);
 
         // Do
         var exception =
             await Assert.ThrowsAsync<ApiException>(async () => await _channelService.GetChannelInformationAsync(channelId));
+
+        // Verify
+        _cacheService.VerifyAll();
 
         // Check
         Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
@@ -98,9 +107,15 @@ public class ChannelServiceTest
         };
         _databaseContext.Channels.Add(channel);
         await _databaseContext.SaveChangesAsync();
+        _cacheService.Setup(a => a.GetOrSetAsync(CacheKeys.ChannelInformationKey(channel.Id),
+            It.IsAny<Func<Task<ChannelInformationResponse?>>>(),
+            null)).ReturnsAsync(ChannelInformationResponse.FromChannelWithUser(channel));
 
         // Do
         var response = await _channelService.GetChannelInformationAsync(channel.Id);
+
+        // Verify
+        _cacheService.VerifyAll();
 
         // Check
         Assert.Equal(channel.Id, response.ChannelId);

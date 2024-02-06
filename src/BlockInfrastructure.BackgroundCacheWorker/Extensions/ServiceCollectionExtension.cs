@@ -1,4 +1,5 @@
 using System.Reflection;
+using BlockInfrastructure.BackgroundCacheWorker.Consumers.Channels;
 using BlockInfrastructure.BackgroundCacheWorker.Consumers.User;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +19,7 @@ public static class ServiceCollectionExtension
     public static IBusRegistrationConfigurator RegisterBackgroundCacheConsumers(this IBusRegistrationConfigurator configurator)
     {
         configurator.AddConsumer<ResetMeProjectionCacheConsumer>();
+        configurator.AddConsumer<ResetChannelInformationCacheConsumer>();
         return configurator;
     }
 
@@ -30,6 +32,13 @@ public static class ServiceCollectionExtension
             // Setup Consumer
             cfg.Bind("user.modified");
             cfg.ConfigureConsumer<ResetMeProjectionCacheConsumer>(ctx);
+        });
+
+        configurator.ReceiveEndpoint("channel.modified.invalidate-channel-information", cfg =>
+        {
+            // Setup Consumer
+            cfg.Bind("channel.modified");
+            cfg.ConfigureConsumer<ResetChannelInformationCacheConsumer>(ctx);
         });
         return configurator;
     }
