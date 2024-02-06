@@ -45,4 +45,19 @@ public class ChannelService(DatabaseContext databaseContext)
 
         return ChannelInformationResponse.FromChannelWithUser(channelInformationWithUser);
     }
+
+    public async Task UpdateChannelInformationAsync(string channelId,
+                                                    UpdateChannelInformationRequest updateChannelInformationRequest)
+    {
+        var channel = await databaseContext.Channels
+                                           .Where(a => a.Id == channelId)
+                                           .FirstOrDefaultAsync() ??
+                      throw new ApiException(HttpStatusCode.NotFound, $"채널 정보 ({channelId}를 찾을 수 없습니다!",
+                          ChannelError.ChannelNotFound);
+
+        channel.Name = updateChannelInformationRequest.ChannelName;
+        channel.Description = updateChannelInformationRequest.ChannelDescription;
+        channel.ProfileImageUrl = updateChannelInformationRequest.ProfileImageUrl;
+        await databaseContext.SaveChangesAsync();
+    }
 }

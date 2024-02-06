@@ -114,4 +114,57 @@ public class ChannelServiceTest
         Assert.Equal(channel.ChannelPermissionList.First().User.ProfilePictureImageUrl,
             response.ChannelUserInformationList.First().ProfilePictureImageUrl);
     }
+
+    [Fact(DisplayName =
+        "UpdateChannelInformationAsync: UpdateChannelInformationAsync는 만약 채널 정보가 존재하지 않는 경우, ApiException에 ChannelError.ChannelNotFound를 던집니다.")]
+    public async Task Is_UpdateChannelInformationAsync_Throws_Exception_When_Channel_Not_Found()
+    {
+        // Let
+        var channelId = Ulid.NewUlid().ToString();
+        var request = new UpdateChannelInformationRequest
+        {
+            ChannelName = "TestChannel",
+            ChannelDescription = "TestDescription",
+            ProfileImageUrl = null
+        };
+
+        // Do
+        var exception = await Assert.ThrowsAsync<ApiException>(async () =>
+            await _channelService.UpdateChannelInformationAsync(channelId, request));
+
+        // Check
+        Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
+        Assert.Equal(ChannelError.ChannelNotFound.ErrorTitleToString(), exception.ErrorTitle.ErrorTitleToString());
+    }
+
+    [Fact(DisplayName = "UpdateChannelInformationAsync: UpdateChannelInformationAsync는 채널 정보를 수정합니다.")]
+    public async Task Is_UpdateChannelInformationAsync_Updates_Channel_Information_Well()
+    {
+        // Let
+        var channel = new Channel
+        {
+            Id = Ulid.NewUlid().ToString(),
+            Name = "TestChannel",
+            Description = "TestDescription",
+            ProfileImageUrl = null
+        };
+        _databaseContext.Channels.Add(channel);
+        await _databaseContext.SaveChangesAsync();
+
+        var request = new UpdateChannelInformationRequest
+        {
+            ChannelName = "UpdatedChannel",
+            ChannelDescription = "UpdatedDescription",
+            ProfileImageUrl = "UpdatedImageUrl"
+        };
+
+        // Do
+        await _channelService.UpdateChannelInformationAsync(channel.Id, request);
+
+        // Check
+        var updatedChannel = await _databaseContext.Channels.SingleAsync();
+        Assert.Equal(request.ChannelName, updatedChannel.Name);
+        Assert.Equal(request.ChannelDescription, updatedChannel.Description);
+        Assert.Equal(request.ProfileImageUrl, updatedChannel.ProfileImageUrl);
+    }
 }

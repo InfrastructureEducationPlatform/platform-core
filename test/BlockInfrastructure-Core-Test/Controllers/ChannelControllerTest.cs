@@ -131,4 +131,74 @@ public class ChannelControllerTest(ContainerFixture containerFixture) : Integrat
         Assert.Equal(channel.Name, channelInformation.Name);
         Assert.Equal(channel.Description, channelInformation.Description);
     }
+
+    [Fact(DisplayName =
+        "PUT /channels/{channelId}: UpdateChannelInformationAsync는 만약 인증되지 않은 사용자가 요청한 경우 401 Unauthorized를 반환합니다.")]
+    public async Task Is_UpdateChannelInformationAsync_Returns_401_Unauthorized_When_Unauthenticated_User_Requested()
+    {
+        // Let
+        var channelId = Ulid.NewUlid().ToString();
+        var request = new UpdateChannelInformationRequest
+        {
+            ChannelName = "KangDroid",
+            ChannelDescription = "KangDroid",
+            ProfileImageUrl = null
+        };
+
+        // Do
+        var response = await WebRequestClient.PutAsJsonAsync($"/channels/{channelId}", request);
+
+        // Check
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact(DisplayName =
+        "PUT /channels/{channelId}: UpdateChannelInformationAsync는 만약 허용되지 않은 사용자가 요청한 경우 403 Forbidden을 반환합니다.")]
+    public async Task Is_UpdateChannelInformationAsync_Returns_403_For_User_Without_Proper_Permission()
+    {
+        // Let
+        var (user, token) = await CreateAccountAsync();
+        var channel = await CreateChannelAsync(token.Token);
+        var (secondUser, secondToken) = await CreateAccountAsync();
+        var request = new UpdateChannelInformationRequest
+        {
+            ChannelName = "KangDroid",
+            ChannelDescription = "KangDroid",
+            ProfileImageUrl = null
+        };
+
+        // Do
+        WebRequestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", secondToken.Token);
+        var response = await WebRequestClient.PutAsJsonAsync($"/channels/{channel.Id}", request);
+
+        // Check
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact(DisplayName = "PUT /channels/{channelId}: UpdateChannelInformationAsync는 채널 정보를 수정합니다.")]
+    public async Task Is_UpdateChannelInformationAsync_Updates_Channel_Information()
+    {
+        // Let
+        var (user, token) = await CreateAccountAsync();
+        var channel = await CreateChannelAsync(token.Token);
+        var request = new UpdateChannelInformationRequest
+        {
+            ChannelName = "KangDroid",
+            ChannelDescription = "KangDroid",
+            ProfileImageUrl = null
+        };
+        WebRequestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
+
+        // Do
+        var response = await WebRequestClient.PutAsJsonAsync($"/channels/{channel.Id}", request);
+
+        // Check
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+
+        // Check Data
+        var databaseContext = GetRequiredService<DatabaseContext>();
+        var updatedChannel = await databaseContext.Channels.AsNoTracking().SingleAsync();
+        Assert.Equal(request.ChannelName, updatedChannel.Name);
+        Assert.Equal(request.ChannelDescription, updatedChannel.Description);
+    }
 }
