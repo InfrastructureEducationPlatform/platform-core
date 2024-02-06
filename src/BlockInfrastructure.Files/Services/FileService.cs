@@ -39,4 +39,15 @@ public class FileService(FileTypeVerifierService fileTypeVerifierService, Databa
 
         return FileProjectionResponse.FromBlockFile(file);
     }
+
+    public async Task<BlockFile> GetFileAsync(string fileId)
+    {
+        var file = await databaseContext.BlockFiles.FindAsync(fileId);
+        if (file == null)
+        {
+            throw new ApiException(HttpStatusCode.NotFound, "File not found", FileError.FileNotFound);
+        }
+
+        return file;
+    }
 }

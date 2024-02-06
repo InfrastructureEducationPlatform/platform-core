@@ -23,4 +23,16 @@ public class FileController(FileService fileService) : ControllerBase
         var fileProjectionResponse = await fileService.UploadFileAsync(formFile, contextUser);
         return Ok(fileProjectionResponse);
     }
+
+    /// <summary>
+    ///     파일을 가져옵니다.
+    /// </summary>
+    /// <param name="fileId">파일 Id</param>
+    /// <returns></returns>
+    [HttpGet("{fileId}")]
+    public async Task<IActionResult> GetFileAsync(string fileId)
+    {
+        var file = await fileService.GetFileAsync(fileId);
+        return File(file.BinaryData, file.ContentType, file.ContentDispositionFileName);
+    }
 }
