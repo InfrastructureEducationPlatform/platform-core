@@ -38,6 +38,7 @@ public class ChannelController(ChannelService channelService) : ControllerBase
     /// <response code="404">채널 정보가 존재하지 않는 경우</response>
     [JwtAuthenticationFilter]
     [HttpGet("{channelId}")]
+    [ProducesResponseType<ChannelInformationResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status403Forbidden)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status404NotFound)]
