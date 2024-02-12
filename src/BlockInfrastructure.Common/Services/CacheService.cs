@@ -9,6 +9,7 @@ public interface ICacheService
     public Task<T?> GetAsync<T>(string key);
     public Task SetAsync<T>(string key, T value, TimeSpan? expiry = null);
     public Task<T?> GetOrSetAsync<T>(string key, Func<Task<T>> factory, TimeSpan? expiry = null);
+    public Task DeleteAsync(string key);
 }
 
 public class CacheService(IConnectionMultiplexer connectionMultiplexer, ILogger<CacheService> logger) : ICacheService
@@ -41,5 +42,11 @@ public class CacheService(IConnectionMultiplexer connectionMultiplexer, ILogger<
         var newValue = await factory();
         await database.StringSetAsync(key, JsonConvert.SerializeObject(newValue), expiry ?? TimeSpan.FromMinutes(10));
         return newValue;
+    }
+
+    public async Task DeleteAsync(string key)
+    {
+        var database = connectionMultiplexer.GetDatabase();
+        await database.KeyDeleteAsync(key);
     }
 }

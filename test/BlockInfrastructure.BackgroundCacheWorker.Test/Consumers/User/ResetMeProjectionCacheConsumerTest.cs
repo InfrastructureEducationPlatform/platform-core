@@ -1,7 +1,6 @@
 using BlockInfrastructure.BackgroundCacheWorker.Consumers.User;
 using BlockInfrastructure.Common;
 using BlockInfrastructure.Common.Models.Data;
-using BlockInfrastructure.Common.Models.Internal;
 using BlockInfrastructure.Common.Models.Messages;
 using BlockInfrastructure.Common.Services;
 using BlockInfrastructure.Common.Test.Fixtures;
@@ -91,9 +90,6 @@ public class ResetMeProjectionCacheConsumerTest : IDisposable
         Assert.True(await consumed.Consumed.Any<UserStateModifiedEvent>());
 
         // Check Cache Called
-        _mockCacheService.Verify(x => x.SetAsync(
-            It.Is<string>(a => a == CacheKeys.UserMeProjectionKey(user.Id)),
-            It.Is<MeProjection>(a => a.UserId == user.Id),
-            It.IsAny<TimeSpan>()), Times.Once);
+        _mockCacheService.Verify(a => a.DeleteAsync(CacheKeys.UserMeProjectionKey(user.Id)), Times.Once);
     }
 }

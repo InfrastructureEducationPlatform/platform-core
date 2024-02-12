@@ -79,9 +79,6 @@ public class ResetChannelInformationCacheConsumerTest : IDisposable
         Assert.True(await consumed.Consumed.Any<ChannelStateModifiedEvent>());
 
         // Check Cache Called
-        _mockCacheService.Verify(x => x.SetAsync(
-            It.Is<string>(a => a == CacheKeys.ChannelInformationKey(channel.Id)),
-            It.Is<Channel>(a => a.Id == channel.Id),
-            It.IsAny<TimeSpan>()), Times.Once);
+        _mockCacheService.Verify(a => a.DeleteAsync(CacheKeys.ChannelInformationKey(channel.Id)), Times.Once);
     }
 }
