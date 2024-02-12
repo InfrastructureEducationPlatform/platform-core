@@ -1,5 +1,6 @@
 using BlockInfrastructure.Common.Extensions;
 using BlockInfrastructure.Common.Services;
+using BlockInfrastructure.Files.Models.Responses;
 using BlockInfrastructure.Files.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,7 @@ public class FileController(FileService fileService) : ControllerBase
     /// <returns></returns>
     [JwtAuthenticationFilter]
     [HttpPost("upload")]
+    [ProducesResponseType<FileProjectionResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> UploadFileAsync(IFormFile formFile)
     {
         var contextUser = HttpContext.GetUserContext();
