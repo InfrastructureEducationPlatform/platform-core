@@ -53,8 +53,8 @@ public class ResetChannelInformationCacheConsumerTest : IDisposable
         _serviceProvider.DisposeAsync().GetAwaiter().GetResult();
     }
 
-    [Fact(DisplayName = "Consume: Consume should invalidate its cache well.")]
-    public async Task Is_Consume_Invalidates_Cache_Well()
+    [Fact(DisplayName = "Consume: Consume은 만약 이벤트 타입이 ForChannel이라면 특정 채널에 대한 캐시를 삭제합니다.")]
+    public async Task Is_Consume_Invalidate_Channel_Cache_Directly_When_Type_Is_ForChannel()
     {
         // Let
         var channel = new Channel
@@ -69,10 +69,7 @@ public class ResetChannelInformationCacheConsumerTest : IDisposable
         await _databaseContext.SaveChangesAsync();
 
         // Do
-        await _testHarness.Bus.Publish(new ChannelStateModifiedEvent
-        {
-            ChannelId = channel.Id
-        });
+        await _testHarness.Bus.Publish(ChannelStateModifiedEvent.ForChannel(channel.Id));
 
         // Check Message Consumed
         var consumed = _testHarness.GetConsumerHarness<ResetChannelInformationCacheConsumer>();
@@ -80,5 +77,53 @@ public class ResetChannelInformationCacheConsumerTest : IDisposable
 
         // Check Cache Called
         _mockCacheService.Verify(a => a.DeleteAsync(CacheKeys.ChannelInformationKey(channel.Id)), Times.Once);
+    }
+
+    [Fact(DisplayName = "Consume: Consume은 만약 이벤트 타입이 ForUser이라면 특정 사용자가 소속되어 있는 채널에 대해 모든 캐시를 삭제합니다.")]
+    public async Task Is_Consume_Invalidate_Channel_Cache_For_User()
+    {
+        // Let
+        var user = new Common.Models.Data.User
+        {
+            Id = Ulid.NewUlid().ToString(),
+            Name = "KangDroid",
+            Email = "test@test.com",
+            ProfilePictureImageUrl = null,
+            ChannelPermissionList = new List<ChannelPermission>
+            {
+                new()
+                {
+                    Channel = new Channel
+                    {
+                        Id = Ulid.NewUlid().ToString(),
+                        Name = "Test 1 Channel",
+                        Description = "",
+                        ProfileImageUrl = null
+                    }
+                },
+                new()
+                {
+                    Channel = new Channel
+                    {
+                        Id = Ulid.NewUlid().ToString(),
+                        Name = "Test 2 Channel",
+                        Description = "",
+                        ProfileImageUrl = null
+                    }
+                }
+            }
+        };
+        _databaseContext.Users.Add(user);
+        await _databaseContext.SaveChangesAsync();
+
+        // Do
+        await _testHarness.Bus.Publish(ChannelStateModifiedEvent.ForUser(user.Id));
+
+        // Check Message Consumed
+        var consumed = _testHarness.GetConsumerHarness<ResetChannelInformationCacheConsumer>();
+        Assert.True(await consumed.Consumed.Any<ChannelStateModifiedEvent>());
+
+        // Check Cache Called
+        _mockCacheService.Verify(a => a.DeleteAsync(It.IsAny<string>()), Times.AtLeastOnce);
     }
 }

@@ -16,10 +16,7 @@ public class Channel : AutomaticAuditSupport, ICacheEventMessageGenerator
     {
         return
         [
-            new ChannelStateModifiedEvent
-            {
-                ChannelId = Id
-            }
+            ChannelStateModifiedEvent.ForChannel(Id)
         ];
     }
 }

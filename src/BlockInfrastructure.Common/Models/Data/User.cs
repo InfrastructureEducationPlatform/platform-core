@@ -25,7 +25,8 @@ public class User : AutomaticAuditSupport, ICacheEventMessageGenerator
             new UserStateModifiedEvent
             {
                 UserId = Id
-            }
+            },
+            ChannelStateModifiedEvent.ForUser(Id)
         ];
     }
 }
