@@ -63,7 +63,7 @@ builder.Services.AddSwaggerGen(options =>
     // Include Swagger XML Documentation.
     var includedList = new List<string>
     {
-        "BlockInfrastructure.Core.xml",
+        "BlockInfrastructure-Core.xml",
         "BlockInfrastructure.Files.xml"
     };
 
