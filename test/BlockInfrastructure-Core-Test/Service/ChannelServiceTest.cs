@@ -326,4 +326,105 @@ public class ChannelServiceTest
         var updatedChannelPermission = await _databaseContext.ChannelPermissions.SingleOrDefaultAsync();
         Assert.Null(updatedChannelPermission);
     }
+
+    [Fact(DisplayName =
+        "AddUserToChannelAsync: AddUserToChannelAsync는 만약 현재 request하는 사용자가 직접 추가하려고 하는 경우, ApiException에 ChannelError.CannotAddSelf 던집니다.")]
+    public async Task Is_AddUserToChannelAsync_Throws_Exception_When_User_Tries_To_Add_Themselves()
+    {
+        // Let
+        var channelId = Ulid.NewUlid().ToString();
+        var request = new AddUserToChannelRequest
+        {
+            TargetUserId = Ulid.NewUlid().ToString(),
+            ChannelPermissionType = ChannelPermissionType.Owner
+        };
+
+        // Do
+        var exception = await Assert.ThrowsAsync<ApiException>(async () =>
+            await _channelService.AddUserToChannelAsync(request.TargetUserId, channelId, request));
+
+        // Check
+        Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+        Assert.Equal(ChannelError.CannotAddSelf.ErrorTitleToString(), exception.ErrorTitle.ErrorTitleToString());
+    }
+
+    [Fact(DisplayName =
+        "AddUserToChannelAsync: AddUserToChannelAsync는 만약 이미 채널에 권한이 있는 경우 ApiException에 ChannelError.CannotAddDuplicatePermission을 던집니다.")]
+    public async Task Is_AddUserToChannelAsync_Throws_Exception_When_User_Tries_To_Add_Duplicate_Permission()
+    {
+        // Let
+        var channel = new Channel
+        {
+            Id = Ulid.NewUlid().ToString(),
+            Name = "TestChannel",
+            Description = "TestDescription",
+            ProfileImageUrl = null,
+            ChannelPermissionList = new List<ChannelPermission>
+            {
+                new()
+                {
+                    UserId = Ulid.NewUlid().ToString(),
+                    ChannelPermissionType = ChannelPermissionType.Owner
+                }
+            }
+        };
+        _databaseContext.Channels.Add(channel);
+        await _databaseContext.SaveChangesAsync();
+
+        var request = new AddUserToChannelRequest
+        {
+            TargetUserId = channel.ChannelPermissionList.First().UserId,
+            ChannelPermissionType = ChannelPermissionType.Owner
+        };
+
+        // Do
+        var exception = await Assert.ThrowsAsync<ApiException>(async () =>
+            await _channelService.AddUserToChannelAsync(Ulid.NewUlid().ToString(), channel.Id, request));
+
+        // Check
+        Assert.Equal(HttpStatusCode.Conflict, exception.StatusCode);
+        Assert.Equal(ChannelError.CannotAddDuplicatePermission.ErrorTitleToString(),
+            exception.ErrorTitle.ErrorTitleToString());
+    }
+
+    [Fact(DisplayName = "AddUserToChannelAsync: AddUserToChannelAsync는 채널 권한 정보를 추가합니다.")]
+    public async Task Is_AddUserToChannelAsync_Adds_Channel_Permission_Well()
+    {
+        // Let
+        var channel = new Channel
+        {
+            Id = Ulid.NewUlid().ToString(),
+            Name = "TestChannel",
+            Description = "TestDescription",
+            ProfileImageUrl = null,
+            ChannelPermissionList = new List<ChannelPermission>
+            {
+                new()
+                {
+                    UserId = Ulid.NewUlid().ToString(),
+                    ChannelPermissionType = ChannelPermissionType.Owner
+                }
+            }
+        };
+        _databaseContext.Channels.Add(channel);
+        await _databaseContext.SaveChangesAsync();
+
+        var request = new AddUserToChannelRequest
+        {
+            TargetUserId = Ulid.NewUlid().ToString(),
+            ChannelPermissionType = ChannelPermissionType.Owner
+        };
+
+        // Do
+        await _channelService.AddUserToChannelAsync(Ulid.NewUlid().ToString(), channel.Id, request);
+
+        // Check
+        var updatedChannelPermission = await _databaseContext.ChannelPermissions
+                                                             .AsNoTracking()
+                                                             .Where(a => a.ChannelId == channel.Id &&
+                                                                         a.UserId == request.TargetUserId)
+                                                             .SingleAsync();
+        Assert.Equal(request.TargetUserId, updatedChannelPermission.UserId);
+        Assert.Equal(request.ChannelPermissionType, updatedChannelPermission.ChannelPermissionType);
+    }
 }

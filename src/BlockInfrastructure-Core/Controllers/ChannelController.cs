@@ -124,4 +124,29 @@ public class ChannelController(ChannelService channelService) : ControllerBase
         await channelService.RemoveUserFromChannelAsync(userContext.UserId, channelId, userId);
         return NoContent();
     }
+
+    /// <summary>
+    ///     특정 채널에 사용자(멤버)를 추가합니다.
+    /// </summary>
+    /// <param name="channelId">채널 Id</param>
+    /// <param name="addUserToChannelRequest">추가할 사용자의 Id와 권한을 명시한 Request Body</param>
+    /// <returns></returns>
+    /// <response code="204">채널 멤버 추가에 성공한 경우</response>
+    /// <response code="400">만약 현재 요청하는 사람이 본인을 추가하려고 하는 경우</response>
+    /// <response code="401">인증 정보가 없는 경우</response>
+    /// <response code="403">채널 수정 권한이 없는 경우</response>
+    /// <response code="409">만약 이미 채널에 사용자가 있는 경우</response>
+    [JwtAuthenticationFilter]
+    [HttpPost("{channelId}/users")]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status409Conflict)]
+    [ChannelRole(ChannelIdGetMode.Route, "channelId", ChannelPermissionType.Owner)]
+    public async Task<IActionResult> AddUserToChannelAsync(string channelId, AddUserToChannelRequest addUserToChannelRequest)
+    {
+        var userContext = HttpContext.GetUserContext();
+        await channelService.AddUserToChannelAsync(userContext.UserId, channelId, addUserToChannelRequest);
+        return NoContent();
+    }
 }

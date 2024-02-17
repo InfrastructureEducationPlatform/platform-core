@@ -104,4 +104,29 @@ public class ChannelService(DatabaseContext databaseContext, ICacheService cache
         databaseContext.ChannelPermissions.Remove(channelPermission);
         await databaseContext.SaveChangesAsync();
     }
+
+    public async Task AddUserToChannelAsync(string requesterUserId, string channelId, AddUserToChannelRequest request)
+    {
+        if (requesterUserId == request.TargetUserId)
+        {
+            throw new ApiException(HttpStatusCode.BadRequest, "자신을 채널에 추가할 수 없습니다!",
+                ChannelError.CannotAddSelf);
+        }
+
+        if (await databaseContext.ChannelPermissions
+                                 .AnyAsync(a => a.UserId == request.TargetUserId && a.ChannelId == channelId))
+        {
+            throw new ApiException(HttpStatusCode.Conflict, "이미 채널에 사용자가 존재합니다!",
+                ChannelError.CannotAddDuplicatePermission);
+        }
+
+        var channelPermission = new ChannelPermission
+        {
+            ChannelId = channelId,
+            ChannelPermissionType = request.ChannelPermissionType,
+            UserId = request.TargetUserId
+        };
+        databaseContext.ChannelPermissions.Add(channelPermission);
+        await databaseContext.SaveChangesAsync();
+    }
 }
