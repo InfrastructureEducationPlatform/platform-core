@@ -3,6 +3,7 @@ using BlockInfrastructure.Common.Models.Internal;
 using BlockInfrastructure.Common.Models.Responses;
 using BlockInfrastructure.Common.Services;
 using BlockInfrastructure.Core.Models.Requests;
+using BlockInfrastructure.Core.Models.Responses;
 using BlockInfrastructure.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -45,5 +46,21 @@ public class UsersController(IUserService userService) : ControllerBase
     {
         await userService.UpdatePreferenceAsync(HttpContext.GetUserContext(), updateUserPreferenceRequest);
         return NoContent();
+    }
+
+    /// <summary>
+    ///     사용자를 검색합니다.(이메일/이름 동시 지원)
+    /// </summary>
+    /// <param name="query">검색어(이메일/이름 동시 지원)</param>
+    /// <returns></returns>
+    /// <response code="200">성공적으로 사용자 검색을 완료한 경우</response>
+    /// <response code="401">사용자 인증에 실패한 경우</response>
+    [JwtAuthenticationFilter]
+    [HttpGet("search")]
+    [ProducesResponseType<UserSearchResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> SearchUserAsync(string query)
+    {
+        return Ok(await userService.SearchUserAsync(query));
     }
 }

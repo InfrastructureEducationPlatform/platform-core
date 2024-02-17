@@ -4,9 +4,7 @@ using BlockInfrastructure.Common.Models.Data;
 using BlockInfrastructure.Common.Models.Internal;
 using BlockInfrastructure.Common.Services;
 using BlockInfrastructure.Common.Test.Fixtures;
-using BlockInfrastructure.Core.Common;
 using BlockInfrastructure.Core.Common.Errors;
-using BlockInfrastructure.Core.Models.Internal;
 using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Services;
 using Microsoft.EntityFrameworkCore;
@@ -164,5 +162,30 @@ public class UserServiceTest
         Assert.Equal(updateUserPreferenceRequest.Name, user.Name);
         Assert.Equal(updateUserPreferenceRequest.Email, user.Email);
         Assert.Equal(updateUserPreferenceRequest.ProfilePictureImageUrl, user.ProfilePictureImageUrl);
+    }
+
+    [Fact(DisplayName = "SearchUserAsync: SearchUserAsync는 사용자를 정상적으로 찾아옵니다.")]
+    public async Task Is_SearchUserAsync_Returns_User_When_User_Found()
+    {
+        // Let
+        var user = new User
+        {
+            Id = Ulid.NewUlid().ToString(),
+            Name = "KangDroid",
+            Email = "Test",
+            ProfilePictureImageUrl = null
+        };
+        _databaseContext.Users.Add(user);
+        await _databaseContext.SaveChangesAsync();
+
+        // Do
+        var searchResponse = await _userService.SearchUserAsync("KangDroid");
+
+        // Check
+        Assert.Single(searchResponse);
+        Assert.Equal(user.Id, searchResponse.First().UserId);
+        Assert.Equal(user.Email, searchResponse.First().UserEmail);
+        Assert.Equal(user.Name, searchResponse.First().UserName);
+        Assert.Equal(user.ProfilePictureImageUrl, searchResponse.First().ProfilePictureImageUrl);
     }
 }

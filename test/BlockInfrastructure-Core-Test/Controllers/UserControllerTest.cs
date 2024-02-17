@@ -6,6 +6,7 @@ using BlockInfrastructure.Common.Models.Messages;
 using BlockInfrastructure.Common.Test.Shared.Integrations;
 using BlockInfrastructure.Common.Test.Shared.Integrations.Fixtures;
 using BlockInfrastructure.Core.Models.Requests;
+using BlockInfrastructure.Core.Models.Responses;
 using MassTransit.Testing;
 using Newtonsoft.Json;
 
@@ -86,5 +87,39 @@ public class UserControllerTest(ContainerFixture containerFixture) : Integration
         // Check MassTransit Consumed
         var consumedMessages = await testHarness.Consumed.Any(a => a.MessageType == typeof(UserStateModifiedEvent));
         Assert.True(consumedMessages);
+    }
+
+    [Fact(DisplayName = "GET /users/search: SearchUserAsync는 만약 인증되지 않은 사용자가 요청을 보낸 경우 401 Unauthorized를 반환합니다.")]
+    public async Task Is_SearchUserAsync_Returns_401_When_No_Token()
+    {
+        // Let - N/A
+        // Do
+        var response = await WebRequestClient.GetAsync("/users/search?query=Test");
+
+        // Check HTTP Status Code
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact(DisplayName = "GET /users/search: SearchUserAsync는 만약 정상적인 사용자가 요청을 보낸 경우 200 Ok를 반환합니다.")]
+    public async Task Is_SearchUserAsync_Returns_200_When_Valid_User()
+    {
+        // Let
+        var (users, tokenResponse) = await CreateAccountAsync();
+        WebRequestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.Token);
+
+        // Do
+        var response = await WebRequestClient.GetAsync($"/users/search?query={users.Email}");
+
+        // Check HTTP Status Code
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        // Check Response Body
+        var userSearchResponse =
+            JsonConvert.DeserializeObject<List<UserSearchResponse>>(await response.Content.ReadAsStringAsync());
+        Assert.Single(userSearchResponse);
+        Assert.Equal(users.Id, userSearchResponse.First().UserId);
+        Assert.Equal(users.Email, userSearchResponse.First().UserEmail);
+        Assert.Equal(users.Name, userSearchResponse.First().UserName);
+        Assert.Equal(users.ProfilePictureImageUrl, userSearchResponse.First().ProfilePictureImageUrl);
     }
 }
