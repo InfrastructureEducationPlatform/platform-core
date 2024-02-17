@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using BlockInfrastructure.Common.Models.Data;
 
 namespace BlockInfrastructure.Core.Models.Responses;
@@ -28,7 +29,8 @@ public class ChannelInformationResponse
             Description = channel.Description,
             ProfileImageUrl = channel.ProfileImageUrl,
             ChannelUserInformationList = channel.ChannelPermissionList
-                                                .Select(a => ChannelUserInformationProjection.FromUser(a.User)).ToList()
+                                                .Select(a => ChannelUserInformationProjection.FromUser(a.User,
+                                                    a.ChannelPermissionType)).ToList()
         };
     }
 }
@@ -44,16 +46,21 @@ public class ChannelUserInformationProjection
     [Required]
     public string Email { get; set; }
 
+    [Required]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public ChannelPermissionType ChannelPermissionType { get; set; }
+
     public string? ProfilePictureImageUrl { get; set; }
 
-    public static ChannelUserInformationProjection FromUser(User user)
+    public static ChannelUserInformationProjection FromUser(User user, ChannelPermissionType permissionType)
     {
         return new ChannelUserInformationProjection
         {
             UserId = user.Id,
             Name = user.Name,
             Email = user.Email,
-            ProfilePictureImageUrl = user.ProfilePictureImageUrl
+            ProfilePictureImageUrl = user.ProfilePictureImageUrl,
+            ChannelPermissionType = permissionType
         };
     }
 }
