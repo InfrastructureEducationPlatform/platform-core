@@ -182,4 +182,82 @@ public class ChannelServiceTest
         Assert.Equal(request.ChannelDescription, updatedChannel.Description);
         Assert.Equal(request.ProfileImageUrl, updatedChannel.ProfileImageUrl);
     }
+
+    [Fact(DisplayName =
+        "UpdateUserChannelRoleAsync: UpdateUserChannelRoleAsync는 만약 현재 요청하는 사람이 직접 수정하려고 하는 경우, ApiException에 ChannelError.CannotChangeOwnRole를 던집니다.")]
+    public async Task Is_UpdateUserChannelRoleAsync_Throws_Exception_When_User_Tries_To_Change_Their_Own_Role()
+    {
+        // Let
+        var channelId = Ulid.NewUlid().ToString();
+        var request = new UpdateUserChannelRoleRequest
+        {
+            UserId = Ulid.NewUlid().ToString(),
+            ChannelPermissionType = ChannelPermissionType.Owner
+        };
+
+        // Do
+        var exception = await Assert.ThrowsAsync<ApiException>(async () =>
+            await _channelService.UpdateUserChannelRoleAsync(request.UserId, channelId, request));
+
+        // Check
+        Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+        Assert.Equal(ChannelError.CannotChangeOwnRole.ErrorTitleToString(), exception.ErrorTitle.ErrorTitleToString());
+    }
+
+    [Fact(DisplayName =
+        "UpdateUserChannelRoleAsync: UpdateUserChannelRoleAsync는 만약 채널 권한 정보가 존재하지 않는 경우, ApiException에 ChannelError.ChannelPermissionNotFound를 던집니다.")]
+    public async Task Is_UpdateUserChannelRoleAsync_Throws_Exception_When_Channel_Permission_Not_Found()
+    {
+        // Let
+        var channelId = Ulid.NewUlid().ToString();
+        var request = new UpdateUserChannelRoleRequest
+        {
+            UserId = Ulid.NewUlid().ToString(),
+            ChannelPermissionType = ChannelPermissionType.Owner
+        };
+
+        // Do
+        var exception = await Assert.ThrowsAsync<ApiException>(async () =>
+            await _channelService.UpdateUserChannelRoleAsync(Ulid.NewUlid().ToString(), channelId, request));
+
+        // Check
+        Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
+        Assert.Equal(ChannelError.ChannelPermissionNotFound.ErrorTitleToString(), exception.ErrorTitle.ErrorTitleToString());
+    }
+
+    [Fact(DisplayName = "UpdateUserChannelRoleAsync: UpdateUserChannelRoleAsync는 채널 권한 정보를 수정합니다.")]
+    public async Task Is_UpdateUserChannelRoleAsync_Updates_Channel_Permission_Well()
+    {
+        // Let
+        var channel = new Channel
+        {
+            Id = Ulid.NewUlid().ToString(),
+            Name = "TestChannel",
+            Description = "TestDescription",
+            ProfileImageUrl = null,
+            ChannelPermissionList = new List<ChannelPermission>
+            {
+                new()
+                {
+                    UserId = Ulid.NewUlid().ToString(),
+                    ChannelPermissionType = ChannelPermissionType.Owner
+                }
+            }
+        };
+        _databaseContext.Channels.Add(channel);
+        await _databaseContext.SaveChangesAsync();
+
+        var request = new UpdateUserChannelRoleRequest
+        {
+            UserId = channel.ChannelPermissionList.First().UserId,
+            ChannelPermissionType = ChannelPermissionType.Owner
+        };
+
+        // Do
+        await _channelService.UpdateUserChannelRoleAsync(Ulid.NewUlid().ToString(), channel.Id, request);
+
+        // Check
+        var updatedChannelPermission = await _databaseContext.ChannelPermissions.SingleAsync();
+        Assert.Equal(request.ChannelPermissionType, updatedChannelPermission.ChannelPermissionType);
+    }
 }

@@ -208,4 +208,104 @@ public class ChannelControllerTest(ContainerFixture containerFixture) : Integrat
         Assert.Equal(request.ChannelName, updatedChannel.Name);
         Assert.Equal(request.ChannelDescription, updatedChannel.Description);
     }
+
+    [Fact(DisplayName =
+        "PUT /channels/{channelId}/users: UpdateUserChannelRoleAsync는 만약 인증되지 않은 사용자가 요청한 경우 401 Unauthorized를 반환합니다.")]
+    public async Task Is_UpdateUserChannelRoleAsync_Returns_401_Unauthorized_When_Unauthenticated_User_Requested()
+    {
+        // Let
+        var channelId = Ulid.NewUlid().ToString();
+        var request = new UpdateUserChannelRoleRequest
+        {
+            UserId = Ulid.NewUlid().ToString(),
+            ChannelPermissionType = ChannelPermissionType.Owner
+        };
+
+        // Do
+        var response = await WebRequestClient.PutAsJsonAsync($"/channels/{channelId}/users", request);
+
+        // Check
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact(DisplayName =
+        "PUT /channels/{channelId}/users: UpdateUserChannelRoleAsync는 만약 허용되지 않은 사용자가 요청한 경우 403 Forbidden을 반환합니다.")]
+    public async Task Is_UpdateUserChannelRoleAsync_Returns_403_For_User_Without_Proper_Permission()
+    {
+        // Let
+        var (user, token) = await CreateAccountAsync();
+        var channel = await CreateChannelAsync(token.Token);
+        var (secondUser, secondToken) = await CreateAccountAsync();
+        var request = new UpdateUserChannelRoleRequest
+        {
+            UserId = secondUser.Id,
+            ChannelPermissionType = ChannelPermissionType.Owner
+        };
+
+        // Do
+        WebRequestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", secondToken.Token);
+        var response = await WebRequestClient.PutAsJsonAsync($"/channels/{channel.Id}/users", request);
+
+        // Check
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact(DisplayName =
+        "PUT /channels/{channelId}/users: UpdateUserChannelRoleAsync는 만약 현재 요청하는 사람이 직접 수정하려고 하는 경우 400 BadRequest를 반환합니다.")]
+    public async Task Is_UpdateUserChannelRoleAsync_Returns_400_BadRequest_When_User_Tries_To_Update_Itself()
+    {
+        // Let
+        var (user, token) = await CreateAccountAsync();
+        var channel = await CreateChannelAsync(token.Token);
+        var request = new UpdateUserChannelRoleRequest
+        {
+            UserId = user.Id,
+            ChannelPermissionType = ChannelPermissionType.Owner
+        };
+        WebRequestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
+
+        // Do
+        var response = await WebRequestClient.PutAsJsonAsync($"/channels/{channel.Id}/users", request);
+
+        // Check
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact(DisplayName = "PUT /channels/{channelId}/users: UpdateUserChannelRoleAsync는 채널 권한 정보를 수정합니다.")]
+    public async Task Is_UpdateUserChannelRoleAsync_Updates_Channel_Permission_Well()
+    {
+        // Let
+        var databaseContext = GetRequiredService<DatabaseContext>();
+        var (user, token) = await CreateAccountAsync();
+        var (secondUser, secondToken) = await CreateAccountAsync();
+        var channel = await CreateChannelAsync(token.Token);
+        var permission = new ChannelPermission
+        {
+            ChannelId = channel.Id,
+            UserId = secondUser.Id,
+            ChannelPermissionType = ChannelPermissionType.Reader
+        };
+        databaseContext.ChannelPermissions.Add(permission);
+        await databaseContext.SaveChangesAsync();
+        var request = new UpdateUserChannelRoleRequest
+        {
+            UserId = secondUser.Id,
+            ChannelPermissionType = ChannelPermissionType.Owner
+        };
+        WebRequestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
+
+        // Do
+        var response = await WebRequestClient.PutAsJsonAsync($"/channels/{channel.Id}/users", request);
+
+        // Check
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+
+        // Check Data
+        var updatedChannelPermission = await databaseContext.ChannelPermissions
+                                                            .AsNoTracking()
+                                                            .Where(a => a.ChannelId == channel.Id && a.UserId == secondUser.Id)
+                                                            .SingleAsync();
+        Assert.Equal(request.UserId, updatedChannelPermission.UserId);
+        Assert.Equal(request.ChannelPermissionType, updatedChannelPermission.ChannelPermissionType);
+    }
 }

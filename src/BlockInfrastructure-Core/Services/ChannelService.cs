@@ -63,4 +63,25 @@ public class ChannelService(DatabaseContext databaseContext, ICacheService cache
         channel.ProfileImageUrl = updateChannelInformationRequest.ProfileImageUrl;
         await databaseContext.SaveChangesAsync();
     }
+
+    public async Task UpdateUserChannelRoleAsync(string userId, string channelId,
+                                                 UpdateUserChannelRoleRequest updateUserChannelRoleRequest)
+    {
+        if (userId == updateUserChannelRoleRequest.UserId)
+        {
+            throw new ApiException(HttpStatusCode.BadRequest, "자신의 권한을 변경할 수 없습니다!",
+                ChannelError.CannotChangeOwnRole);
+        }
+
+        var channelPermission = await databaseContext.ChannelPermissions
+                                                     .Where(a => a.UserId == updateUserChannelRoleRequest.UserId &&
+                                                                 a.ChannelId == channelId)
+                                                     .FirstOrDefaultAsync() ??
+                                throw new ApiException(HttpStatusCode.NotFound,
+                                    $"채널 권한 정보 ({updateUserChannelRoleRequest.UserId}를 찾을 수 없습니다!",
+                                    ChannelError.ChannelPermissionNotFound);
+
+        channelPermission.ChannelPermissionType = updateUserChannelRoleRequest.ChannelPermissionType;
+        await databaseContext.SaveChangesAsync();
+    }
 }

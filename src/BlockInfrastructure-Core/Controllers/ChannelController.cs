@@ -3,7 +3,6 @@ using BlockInfrastructure.Common.Models.Data;
 using BlockInfrastructure.Common.Models.Responses;
 using BlockInfrastructure.Common.Services;
 using BlockInfrastructure.Core.Common;
-using BlockInfrastructure.Core.Common.Extensions;
 using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Models.Responses;
 using BlockInfrastructure.Core.Services;
@@ -72,6 +71,32 @@ public class ChannelController(ChannelService channelService) : ControllerBase
                                                                        updateChannelInformationRequest)
     {
         await channelService.UpdateChannelInformationAsync(channelId, updateChannelInformationRequest);
+        return NoContent();
+    }
+
+    /// <summary>
+    ///     특정 채널의 멤버의 권한을 수정합니다.
+    /// </summary>
+    /// <param name="channelId">채널 Id</param>
+    /// <param name="updateUserChannelRoleRequest">사용자 ID와 채널 권한이 명시된 Request Body</param>
+    /// <returns></returns>
+    /// <response code="204">채널 정보 수정에 성공한 경우</response>
+    /// <response code="400">만약 현재 요청하는 사람이 직접 수정하려고 하는 경우</response>
+    /// <response code="401">인증 정보가 없는 경우</response>
+    /// <response code="403">채널 수정 권한이 없는 경우</response>
+    /// <response code="404">채널 정보가 존재하지 않는 경우</response>
+    [JwtAuthenticationFilter]
+    [HttpPut("{channelId}/users")]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status404NotFound)]
+    [ChannelRole(ChannelIdGetMode.Route, "channelId", ChannelPermissionType.Owner)]
+    public async Task<IActionResult> UpdateUserChannelRoleAsync(string channelId,
+                                                                UpdateUserChannelRoleRequest updateUserChannelRoleRequest)
+    {
+        var userContext = HttpContext.GetUserContext();
+        await channelService.UpdateUserChannelRoleAsync(userContext.UserId, channelId, updateUserChannelRoleRequest);
         return NoContent();
     }
 }
