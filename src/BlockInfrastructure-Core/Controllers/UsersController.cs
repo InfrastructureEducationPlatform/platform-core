@@ -57,7 +57,7 @@ public class UsersController(IUserService userService) : ControllerBase
     /// <response code="401">사용자 인증에 실패한 경우</response>
     [JwtAuthenticationFilter]
     [HttpGet("search")]
-    [ProducesResponseType<UserSearchResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<List<UserSearchResponse>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> SearchUserAsync(string query)
     {
