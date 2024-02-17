@@ -99,4 +99,29 @@ public class ChannelController(ChannelService channelService) : ControllerBase
         await channelService.UpdateUserChannelRoleAsync(userContext.UserId, channelId, updateUserChannelRoleRequest);
         return NoContent();
     }
+
+    /// <summary>
+    ///     특정 채널에서 사용자(멤버)를 제거합니다.
+    /// </summary>
+    /// <param name="channelId">변경할 채널 Id</param>
+    /// <param name="userId">사용자 Id</param>
+    /// <returns></returns>
+    /// <response code="204">채널 정보 수정에 성공한 경우</response>
+    /// <response code="400">만약 현재 요청하는 사람이 본인을 삭제하려고 하는 경우</response>
+    /// <response code="401">인증 정보가 없는 경우</response>
+    /// <response code="403">채널 수정 권한이 없는 경우</response>
+    /// <response code="404">채널 정보가 존재하지 않는 경우</response>
+    [JwtAuthenticationFilter]
+    [HttpDelete("{channelId}/users/{userId}")]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status404NotFound)]
+    [ChannelRole(ChannelIdGetMode.Route, "channelId", ChannelPermissionType.Owner)]
+    public async Task<IActionResult> RemoveUserFromChannelAsync(string channelId, string userId)
+    {
+        var userContext = HttpContext.GetUserContext();
+        await channelService.RemoveUserFromChannelAsync(userContext.UserId, channelId, userId);
+        return NoContent();
+    }
 }

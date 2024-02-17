@@ -7,6 +7,7 @@ public class ChannelError : IErrorTitle
     public static ChannelError ChannelNotFound => new(ErrorTitle.ChannelNotFound);
     public static ChannelError ChannelPermissionNotFound => new(ErrorTitle.ChannelPermissionNotFound);
     public static ChannelError CannotChangeOwnRole => new(ErrorTitle.CannotChangeOwnRole);
+    public static ChannelError CannotRemoveSelf => new(ErrorTitle.CannotRemoveSelf);
 
     private ChannelError(ErrorTitle errorTitle)
     {
@@ -33,6 +34,11 @@ public class ChannelError : IErrorTitle
         /// <summary>
         ///     자신의 권한을 변경할 수 없는 경우
         /// </summary>
-        CannotChangeOwnRole
+        CannotChangeOwnRole,
+
+        /// <summary>
+        ///     자신을 채널에서 제거할 수 없는 경우
+        /// </summary>
+        CannotRemoveSelf
     }
 }

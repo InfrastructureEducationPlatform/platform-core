@@ -308,4 +308,84 @@ public class ChannelControllerTest(ContainerFixture containerFixture) : Integrat
         Assert.Equal(request.UserId, updatedChannelPermission.UserId);
         Assert.Equal(request.ChannelPermissionType, updatedChannelPermission.ChannelPermissionType);
     }
+
+    [Fact(DisplayName =
+        "DELETE /channels/{channelId}/users/{userId}: RemoveUserFromChannelAsync는 만약 인증되지 않은 사용자가 요청한 경우 401 Unauthorized를 반환합니다.")]
+    public async Task Is_RemoveUserFromChannelAsync_Returns_401_Unauthorized_When_Unauthenticated_User_Requested()
+    {
+        // Let
+        var channelId = Ulid.NewUlid().ToString();
+        var userId = Ulid.NewUlid().ToString();
+
+        // Do
+        var response = await WebRequestClient.DeleteAsync($"/channels/{channelId}/users/{userId}");
+
+        // Check
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact(DisplayName =
+        "DELETE /channels/{channelId}/users/{userId}: RemoveUserFromChannelAsync는 만약 허용되지 않은 사용자가 요청한 경우 403 Forbidden을 반환합니다.")]
+    public async Task Is_RemoveUserFromChannelAsync_Returns_403_For_User_Without_Proper_Permission()
+    {
+        // Let
+        var (user, token) = await CreateAccountAsync();
+        var channel = await CreateChannelAsync(token.Token);
+        var (secondUser, secondToken) = await CreateAccountAsync();
+
+        // Do
+        WebRequestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", secondToken.Token);
+        var response = await WebRequestClient.DeleteAsync($"/channels/{channel.Id}/users/{secondUser.Id}");
+
+        // Check
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact(DisplayName =
+        "DELETE /channels/{channelId}/users/{userId}: RemoveUserFromChannelAsync는 본인이 채널에서 나가려고 하는 경우 400 BadRequest를 반환합니다.")]
+    public async Task Is_RemoveUserFromChannelAsync_Returns_400_BadRequest_When_User_Tries_To_Remove_Itself()
+    {
+        // Let
+        var (user, token) = await CreateAccountAsync();
+        var channel = await CreateChannelAsync(token.Token);
+
+        // Do
+        WebRequestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
+        var response = await WebRequestClient.DeleteAsync($"/channels/{channel.Id}/users/{user.Id}");
+
+        // Check
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact(DisplayName = "DELETE /channels/{channelId}/users/{userId}: RemoveUserFromChannelAsync는 채널 권한 정보를 삭제합니다.")]
+    public async Task Is_RemoveUserFromChannelAsync_Removes_Channel_Permission_Well()
+    {
+        // Let
+        var databaseContext = GetRequiredService<DatabaseContext>();
+        var (user, token) = await CreateAccountAsync();
+        var (secondUser, secondToken) = await CreateAccountAsync();
+        var channel = await CreateChannelAsync(token.Token);
+        var permission = new ChannelPermission
+        {
+            ChannelId = channel.Id,
+            UserId = secondUser.Id,
+            ChannelPermissionType = ChannelPermissionType.Reader
+        };
+        databaseContext.ChannelPermissions.Add(permission);
+        await databaseContext.SaveChangesAsync();
+        WebRequestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
+
+        // Do
+        var response = await WebRequestClient.DeleteAsync($"/channels/{channel.Id}/users/{secondUser.Id}");
+
+        // Check
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+
+        // Check Data
+        var removedChannelPermission = await databaseContext.ChannelPermissions
+                                                            .AsNoTracking()
+                                                            .Where(a => a.ChannelId == channel.Id && a.UserId == secondUser.Id)
+                                                            .SingleOrDefaultAsync();
+        Assert.Null(removedChannelPermission);
+    }
 }

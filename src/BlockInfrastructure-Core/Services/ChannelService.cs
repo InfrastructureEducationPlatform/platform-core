@@ -84,4 +84,24 @@ public class ChannelService(DatabaseContext databaseContext, ICacheService cache
         channelPermission.ChannelPermissionType = updateUserChannelRoleRequest.ChannelPermissionType;
         await databaseContext.SaveChangesAsync();
     }
+
+    public async Task RemoveUserFromChannelAsync(string requesterUserId, string channelId, string targetUserId)
+    {
+        if (requesterUserId == targetUserId)
+        {
+            throw new ApiException(HttpStatusCode.BadRequest, "자신을 채널에서 제거할 수 없습니다!",
+                ChannelError.CannotRemoveSelf);
+        }
+
+        var channelPermission = await databaseContext.ChannelPermissions
+                                                     .Where(a => a.UserId == targetUserId &&
+                                                                 a.ChannelId == channelId)
+                                                     .FirstOrDefaultAsync() ??
+                                throw new ApiException(HttpStatusCode.NotFound,
+                                    $"채널 권한 정보 ({targetUserId}를 찾을 수 없습니다!",
+                                    ChannelError.ChannelPermissionNotFound);
+
+        databaseContext.ChannelPermissions.Remove(channelPermission);
+        await databaseContext.SaveChangesAsync();
+    }
 }

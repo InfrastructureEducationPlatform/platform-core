@@ -260,4 +260,70 @@ public class ChannelServiceTest
         var updatedChannelPermission = await _databaseContext.ChannelPermissions.SingleAsync();
         Assert.Equal(request.ChannelPermissionType, updatedChannelPermission.ChannelPermissionType);
     }
+
+    [Fact(DisplayName =
+        "RemoveUserFromChannelAsync: RemoveUserFromChannelAsync는 만약 현재 request하는 사용자가 직접 삭제하려고 하는 경우, ApiException에 ChannelError.CannotRemoveSelf 던집니다.")]
+    public async Task Is_RemoveUserFromChannelAsync_Throws_Exception_When_User_Tries_To_Remove_Themselves()
+    {
+        // Let
+        var channelId = Ulid.NewUlid().ToString();
+        var userId = Ulid.NewUlid().ToString();
+
+        // Do
+        var exception = await Assert.ThrowsAsync<ApiException>(async () =>
+            await _channelService.RemoveUserFromChannelAsync(userId, channelId, userId));
+
+        // Check
+        Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+        Assert.Equal(ChannelError.CannotRemoveSelf.ErrorTitleToString(), exception.ErrorTitle.ErrorTitleToString());
+    }
+
+    [Fact(DisplayName =
+        "RemoveUserFromChannelAsync: RemoveUserFromChannelAsync는 만약 채널 권한 정보가 존재하지 않는 경우, ApiException에 ChannelError.ChannelPermissionNotFound를 던집니다.")]
+    public async Task Is_RemoveUserFromChannelAsync_Throws_Exception_When_Channel_Permission_Not_Found()
+    {
+        // Let
+        var channelId = Ulid.NewUlid().ToString();
+        var userId = Ulid.NewUlid().ToString();
+
+        // Do
+        var exception = await Assert.ThrowsAsync<ApiException>(async () =>
+            await _channelService.RemoveUserFromChannelAsync(Ulid.NewUlid().ToString(), channelId, userId));
+
+        // Check
+        Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
+        Assert.Equal(ChannelError.ChannelPermissionNotFound.ErrorTitleToString(), exception.ErrorTitle.ErrorTitleToString());
+    }
+
+    [Fact(DisplayName = "RemoveUserFromChannelAsync: RemoveUserFromChannelAsync는 채널 권한 정보를 삭제합니다.")]
+    public async Task Is_RemoveUserFromChannelAsync_Removes_Channel_Permission_Well()
+    {
+        // Let
+        var channel = new Channel
+        {
+            Id = Ulid.NewUlid().ToString(),
+            Name = "TestChannel",
+            Description = "TestDescription",
+            ProfileImageUrl = null,
+            ChannelPermissionList = new List<ChannelPermission>
+            {
+                new()
+                {
+                    UserId = Ulid.NewUlid().ToString(),
+                    ChannelPermissionType = ChannelPermissionType.Owner
+                }
+            }
+        };
+        _databaseContext.Channels.Add(channel);
+        await _databaseContext.SaveChangesAsync();
+
+        var userId = channel.ChannelPermissionList.First().UserId;
+
+        // Do
+        await _channelService.RemoveUserFromChannelAsync(Ulid.NewUlid().ToString(), channel.Id, userId);
+
+        // Check
+        var updatedChannelPermission = await _databaseContext.ChannelPermissions.SingleOrDefaultAsync();
+        Assert.Null(updatedChannelPermission);
+    }
 }
