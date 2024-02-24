@@ -92,4 +92,52 @@ public class PluginServiceTest
         Assert.Equal(channelId, pluginInstallation.ChannelId);
         Assert.Equal(installPluginRequest.PluginConfiguration, pluginInstallation.PluginConfiguration);
     }
+
+    [Fact(DisplayName = "ListInstalledPluginAsync: ListInstalledPluginAsync는 만약 플러그인이 없는 경우 빈 리스트를 반환합니다.")]
+    public async Task Is_ListInstalledPluginAsync_Returns_Empty_List_When_No_Plugin_Exists()
+    {
+        // Do
+        var pluginList = await _pluginService.ListInstalledPluginAsync(Ulid.NewUlid().ToString());
+
+        // Check
+        Assert.Empty(pluginList);
+    }
+
+    [Fact(DisplayName = "ListInstalledPluginAsync: ListInstalledPluginAsync는 플러그인이 있는 경우 플러그인 리스트를 반환합니다.")]
+    public async Task Is_ListInstalledPluginAsync_Returns_Plugin_List_When_Plugin_Exists()
+    {
+        // Let
+        var channelId = Ulid.NewUlid().ToString();
+        var plugin = new Plugin
+        {
+            Id = Ulid.NewUlid().ToString(),
+            Name = "Test Plugin",
+            Description = "Test Plugin Description",
+            SamplePluginConfiguration = JsonSerializer.SerializeToDocument(new
+            {
+            })
+        };
+        _databaseContext.Plugins.Add(plugin);
+        await _databaseContext.SaveChangesAsync();
+
+        var pluginInstallation = new PluginInstallation
+        {
+            PluginId = plugin.Id,
+            ChannelId = channelId,
+            PluginConfiguration = JsonSerializer.SerializeToDocument(new
+            {
+            })
+        };
+        _databaseContext.PluginInstallations.Add(pluginInstallation);
+        await _databaseContext.SaveChangesAsync();
+
+        // Do
+        var pluginList = await _pluginService.ListInstalledPluginAsync(channelId);
+
+        // Check
+        Assert.Single(pluginList);
+        Assert.Equal(plugin.Id, pluginList.First().Id);
+        Assert.Equal(plugin.Name, pluginList.First().Name);
+        Assert.Equal(plugin.Description, pluginList.First().Description);
+    }
 }

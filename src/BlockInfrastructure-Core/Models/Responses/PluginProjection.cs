@@ -29,4 +29,15 @@ public class PluginProjection
             SamplePluginConfiguration = plugin.SamplePluginConfiguration
         };
     }
+
+    public static PluginProjection FromPluginInstallation(PluginInstallation pluginInstallation)
+    {
+        return new PluginProjection
+        {
+            Id = pluginInstallation.PluginId,
+            Name = pluginInstallation.Plugin.Name,
+            Description = pluginInstallation.Plugin.Description,
+            SamplePluginConfiguration = pluginInstallation.Plugin.SamplePluginConfiguration
+        };
+    }
 }

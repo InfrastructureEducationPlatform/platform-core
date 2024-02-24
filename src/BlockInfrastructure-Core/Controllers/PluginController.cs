@@ -28,6 +28,17 @@ public class PluginController(PluginService pluginService) : ControllerBase
         return Ok(await pluginService.ListAvailablePluginAsync());
     }
 
+    [HttpGet("installed")]
+    [JwtAuthenticationFilter]
+    [ChannelRole(ChannelIdGetMode.Route, "channelId", ChannelPermissionType.Owner)]
+    [ProducesResponseType<List<PluginProjection>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> ListInstalledPlugins(string channelId)
+    {
+        return Ok(await pluginService.ListInstalledPluginAsync(channelId));
+    }
+
     /// <summary>
     ///     채널에 플러그인을 설치합니다.
     /// </summary>
