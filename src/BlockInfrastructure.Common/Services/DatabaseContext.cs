@@ -1,4 +1,6 @@
+using System.Text.Json;
 using BlockInfrastructure.Common.Models.Data;
+using BlockInfrastructure.Common.Models.Internal.PluginConfigs;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlockInfrastructure.Common.Services;
@@ -45,6 +47,21 @@ public class DatabaseContext : DbContext
         modelBuilder.Entity<Plugin>()
                     .Property(a => a.SamplePluginConfiguration)
                     .HasColumnType("jsonb");
+
+        // Default Data Seed
+        modelBuilder.Entity<Plugin>()
+                    .HasData(new Plugin
+                    {
+                        Id = "aws-static",
+                        Name = "Amazon Static Credential Provider Plugin",
+                        Description = "Amazon Access Key를 사용하는 Credential Provider Plugin",
+                        SamplePluginConfiguration = JsonSerializer.SerializeToDocument(new AwsStaticProviderConfig
+                        {
+                            AccessKey = "Access Key ID",
+                            SecretKey = "Access Secret Key",
+                            Region = "Default Region Code(i.e: ap-northeast-2)"
+                        })
+                    });
 
         modelBuilder.Entity<PluginInstallation>()
                     .HasKey(a => new
