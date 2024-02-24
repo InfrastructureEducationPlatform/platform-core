@@ -2,6 +2,7 @@ using System.Text.Json;
 using BlockInfrastructure.Common.Models.Data;
 using BlockInfrastructure.Common.Services;
 using BlockInfrastructure.Common.Test.Fixtures;
+using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -54,5 +55,41 @@ public class PluginServiceTest
         Assert.Equal(plugin.Id, pluginList.First().Id);
         Assert.Equal(plugin.Name, pluginList.First().Name);
         Assert.Equal(plugin.Description, pluginList.First().Description);
+    }
+
+    [Fact(DisplayName = "InstallPluginToChannelAsync: InstallPluginToChannelAsync는 플러그인을 채널에 설치합니다.")]
+    public async Task Is_InstallPluginToChannelAsync_Installs_Plugin_To_Channel()
+    {
+        // Let
+        var channelId = Ulid.NewUlid().ToString();
+        var plugin = new Plugin
+        {
+            Id = Ulid.NewUlid().ToString(),
+            Name = "Test Plugin",
+            Description = "Test Plugin Description",
+            SamplePluginConfiguration = JsonSerializer.SerializeToDocument(new
+            {
+            })
+        };
+        _databaseContext.Plugins.Add(plugin);
+        await _databaseContext.SaveChangesAsync();
+
+        var installPluginRequest = new InstallPluginRequest
+        {
+            PluginId = plugin.Id,
+            PluginConfiguration = JsonSerializer.SerializeToDocument(new
+            {
+            })
+        };
+
+        // Do
+        await _pluginService.InstallPluginToChannelAsync(channelId, installPluginRequest);
+
+        // Check
+        var pluginInstallation = await _databaseContext.PluginInstallations.FirstOrDefaultAsync();
+        Assert.NotNull(pluginInstallation);
+        Assert.Equal(plugin.Id, pluginInstallation.PluginId);
+        Assert.Equal(channelId, pluginInstallation.ChannelId);
+        Assert.Equal(installPluginRequest.PluginConfiguration, pluginInstallation.PluginConfiguration);
     }
 }
