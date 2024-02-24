@@ -7,13 +7,15 @@ using BlockInfrastructure.Common.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 
 namespace BlockInfrastructure.Core.Common;
 
 public enum ChannelIdGetMode
 {
     Route,
-    Query
+    Query,
+    RequestBody
 }
 
 public class ChannelRoleAttribute(
@@ -23,20 +25,29 @@ public class ChannelRoleAttribute(
 {
     private HashSet<ChannelPermissionType> AllowedPermissions { get; } = allowedPermissions.ToHashSet();
 
-    private Dictionary<ChannelIdGetMode, Func<HttpContext, string>> ChannelIdGetters { get; } = new()
+    private Dictionary<ChannelIdGetMode, Func<HttpContext, Task<string>>> ChannelIdGetters { get; } = new()
     {
         {
-            ChannelIdGetMode.Route, httpContext => httpContext.GetRouteValue(channelIdMetaName) as string ?? ""
+            ChannelIdGetMode.Route,
+            httpContext => Task.FromResult(httpContext.GetRouteValue(channelIdMetaName) as string ?? "")
         },
         {
-            ChannelIdGetMode.Query, httpContext => httpContext.Request.Query[channelIdMetaName].ToString()
+            ChannelIdGetMode.Query, httpContext => Task.FromResult(httpContext.Request.Query[channelIdMetaName].ToString())
+        },
+        {
+            ChannelIdGetMode.RequestBody, async httpContext =>
+            {
+                using var streamReader = new StreamReader(httpContext.Request.Body);
+                var requestBody = JObject.Parse(await streamReader.ReadToEndAsync());
+                return requestBody[channelIdMetaName]?.Value<string>() ?? "";
+            }
         }
     };
 
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
         var httpContext = context.HttpContext;
-        var channelIdRoute = ChannelIdGetters[channelIdGetMode](httpContext);
+        var channelIdRoute = await ChannelIdGetters[channelIdGetMode](httpContext);
         var userContext = httpContext.GetUserContext();
         var databaseContext = httpContext.RequestServices.GetRequiredService<DatabaseContext>();
         var channelPermission = await databaseContext.ChannelPermissions
