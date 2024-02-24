@@ -116,6 +116,9 @@ builder.Services.AddScoped<SketchService>();
 // Add Deployment
 builder.Services.AddScoped<IDeploymentService, DeploymentService>();
 
+// Add Plugin Service
+builder.Services.AddScoped<PluginService>();
+
 // Add Common
 builder.Services.AddCommonServices(builder.Configuration, builder.Environment);
 
