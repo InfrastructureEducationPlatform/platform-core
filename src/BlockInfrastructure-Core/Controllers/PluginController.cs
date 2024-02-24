@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BlockInfrastructure.Core.Controllers;
 
 [ApiController]
+[Route("/channels/{channelId}/plugins")]
 public class PluginController(PluginService pluginService) : ControllerBase
 {
     /// <summary>
@@ -15,7 +16,7 @@ public class PluginController(PluginService pluginService) : ControllerBase
     /// <returns></returns>
     /// <response code="200">플러그인 목록 조회 성공 시</response>
     /// <response code="401">인증 실패 시</response>
-    [HttpGet("/plugins")]
+    [HttpGet("available")]
     [JwtAuthenticationFilter]
     [ProducesResponseType<List<PluginProjection>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]
