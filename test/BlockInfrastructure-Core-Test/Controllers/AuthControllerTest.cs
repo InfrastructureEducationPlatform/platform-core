@@ -5,7 +5,6 @@ using BlockInfrastructure.Common.Models.Errors;
 using BlockInfrastructure.Common.Models.Responses;
 using BlockInfrastructure.Common.Test.Shared.Integrations;
 using BlockInfrastructure.Common.Test.Shared.Integrations.Fixtures;
-using BlockInfrastructure.Core.Common.Errors;
 using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Models.Responses;
 using Newtonsoft.Json;

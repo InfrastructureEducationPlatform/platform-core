@@ -1,5 +1,5 @@
 using System.Net;
-using BlockInfrastructure.Core.Common.Errors;
+using BlockInfrastructure.Common.Models.Errors;
 
 namespace BlockInfrastructure.Common.Models.Internal;
 

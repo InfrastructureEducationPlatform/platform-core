@@ -1,8 +1,8 @@
 using System.Net;
 using BlockInfrastructure.Common;
+using BlockInfrastructure.Common.Models.Errors;
 using BlockInfrastructure.Common.Models.Internal;
 using BlockInfrastructure.Common.Services;
-using BlockInfrastructure.Core.Common.Errors;
 using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Models.Responses;
 using Microsoft.EntityFrameworkCore;

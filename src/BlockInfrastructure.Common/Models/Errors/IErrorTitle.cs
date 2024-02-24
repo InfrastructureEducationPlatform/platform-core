@@ -1,4 +1,4 @@
-namespace BlockInfrastructure.Core.Common.Errors;
+namespace BlockInfrastructure.Common.Models.Errors;
 
 public interface IErrorTitle
 {

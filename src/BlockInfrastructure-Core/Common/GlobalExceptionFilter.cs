@@ -1,7 +1,7 @@
 using System.Text;
+using BlockInfrastructure.Common.Models.Errors;
 using BlockInfrastructure.Common.Models.Internal;
 using BlockInfrastructure.Common.Models.Responses;
-using BlockInfrastructure.Core.Common.Errors;
 using BlockInfrastructure.Core.Common.Extensions;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;

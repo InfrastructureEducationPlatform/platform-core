@@ -1,11 +1,11 @@
 using System.Net;
 using System.Text.Json;
 using BlockInfrastructure.Common.Models.Data;
+using BlockInfrastructure.Common.Models.Errors;
 using BlockInfrastructure.Common.Models.Internal;
 using BlockInfrastructure.Common.Models.Messages;
 using BlockInfrastructure.Common.Services;
 using BlockInfrastructure.Core.Common;
-using BlockInfrastructure.Core.Common.Errors;
 using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Models.Responses;
 using MassTransit;

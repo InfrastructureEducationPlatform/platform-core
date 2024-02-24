@@ -1,5 +1,3 @@
-using BlockInfrastructure.Core.Common.Errors;
-
 namespace BlockInfrastructure.Common.Models.Errors;
 
 public class AuthError : IErrorTitle

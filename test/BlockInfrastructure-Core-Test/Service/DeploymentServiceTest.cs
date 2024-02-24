@@ -1,10 +1,10 @@
 using System.Net;
 using System.Text.Json;
 using BlockInfrastructure.Common.Models.Data;
+using BlockInfrastructure.Common.Models.Errors;
 using BlockInfrastructure.Common.Models.Internal;
 using BlockInfrastructure.Common.Services;
 using BlockInfrastructure.Common.Test.Fixtures;
-using BlockInfrastructure.Core.Common.Errors;
 using BlockInfrastructure.Core.Services;
 using Microsoft.EntityFrameworkCore;
 
