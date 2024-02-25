@@ -13,5 +13,16 @@ public class Plugin : AutomaticAuditSupport
 
     public JsonDocument SamplePluginConfiguration { get; set; }
 
+    public List<PluginTypeDefinition> PluginTypeDefinitions { get; set; } = new();
+
     public List<Channel> ChannelList { get; set; }
+}
+
+public class PluginTypeDefinition
+{
+    public string FieldName { get; set; }
+    public string FieldType { get; set; }
+    public string FieldDescription { get; set; }
+    public bool IsRequired { get; set; }
+    public string DefaultValue { get; set; }
 }

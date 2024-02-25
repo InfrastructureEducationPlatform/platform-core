@@ -18,6 +18,9 @@ public class PluginProjection
     [Required]
     public JsonDocument SamplePluginConfiguration { get; set; }
 
+    [Required]
+    public List<PluginTypeDefinition> PluginTypeDefinitions { get; set; } = new();
+
 
     public static PluginProjection FromPlugin(Plugin plugin)
     {
@@ -26,7 +29,8 @@ public class PluginProjection
             Id = plugin.Id,
             Name = plugin.Name,
             Description = plugin.Description,
-            SamplePluginConfiguration = plugin.SamplePluginConfiguration
+            SamplePluginConfiguration = plugin.SamplePluginConfiguration,
+            PluginTypeDefinitions = plugin.PluginTypeDefinitions
         };
     }
 
@@ -37,7 +41,8 @@ public class PluginProjection
             Id = pluginInstallation.PluginId,
             Name = pluginInstallation.Plugin.Name,
             Description = pluginInstallation.Plugin.Description,
-            SamplePluginConfiguration = pluginInstallation.Plugin.SamplePluginConfiguration
+            SamplePluginConfiguration = pluginInstallation.Plugin.SamplePluginConfiguration,
+            PluginTypeDefinitions = pluginInstallation.Plugin.PluginTypeDefinitions
         };
     }
 }

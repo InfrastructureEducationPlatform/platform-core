@@ -1,7 +1,8 @@
-using System.Text.Json;
 using BlockInfrastructure.Common.Models.Data;
 using BlockInfrastructure.Common.Models.Internal.PluginConfigs;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace BlockInfrastructure.Common.Services;
 
@@ -48,6 +49,12 @@ public class DatabaseContext : DbContext
                     .Property(a => a.SamplePluginConfiguration)
                     .HasColumnType("jsonb");
 
+        modelBuilder.Entity<Plugin>()
+                    .Property(a => a.PluginTypeDefinitions)
+                    .HasConversion(
+                        v => JsonConvert.SerializeObject(v),
+                        v => JsonConvert.DeserializeObject<List<PluginTypeDefinition>>(v) ?? new List<PluginTypeDefinition>());
+
         // Default Data Seed
         modelBuilder.Entity<Plugin>()
                     .HasData(new Plugin
@@ -60,7 +67,36 @@ public class DatabaseContext : DbContext
                             AccessKey = "Access Key ID",
                             SecretKey = "Access Secret Key",
                             Region = "Default Region Code(i.e: ap-northeast-2)"
-                        })
+                        }),
+                        CreatedAt = DateTimeOffset.Parse("2024-02-25T00:00:00Z"),
+                        UpdatedAt = DateTimeOffset.Parse("2024-02-25T00:00:00Z"),
+                        PluginTypeDefinitions = new List<PluginTypeDefinition>
+                        {
+                            new()
+                            {
+                                FieldName = "AccessKey",
+                                FieldType = "string",
+                                FieldDescription = "AWS Access Key",
+                                IsRequired = true,
+                                DefaultValue = ""
+                            },
+                            new()
+                            {
+                                FieldName = "SecretKey",
+                                FieldType = "string",
+                                FieldDescription = "AWS Secret Key",
+                                IsRequired = true,
+                                DefaultValue = ""
+                            },
+                            new()
+                            {
+                                FieldName = "Region",
+                                FieldType = "string",
+                                FieldDescription = "AWS Region",
+                                IsRequired = true,
+                                DefaultValue = "ap-northeast-2"
+                            }
+                        }
                     });
 
         modelBuilder.Entity<PluginInstallation>()
