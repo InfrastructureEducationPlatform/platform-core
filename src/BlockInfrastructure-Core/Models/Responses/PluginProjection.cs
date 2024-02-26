@@ -33,16 +33,4 @@ public class PluginProjection
             PluginTypeDefinitions = plugin.PluginTypeDefinitions
         };
     }
-
-    public static PluginProjection FromPluginInstallation(PluginInstallation pluginInstallation)
-    {
-        return new PluginProjection
-        {
-            Id = pluginInstallation.PluginId,
-            Name = pluginInstallation.Plugin.Name,
-            Description = pluginInstallation.Plugin.Description,
-            SamplePluginConfiguration = pluginInstallation.Plugin.SamplePluginConfiguration,
-            PluginTypeDefinitions = pluginInstallation.Plugin.PluginTypeDefinitions
-        };
-    }
 }

@@ -26,14 +26,4 @@ public class PluginService(DatabaseContext databaseContext)
         databaseContext.PluginInstallations.Add(pluginInstallation);
         await databaseContext.SaveChangesAsync();
     }
-
-    public async Task<List<PluginProjection>> ListInstalledPluginAsync(string channelId)
-    {
-        var pluginList = await databaseContext.PluginInstallations
-                                              .Include(a => a.Plugin)
-                                              .Where(x => x.ChannelId == channelId)
-                                              .ToListAsync();
-
-        return pluginList.Select(PluginProjection.FromPluginInstallation).ToList();
-    }
 }
