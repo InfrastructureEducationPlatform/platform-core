@@ -92,4 +92,50 @@ public class PluginServiceTest
         Assert.Equal(channelId, pluginInstallation.ChannelId);
         Assert.Equal(installPluginRequest.PluginConfiguration, pluginInstallation.PluginConfiguration);
     }
+
+    [Fact(DisplayName = "InstallPluginToChannelAsync: InstallPluginToChannelAsync는 재설치 요청 시 기존 플러그인을 삭제하고 새로 설치합니다.")]
+    public async Task Is_InstallPluginToChannelAsync_Reinstalls_Plugin_When_Requested()
+    {
+        // Let
+        var channelId = Ulid.NewUlid().ToString();
+        var plugin = new Plugin
+        {
+            Id = Ulid.NewUlid().ToString(),
+            Name = "Test Plugin",
+            Description = "Test Plugin Description",
+            SamplePluginConfiguration = JsonSerializer.SerializeToDocument(new
+            {
+            })
+        };
+        _databaseContext.Plugins.Add(plugin);
+        await _databaseContext.SaveChangesAsync();
+
+        var installPluginRequest = new InstallPluginRequest
+        {
+            PluginId = plugin.Id,
+            PluginConfiguration = JsonSerializer.SerializeToDocument(new
+            {
+            })
+        };
+
+        await _pluginService.InstallPluginToChannelAsync(channelId, installPluginRequest);
+        _databaseContext.ChangeTracker.Clear();
+
+        // Do
+        var newInstallPluginRequest = new InstallPluginRequest
+        {
+            PluginId = plugin.Id,
+            PluginConfiguration = JsonSerializer.SerializeToDocument(new
+            {
+            })
+        };
+        await _pluginService.InstallPluginToChannelAsync(channelId, newInstallPluginRequest);
+
+        // Check
+        var pluginInstallation = await _databaseContext.PluginInstallations.FirstOrDefaultAsync();
+        Assert.NotNull(pluginInstallation);
+        Assert.Equal(plugin.Id, pluginInstallation.PluginId);
+        Assert.Equal(channelId, pluginInstallation.ChannelId);
+        Assert.Equal(newInstallPluginRequest.PluginConfiguration, pluginInstallation.PluginConfiguration);
+    }
 }

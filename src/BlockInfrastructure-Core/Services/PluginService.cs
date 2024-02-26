@@ -19,13 +19,25 @@ public class PluginService(DatabaseContext databaseContext)
 
     public async Task InstallPluginToChannelAsync(string channelId, InstallPluginRequest installPluginRequest)
     {
-        var pluginInstallation = new PluginInstallation
+        // Might need to check if the plugin is already installed
+        var pluginInstallation = await databaseContext.PluginInstallations
+                                                      .FirstOrDefaultAsync(a => a.ChannelId == channelId &&
+                                                                                a.PluginId == installPluginRequest.PluginId);
+        if (pluginInstallation == null)
         {
-            PluginId = installPluginRequest.PluginId,
-            ChannelId = channelId,
-            PluginConfiguration = installPluginRequest.PluginConfiguration
-        };
-        databaseContext.PluginInstallations.Add(pluginInstallation);
+            pluginInstallation = new PluginInstallation
+            {
+                PluginId = installPluginRequest.PluginId,
+                ChannelId = channelId,
+                PluginConfiguration = installPluginRequest.PluginConfiguration
+            };
+            databaseContext.PluginInstallations.Add(pluginInstallation);
+        }
+        else
+        {
+            pluginInstallation.PluginConfiguration = installPluginRequest.PluginConfiguration;
+        }
+
         await databaseContext.SaveChangesAsync();
     }
 }
