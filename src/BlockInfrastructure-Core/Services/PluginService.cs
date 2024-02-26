@@ -8,11 +8,13 @@ namespace BlockInfrastructure.Core.Services;
 
 public class PluginService(DatabaseContext databaseContext)
 {
-    public async Task<List<PluginProjection>> ListAvailablePluginAsync()
+    public async Task<List<PluginProjection>> ListAvailablePluginAsync(string channelId)
     {
-        var pluginList = await databaseContext.Plugins.ToListAsync();
+        var pluginList = await databaseContext.Plugins
+                                              .Include(a => a.PluginInstallations)
+                                              .ToListAsync();
 
-        return pluginList.Select(PluginProjection.FromPlugin).ToList();
+        return pluginList.Select(a => PluginProjection.FromPlugin(a, channelId)).ToList();
     }
 
     public async Task InstallPluginToChannelAsync(string channelId, InstallPluginRequest installPluginRequest)

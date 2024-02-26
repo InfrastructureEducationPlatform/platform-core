@@ -17,15 +17,39 @@ public class PluginProjection
     [Required]
     public List<PluginTypeDefinition> PluginTypeDefinitions { get; set; } = new();
 
+    public PluginInstallationProjection? PluginInstallation { get; set; }
 
-    public static PluginProjection FromPlugin(Plugin plugin)
+    public static PluginProjection FromPlugin(Plugin plugin, string channelId)
     {
         return new PluginProjection
         {
             Id = plugin.Id,
             Name = plugin.Name,
             Description = plugin.Description,
-            PluginTypeDefinitions = plugin.PluginTypeDefinitions
+            PluginTypeDefinitions = plugin.PluginTypeDefinitions,
+            PluginInstallation =
+                PluginInstallationProjection.FromPluginInstallation(
+                    plugin.PluginInstallations.FirstOrDefault(a => a.ChannelId == channelId))
+        };
+    }
+}
+
+public class PluginInstallationProjection
+{
+    public string ChannelId { get; set; }
+    public DateTimeOffset InstalledAt { get; set; }
+
+    public static PluginInstallationProjection? FromPluginInstallation(PluginInstallation? pluginInstallation)
+    {
+        if (pluginInstallation is null)
+        {
+            return null;
+        }
+
+        return new PluginInstallationProjection
+        {
+            ChannelId = pluginInstallation.ChannelId,
+            InstalledAt = pluginInstallation.CreatedAt
         };
     }
 }

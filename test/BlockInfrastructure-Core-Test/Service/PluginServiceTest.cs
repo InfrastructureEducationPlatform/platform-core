@@ -25,7 +25,7 @@ public class PluginServiceTest
     public async Task Is_ListAvailablePluginAsync_Returns_Empty_List_When_No_Plugin_Exists()
     {
         // Do
-        var pluginList = await _pluginService.ListAvailablePluginAsync();
+        var pluginList = await _pluginService.ListAvailablePluginAsync(Ulid.NewUlid().ToString());
 
         // Check
         Assert.Empty(pluginList);
@@ -48,7 +48,7 @@ public class PluginServiceTest
         await _databaseContext.SaveChangesAsync();
 
         // Do
-        var pluginList = await _pluginService.ListAvailablePluginAsync();
+        var pluginList = await _pluginService.ListAvailablePluginAsync(Ulid.NewUlid().ToString());
 
         // Check
         Assert.Single(pluginList);

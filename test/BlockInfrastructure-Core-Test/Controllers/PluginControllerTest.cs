@@ -45,6 +45,25 @@ public class PluginControllerTest(ContainerFixture containerFixture) : Integrati
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
+    // Check 403 Case for ListAvailablePlugins
+    [Fact(DisplayName =
+        "GET /channels/{channelId}/plugins/available: ListAvailablePlugins는 만약 허용되지 않은 사용자가 요청한 경우 403 Forbidden을 반환합니다.")]
+    public async Task Is_ListAvailablePlugins_Returns_403_For_User_Without_Proper_Permission()
+    {
+        // Let
+        var (user, token) = await CreateAccountAsync();
+        var channel = await CreateChannelAsync(token.Token);
+
+        // Do
+        var (secondUser, secondToken) = await CreateAccountAsync();
+        WebRequestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", secondToken.Token);
+        var response = await WebRequestClient.GetAsync($"/channels/{channel.Id}/plugins/available");
+
+        // Check
+        Assert.False(response.IsSuccessStatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
     [Fact(DisplayName = "POST /channels/{channelId}/plugins/install: InstallPluginToChannel는 인증하지 않은 사용자에 대해 401을 반환합니다.")]
     public async Task Is_InstallPluginToChannel_Returns_401_For_Unauthorized_User()
     {

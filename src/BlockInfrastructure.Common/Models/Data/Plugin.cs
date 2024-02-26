@@ -16,6 +16,8 @@ public class Plugin : AutomaticAuditSupport
     public List<PluginTypeDefinition> PluginTypeDefinitions { get; set; } = new();
 
     public List<Channel> ChannelList { get; set; }
+
+    public List<PluginInstallation> PluginInstallations { get; set; }
 }
 
 public class PluginTypeDefinition

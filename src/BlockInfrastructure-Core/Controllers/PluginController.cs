@@ -21,11 +21,13 @@ public class PluginController(PluginService pluginService) : ControllerBase
     /// <response code="401">인증 실패 시</response>
     [HttpGet("available")]
     [JwtAuthenticationFilter]
+    [ChannelRole(ChannelIdGetMode.Route, "channelId", ChannelPermissionType.Owner)]
     [ProducesResponseType<List<PluginProjection>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> ListAvailablePlugins()
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> ListAvailablePlugins(string channelId)
     {
-        return Ok(await pluginService.ListAvailablePluginAsync());
+        return Ok(await pluginService.ListAvailablePluginAsync(channelId));
     }
 
     /// <summary>
