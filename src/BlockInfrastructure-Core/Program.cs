@@ -9,6 +9,7 @@ using BlockInfrastructure.Core.Common;
 using BlockInfrastructure.Core.Configurations;
 using BlockInfrastructure.Core.Services;
 using BlockInfrastructure.Core.Services.Authentication;
+using BlockInfrastructure.Core.Services.Consumers;
 using BlockInfrastructure.Files.Extensions;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
@@ -126,6 +127,9 @@ builder.Services.AddCommonServices(builder.Configuration, builder.Environment);
 builder.Services.AddCors();
 builder.Services.AddMassTransit(configurator =>
 {
+    // Mock
+    configurator.AddConsumer<MockDeploymentConsumer>();
+
     configurator.RegisterBackgroundCacheConsumers();
     configurator.UsingRabbitMq((ctx, busFactoryConfigurator) =>
     {
@@ -139,9 +143,17 @@ builder.Services.AddMassTransit(configurator =>
 
         // Configure Message
         busFactoryConfigurator.Message<UserStateModifiedEvent>(a => a.SetEntityName("user.modified"));
+        busFactoryConfigurator.Message<StartDeploymentEvent>(a => a.SetEntityName("deployment.started"));
 
         // Configure Cache Consumer(Worker)
         busFactoryConfigurator.ConfigureBackgroundCacheEndpoint(ctx);
+
+        busFactoryConfigurator.ReceiveEndpoint("deployment.started.mock-consumer", cfg =>
+        {
+            // Setup Consumer
+            cfg.Bind("deployment.started");
+            cfg.ConfigureConsumer<MockDeploymentConsumer>(ctx);
+        });
     });
 });
 builder.Services.AddMediatR(mediatRConfiguration =>
