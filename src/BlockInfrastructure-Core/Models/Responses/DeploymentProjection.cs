@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using BlockInfrastructure.Common.Models.Data;
 
 namespace BlockInfrastructure.Core.Models.Responses;
@@ -16,6 +17,7 @@ public class DeploymentProjection
     public string PluginId { get; set; }
 
     [Required]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public DeploymentStatus DeploymentStatus { get; set; }
 
     [Required]
