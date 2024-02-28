@@ -3,72 +3,52 @@ using BlockInfrastructure.Common.Models.Data;
 using BlockInfrastructure.Common.Models.Messages;
 using BlockInfrastructure.Common.Services;
 using MassTransit;
+using Microsoft.EntityFrameworkCore;
 
 namespace BlockInfrastructure.Core.Services.Consumers;
 
-public class MockDeploymentConsumer(DatabaseContext databaseContext) : IConsumer<StartDeploymentEvent>
+public class DeploymentRequest
+{
+    public string SketchId { get; set; }
+    public JsonDocument BlockList { get; set; }
+    public JsonDocument PluginInstallationInformation { get; set; }
+}
+
+public class MockDeploymentConsumer(DatabaseContext databaseContext, IConfiguration configuration)
+    : IConsumer<StartDeploymentEvent>
 {
     public async Task Consume(ConsumeContext<StartDeploymentEvent> context)
     {
         var deploymentLog = (await databaseContext.DeploymentLogs.FindAsync(context.Message.DeploymentLog.Id))!;
         var blockList = context.Message.DeploymentLog.Sketch.BlockSketch.RootElement.GetProperty("blockList").EnumerateArray();
+        deploymentLog.DeploymentStatus = DeploymentStatus.Deploying;
+        await databaseContext.SaveChangesAsync();
 
-        // Output List
-        var blockTypeList = new List<JsonDocument>();
+        var pluginInstallation = await databaseContext.PluginInstallations
+                                                      .Where(a => a.ChannelId == context.Message.DeploymentLog.ChannelId &&
+                                                                  a.PluginId == "aws-static")
+                                                      .FirstOrDefaultAsync();
 
-        foreach (var eachBlock in blockList)
+        // Request To server
+        var requestBody = new DeploymentRequest
         {
-            var blockType = eachBlock.GetProperty("type").GetString();
+            SketchId = context.Message.DeploymentLog.SketchId,
+            BlockList = context.Message.DeploymentLog.Sketch.BlockSketch.RootElement.GetProperty("blockList")
+                               .Deserialize<JsonDocument>()!,
+            PluginInstallationInformation = pluginInstallation.PluginConfiguration
+        };
+        var httpClient = new HttpClient
+        {
+            BaseAddress = new Uri(configuration.GetConnectionString("DeploymentPluginConnection"))
+        };
+        var response = await httpClient.PostAsJsonAsync("/sketch/deployment", requestBody);
+        response.EnsureSuccessStatusCode();
 
-            if (blockType == "virtualMachine")
-            {
-                blockTypeList.Add(JsonSerializer.SerializeToDocument(new
-                {
-                    id = eachBlock.GetProperty("id").GetString(),
-                    type = "virtualMachine",
-                    region = "ap-northeast-2",
-                    virtualMachineOutput = new
-                    {
-                        instanceId = Ulid.NewUlid().ToString(),
-                        ipAddress = "192.168.0.109",
-                        sshPrivateKey = "a"
-                    }
-                }));
-            }
-            else if (blockType == "webServer")
-            {
-                blockTypeList.Add(JsonSerializer.SerializeToDocument(new
-                {
-                    id = eachBlock.GetProperty("id").GetString(),
-                    type = "virtualMachine",
-                    region = "ap-northeast-2",
-                    webServerFeatures = new
-                    {
-                        appName = eachBlock.GetProperty("name").GetString(),
-                        publicFQDN = "http://example.com"
-                    }
-                }));
-            }
-            else if (blockType == "database")
-            {
-                blockTypeList.Add(JsonSerializer.SerializeToDocument(new
-                {
-                    id = eachBlock.GetProperty("id").GetString(),
-                    type = "virtualMachine",
-                    region = "ap-northeast-2",
-                    databaseOutput = new
-                    {
-                        dbInstanceIdentifier = "example-db",
-                        publicFQDN = "example-db.ap-northeast-2.rds.amazonaws.com",
-                        databaseUsername = "admin",
-                        databasePassword = "admin"
-                    }
-                }));
-            }
-        }
+        var responseBody = await response.Content.ReadAsStringAsync();
+
 
         deploymentLog.DeploymentStatus = DeploymentStatus.Deployed;
-        deploymentLog.DeploymentOutput = JsonSerializer.SerializeToDocument(blockTypeList);
+        deploymentLog.DeploymentOutput = JsonDocument.Parse(responseBody);
         await databaseContext.SaveChangesAsync();
     }
 }
