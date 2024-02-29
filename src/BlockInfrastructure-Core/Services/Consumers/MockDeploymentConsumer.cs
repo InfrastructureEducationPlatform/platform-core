@@ -14,7 +14,7 @@ public class DeploymentRequest
     public JsonDocument PluginInstallationInformation { get; set; }
 }
 
-public class MockDeploymentConsumer(DatabaseContext databaseContext, IConfiguration configuration)
+public class MockDeploymentConsumer(DatabaseContext databaseContext, IConfiguration configuration, ILogger<MockDeploymentConsumer> logger)
     : IConsumer<StartDeploymentEvent>
 {
     public async Task Consume(ConsumeContext<StartDeploymentEvent> context)
@@ -42,6 +42,7 @@ public class MockDeploymentConsumer(DatabaseContext databaseContext, IConfigurat
             BaseAddress = new Uri(configuration.GetConnectionString("DeploymentPluginConnection"))
         };
         var response = await httpClient.PostAsJsonAsync("/sketch/deployment", requestBody);
+        logger.LogInformation(await response.Content.ReadAsStringAsync());
         response.EnsureSuccessStatusCode();
 
         var responseBody = await response.Content.ReadAsStringAsync();
