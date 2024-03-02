@@ -26,5 +26,6 @@ public class PluginTypeDefinition
     public string FieldType { get; set; }
     public string FieldDescription { get; set; }
     public bool IsRequired { get; set; }
+    public bool IsSecret { get; set; }
     public string DefaultValue { get; set; }
 }

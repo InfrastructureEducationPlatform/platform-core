@@ -78,7 +78,8 @@ public class DatabaseContext : DbContext
                                 FieldType = "string",
                                 FieldDescription = "AWS Access Key",
                                 IsRequired = true,
-                                DefaultValue = ""
+                                DefaultValue = "",
+                                IsSecret = false
                             },
                             new()
                             {
@@ -86,7 +87,8 @@ public class DatabaseContext : DbContext
                                 FieldType = "string",
                                 FieldDescription = "AWS Secret Key",
                                 IsRequired = true,
-                                DefaultValue = ""
+                                DefaultValue = "",
+                                IsSecret = true
                             },
                             new()
                             {
@@ -94,7 +96,8 @@ public class DatabaseContext : DbContext
                                 FieldType = "string",
                                 FieldDescription = "AWS Region",
                                 IsRequired = true,
-                                DefaultValue = "ap-northeast-2"
+                                DefaultValue = "ap-northeast-2",
+                                IsSecret = false
                             }
                         }
                     });
