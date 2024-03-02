@@ -1,11 +1,9 @@
 using System.Net;
-using System.Text.Json;
 using BlockInfrastructure.Common.Models.Data;
 using BlockInfrastructure.Common.Models.Errors;
 using BlockInfrastructure.Common.Models.Internal;
 using BlockInfrastructure.Common.Models.Messages;
 using BlockInfrastructure.Common.Services;
-using BlockInfrastructure.Core.Common;
 using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Models.Responses;
 using MassTransit;
@@ -100,26 +98,26 @@ public class SketchService(DatabaseContext databaseContext, ISendEndpointProvide
         };
     }
 
-    public async Task<DeploymentLog> DeployAsync(string sketchId)
+    public async Task<DeploymentLog> DeployAsync(string sketchId, string channelId, string pluginId)
     {
         // Create deployment log
         var sketch = await databaseContext.Sketches
                                           .FirstOrDefaultAsync(sketch => sketch.Id == sketchId) ??
                      throw new ApiException(HttpStatusCode.NotFound, "해당 스케치를 찾을 수 없습니다.", SketchError.SketchNotFound);
+
+        // Find Plugin/Plugin Installation
+        var pluginInstallation = await databaseContext.PluginInstallations
+                                                      .Include(a => a.Plugin)
+                                                      .Where(a => a.ChannelId == channelId && a.PluginId == pluginId)
+                                                      .FirstOrDefaultAsync() ?? throw new ApiException(HttpStatusCode.NotFound,
+            "채널에 설치되어 있는 플러그인 정보를 찾을 수 없습니다.", PluginError.PluginNotFound);
+
         var deploymentLog = new DeploymentLog
         {
             Id = Ulid.NewUlid().ToString(),
             Sketch = sketch,
-            Plugin = new Plugin
-            {
-                Id = Ulid.NewUlid().ToString(),
-                Name = "Dummy Plugin",
-                Description = "Dummy Plugin",
-                SamplePluginConfiguration = JsonSerializer.SerializeToDocument(new
-                {
-                })
-            },
             DeploymentStatus = DeploymentStatus.Created,
+            PluginInstallation = pluginInstallation,
             ChannelId = sketch.ChannelId
         };
         databaseContext.DeploymentLogs.Add(deploymentLog);
@@ -127,10 +125,7 @@ public class SketchService(DatabaseContext databaseContext, ISendEndpointProvide
 
         // Send Message
         var sendEndpoint = await sendEndpointProvider.GetSendEndpoint(new Uri("queue:deployment.started"));
-        await sendEndpoint.Send(new StartDeploymentEvent
-        {
-            DeploymentLog = deploymentLog
-        });
+        await sendEndpoint.Send(StartDeploymentEvent.FromDeploymentLog(deploymentLog));
 
         return deploymentLog;
     }

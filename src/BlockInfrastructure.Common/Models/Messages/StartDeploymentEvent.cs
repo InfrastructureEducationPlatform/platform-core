@@ -1,3 +1,4 @@
+using System.Text.Json;
 using BlockInfrastructure.Common.Models.Data;
 using MassTransit;
 
@@ -6,8 +7,56 @@ namespace BlockInfrastructure.Common.Models.Messages;
 [EntityName("deployment.started")]
 public class StartDeploymentEvent
 {
-    /// <summary>
-    ///     Deployment Log - 스케치와 플러그인이 포함되어 있음.
-    /// </summary>
-    public DeploymentLog DeploymentLog { get; set; }
+    public string DeploymentLogId { get; set; }
+
+    public SketchBlockProjection SketchProjection { get; set; }
+
+    public PluginInstallationProjection PluginInstallationProjection { get; set; }
+
+    public static StartDeploymentEvent FromDeploymentLog(DeploymentLog deploymentLog)
+    {
+        return new StartDeploymentEvent
+        {
+            DeploymentLogId = deploymentLog.Id,
+            SketchProjection = SketchBlockProjection.FromSketch(deploymentLog.Sketch),
+            PluginInstallationProjection =
+                PluginInstallationProjection.FromPluginInstallation(deploymentLog.PluginInstallation)
+        };
+    }
+}
+
+public class SketchBlockProjection
+{
+    public string SketchId { get; set; }
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public JsonDocument BlockSketch { get; set; }
+
+    public static SketchBlockProjection FromSketch(Sketch sketch)
+    {
+        return new SketchBlockProjection
+        {
+            SketchId = sketch.Id,
+            Name = sketch.Name,
+            Description = sketch.Description,
+            BlockSketch = sketch.BlockSketch
+        };
+    }
+}
+
+public class PluginInstallationProjection
+{
+    public string PluginInstallationId { get; set; }
+    public string PluginId { get; set; }
+    public JsonDocument PluginConfiguration { get; set; }
+
+    public static PluginInstallationProjection FromPluginInstallation(PluginInstallation pluginInstallation)
+    {
+        return new PluginInstallationProjection
+        {
+            PluginInstallationId = pluginInstallation.Id,
+            PluginId = pluginInstallation.PluginId,
+            PluginConfiguration = pluginInstallation.PluginConfiguration
+        };
+    }
 }

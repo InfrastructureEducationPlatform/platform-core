@@ -299,7 +299,9 @@ public class SketchControllerTest(ContainerFixture containerFixture) : Integrati
     {
         // Let N/A
         // Do
-        var response = await WebRequestClient.PostAsync("/channels/test/sketches/test/deploy", null);
+        var response =
+            await WebRequestClient.PostAsync($"/channels/test/sketches/test/deploy?pluginId={Ulid.NewUlid().ToString()}",
+                null);
 
         // Check
         Assert.False(response.IsSuccessStatusCode);
@@ -318,7 +320,9 @@ public class SketchControllerTest(ContainerFixture containerFixture) : Integrati
 
         // Do
         WebRequestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", secondToken.Token);
-        var response = await WebRequestClient.PostAsync($"/channels/{channel.Id}/sketches/{sketch.Id}/deploy", null);
+        var response =
+            await WebRequestClient.PostAsync(
+                $"/channels/{channel.Id}/sketches/{sketch.Id}/deploy?pluginId={Ulid.NewUlid().ToString()}", null);
 
         // Check
         Assert.False(response.IsSuccessStatusCode);
@@ -335,7 +339,9 @@ public class SketchControllerTest(ContainerFixture containerFixture) : Integrati
 
         // Do
         WebRequestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
-        var response = await WebRequestClient.PostAsync($"/channels/{channel.Id}/sketches/asdf/deploy", null);
+        var response =
+            await WebRequestClient.PostAsync(
+                $"/channels/{channel.Id}/sketches/asdf/deploy?pluginId={Ulid.NewUlid().ToString()}", null);
 
         // Check
         Assert.False(response.IsSuccessStatusCode);
@@ -350,10 +356,13 @@ public class SketchControllerTest(ContainerFixture containerFixture) : Integrati
         var (user, token) = await CreateAccountAsync();
         var channel = await CreateChannelAsync(token.Token);
         var sketch = await CreateSketchAsync(channel.Id);
+        var pluginInstallation = await CreatePluginInstallation(channel.Id);
 
         // Do
         WebRequestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
-        var response = await WebRequestClient.PostAsync($"/channels/{channel.Id}/sketches/{sketch.Id}/deploy", null);
+        var response =
+            await WebRequestClient.PostAsync(
+                $"/channels/{channel.Id}/sketches/{sketch.Id}/deploy?pluginId={pluginInstallation.PluginId}", null);
 
         // Check Status Code
         Assert.True(response.IsSuccessStatusCode);

@@ -11,8 +11,8 @@ public class DeploymentLog : AutomaticAuditSupport
     public string SketchId { get; set; }
     public Sketch Sketch { get; set; }
 
-    public string PluginId { get; set; }
-    public Plugin Plugin { get; set; }
+    public string PluginInstallationId { get; set; }
+    public PluginInstallation PluginInstallation { get; set; }
 
     public DeploymentStatus DeploymentStatus { get; set; }
 

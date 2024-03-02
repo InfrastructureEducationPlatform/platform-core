@@ -6,7 +6,6 @@ using BlockInfrastructure.Common.Services;
 using BlockInfrastructure.Common.Test.Shared.Integrations.Fixtures;
 using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Models.Responses;
-using BlockInfrastructure.Core.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -147,22 +146,32 @@ public abstract class IntegrationsTestHelper : IDisposable
         return sketch;
     }
 
-    protected async Task<DeploymentLog> CreateDeploymentLogAsync(string sketchId, string channelId)
+    protected async Task<PluginInstallation> CreatePluginInstallation(string channelId)
+    {
+        var pluginInstallation = new PluginInstallation
+        {
+            ChannelId = channelId,
+            PluginId = "aws-static",
+            PluginConfiguration = JsonSerializer.SerializeToDocument(new
+            {
+            })
+        };
+        var databaseContext = GetRequiredService<DatabaseContext>();
+        databaseContext.PluginInstallations.Add(pluginInstallation);
+        await databaseContext.SaveChangesAsync();
+        return pluginInstallation;
+    }
+
+    protected async Task<DeploymentLog> CreateDeploymentLogAsync(string sketchId, string channelId,
+                                                                 string pluginInstallationId)
     {
         var databaseContext = GetRequiredService<DatabaseContext>();
+
         var deploymentLog = new DeploymentLog
         {
             Id = Ulid.NewUlid().ToString(),
             SketchId = sketchId,
-            Plugin = new Plugin
-            {
-                Id = Ulid.NewUlid().ToString(),
-                Name = "Dummy Plugin",
-                Description = "Dummy Plugin",
-                SamplePluginConfiguration = JsonSerializer.SerializeToDocument(new
-                {
-                })
-            },
+            PluginInstallationId = pluginInstallationId,
             DeploymentStatus = DeploymentStatus.Created,
             ChannelId = channelId
         };

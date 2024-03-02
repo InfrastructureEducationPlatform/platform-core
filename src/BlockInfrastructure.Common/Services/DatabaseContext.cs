@@ -103,11 +103,11 @@ public class DatabaseContext : DbContext
                     });
 
         modelBuilder.Entity<PluginInstallation>()
-                    .HasKey(a => new
+                    .HasIndex(a => new
                     {
                         a.ChannelId,
                         a.PluginId
-                    });
+                    }).IsUnique();
         modelBuilder.Entity<PluginInstallation>()
                     .Property(a => a.PluginConfiguration)
                     .HasColumnType("jsonb");

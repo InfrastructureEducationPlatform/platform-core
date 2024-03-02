@@ -55,12 +55,19 @@ public class DeploymentServiceTest
         {
             Id = Ulid.NewUlid().ToString(),
             Sketch = sketch,
-            Plugin = new Plugin
+            PluginInstallation = new PluginInstallation
             {
-                Id = Ulid.NewUlid().ToString(),
-                Name = "Dummy Plugin",
-                Description = "Dummy Plugin",
-                SamplePluginConfiguration = JsonSerializer.SerializeToDocument(new
+                ChannelId = Ulid.NewUlid().ToString(),
+                Plugin = new Plugin
+                {
+                    Id = Ulid.NewUlid().ToString(),
+                    Name = "Dummy Plugin",
+                    Description = "Dummy Plugin",
+                    SamplePluginConfiguration = JsonSerializer.SerializeToDocument(new
+                    {
+                    })
+                },
+                PluginConfiguration = JsonSerializer.SerializeToDocument(new
                 {
                 })
             },
@@ -76,7 +83,7 @@ public class DeploymentServiceTest
         // Check
         Assert.Equal(deploymentLog.Id, result.Id);
         Assert.Equal(deploymentLog.Sketch.Id, result.Sketch.Id);
-        Assert.Equal(deploymentLog.Plugin.Id, result.Plugin.Id);
+        Assert.Equal(deploymentLog.PluginInstallation.Plugin.Id, result.PluginInstallation.Plugin.Id);
         Assert.Equal(deploymentLog.DeploymentStatus, result.DeploymentStatus);
     }
 
@@ -115,12 +122,19 @@ public class DeploymentServiceTest
         {
             Id = Ulid.NewUlid().ToString(),
             Sketch = sketch,
-            Plugin = new Plugin
+            PluginInstallation = new PluginInstallation
             {
-                Id = Ulid.NewUlid().ToString(),
-                Name = "Dummy Plugin",
-                Description = "Dummy Plugin",
-                SamplePluginConfiguration = JsonSerializer.SerializeToDocument(new
+                ChannelId = Ulid.NewUlid().ToString(),
+                Plugin = new Plugin
+                {
+                    Id = Ulid.NewUlid().ToString(),
+                    Name = "Dummy Plugin",
+                    Description = "Dummy Plugin",
+                    SamplePluginConfiguration = JsonSerializer.SerializeToDocument(new
+                    {
+                    })
+                },
+                PluginConfiguration = JsonSerializer.SerializeToDocument(new
                 {
                 })
             },
@@ -140,7 +154,7 @@ public class DeploymentServiceTest
         Assert.Single(result);
         Assert.Equal(deploymentLog.Id, result.First().Id);
         Assert.Equal(deploymentLog.Sketch.Id, result.First().Sketch.Id);
-        Assert.Equal(deploymentLog.Plugin.Id, result.First().Plugin.Id);
+        Assert.Equal(deploymentLog.PluginInstallation.Plugin.Id, result.First().PluginInstallation.Plugin.Id);
         Assert.Equal(deploymentLog.DeploymentStatus, result.First().DeploymentStatus);
     }
 }

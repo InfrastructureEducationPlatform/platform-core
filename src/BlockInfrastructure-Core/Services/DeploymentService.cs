@@ -3,7 +3,6 @@ using BlockInfrastructure.Common.Models.Data;
 using BlockInfrastructure.Common.Models.Errors;
 using BlockInfrastructure.Common.Models.Internal;
 using BlockInfrastructure.Common.Services;
-using BlockInfrastructure.Core.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlockInfrastructure.Core.Services;
@@ -19,6 +18,7 @@ public class DeploymentService(DatabaseContext databaseContext) : IDeploymentSer
     public async Task<DeploymentLog> GetDeploymentAsync(string deploymentId)
     {
         return await databaseContext.DeploymentLogs
+                                    .Include(a => a.PluginInstallation)
                                     .FirstOrDefaultAsync(x => x.Id == deploymentId) ??
                throw new ApiException(HttpStatusCode.NotFound, $"Cannot find Deployment ID {deploymentId}!",
                    DeploymentError.DeploymentNotFound);
@@ -27,6 +27,7 @@ public class DeploymentService(DatabaseContext databaseContext) : IDeploymentSer
     public async Task<List<DeploymentLog>> ListDeploymentForChannelAsync(IEnumerable<string> includedChannelId)
     {
         return await databaseContext.DeploymentLogs
+                                    .Include(a => a.PluginInstallation)
                                     .Where(x => includedChannelId.Contains(x.ChannelId))
                                     .ToListAsync();
     }

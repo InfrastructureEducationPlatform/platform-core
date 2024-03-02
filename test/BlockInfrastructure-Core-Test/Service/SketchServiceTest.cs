@@ -225,11 +225,39 @@ public class SketchServiceTest : IDisposable
 
         // Do
         var exception = await Assert.ThrowsAsync<ApiException>(async () =>
-            await _sketchService.DeployAsync(sketchId));
+            await _sketchService.DeployAsync(sketchId, Ulid.NewUlid().ToString(), Ulid.NewUlid().ToString()));
 
         // Check
         Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
         Assert.Equal(SketchError.SketchNotFound.ErrorTitleToString(), exception.ErrorTitle.ErrorTitleToString());
+    }
+
+    [Fact(DisplayName = "DeployAsync: DeployAsync는 만약 특정 PluginInstallation을 찾을 수 없으면 ApiException에 NotFound를 반환합니다.")]
+    public async Task Is_DeployAsync_Throws_NotFound_If_PluginInstallation_Not_Found()
+    {
+        // Let
+        var channelId = Ulid.NewUlid().ToString();
+        var sketchId = Ulid.NewUlid().ToString();
+        var sketch = new Sketch
+        {
+            Id = sketchId,
+            Name = "Test Sketch",
+            Description = "Test Sketch Description",
+            ChannelId = channelId,
+            BlockSketch = JsonSerializer.SerializeToDocument(new
+            {
+            })
+        };
+        _databaseContext.Sketches.Add(sketch);
+        await _databaseContext.SaveChangesAsync();
+
+        // Do
+        var exception = await Assert.ThrowsAsync<ApiException>(async () =>
+            await _sketchService.DeployAsync(sketchId, channelId, Ulid.NewUlid().ToString()));
+
+        // Check
+        Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
+        Assert.Equal(PluginError.PluginNotFound.ErrorTitleToString(), exception.ErrorTitle.ErrorTitleToString());
     }
 
     [Fact(DisplayName =
@@ -249,11 +277,29 @@ public class SketchServiceTest : IDisposable
             {
             })
         };
+        var pluginInstallation = new PluginInstallation
+        {
+            Id = Ulid.NewUlid().ToString(),
+            ChannelId = channelId,
+            Plugin = new Plugin
+            {
+                Id = Ulid.NewUlid().ToString(),
+                Name = "Dummy Plugin",
+                Description = "Dummy Plugin",
+                SamplePluginConfiguration = JsonSerializer.SerializeToDocument(new
+                {
+                })
+            },
+            PluginConfiguration = JsonSerializer.SerializeToDocument(new
+            {
+            })
+        };
         _databaseContext.Sketches.Add(sketch);
+        _databaseContext.PluginInstallations.Add(pluginInstallation);
         await _databaseContext.SaveChangesAsync();
 
         // Do
-        var result = await _sketchService.DeployAsync(sketchId);
+        var result = await _sketchService.DeployAsync(sketchId, channelId, pluginInstallation.Plugin.Id);
 
         // Check Result
         Assert.NotNull(result);

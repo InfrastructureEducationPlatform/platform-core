@@ -31,7 +31,7 @@ public class DeploymentProjection
         {
             DeploymentId = deploymentLog.Id,
             SketchId = deploymentLog.SketchId,
-            PluginId = deploymentLog.PluginId,
+            PluginId = deploymentLog.PluginInstallation.PluginId,
             DeploymentStatus = deploymentLog.DeploymentStatus,
             DeploymentOutput = deploymentLog.DeploymentOutput,
             CreatedAt = deploymentLog.CreatedAt

@@ -46,7 +46,8 @@ public class DeploymentControllerTest(ContainerFixture containerFixture) : Integ
         var (user, token) = await CreateAccountAsync();
         var channel = await CreateChannelAsync(token.Token);
         var sketch = await CreateSketchAsync(channel.Id);
-        var deploymentLog = await CreateDeploymentLogAsync(sketch.Id, channel.Id);
+        var pluginInstallation = await CreatePluginInstallation(channel.Id);
+        var deploymentLog = await CreateDeploymentLogAsync(sketch.Id, channel.Id, pluginInstallation.Id);
 
         // Do
         WebRequestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
@@ -77,7 +78,8 @@ public class DeploymentControllerTest(ContainerFixture containerFixture) : Integ
         var (user, token) = await CreateAccountAsync();
         var channel = await CreateChannelAsync(token.Token);
         var sketch = await CreateSketchAsync(channel.Id);
-        var deploymentLog = await CreateDeploymentLogAsync(sketch.Id, channel.Id);
+        var pluginInstallation = await CreatePluginInstallation(channel.Id);
+        var deploymentLog = await CreateDeploymentLogAsync(sketch.Id, channel.Id, pluginInstallation.Id);
 
         // Do
         WebRequestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
