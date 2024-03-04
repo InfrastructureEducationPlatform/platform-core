@@ -41,12 +41,19 @@ public class DeploymentServiceTest
     public async Task Is_GetDeploymentAsync_Returns_DeploymentLog_Well()
     {
         // Let
+        var channel = new Channel
+        {
+            Id = Ulid.NewUlid().ToString(),
+            Name = "TestChannel",
+            Description = "TestDescription",
+            ProfileImageUrl = null
+        };
         var sketch = new Sketch
         {
             Id = Ulid.NewUlid().ToString(),
             Name = "Test Sketch",
             Description = "Test Sketch Description",
-            ChannelId = Ulid.NewUlid().ToString(),
+            ChannelId = channel.Id,
             BlockSketch = JsonSerializer.SerializeToDocument(new
             {
             })
@@ -55,9 +62,10 @@ public class DeploymentServiceTest
         {
             Id = Ulid.NewUlid().ToString(),
             Sketch = sketch,
+            Channel = channel,
             PluginInstallation = new PluginInstallation
             {
-                ChannelId = Ulid.NewUlid().ToString(),
+                Channel = channel,
                 Plugin = new Plugin
                 {
                     Id = Ulid.NewUlid().ToString(),
@@ -107,13 +115,19 @@ public class DeploymentServiceTest
     public async Task Is_ListDeploymentForChannelAsync_Returns_DeploymentList_When_Deployment_Exists()
     {
         // Let
-        var channelId = Ulid.NewUlid().ToString();
+        var channel = new Channel
+        {
+            Id = Ulid.NewUlid().ToString(),
+            Name = "TestChannel",
+            Description = "TestDescription",
+            ProfileImageUrl = null
+        };
         var sketch = new Sketch
         {
             Id = Ulid.NewUlid().ToString(),
             Name = "Test Sketch",
             Description = "Test Sketch Description",
-            ChannelId = channelId,
+            ChannelId = channel.Id,
             BlockSketch = JsonSerializer.SerializeToDocument(new
             {
             })
@@ -122,9 +136,10 @@ public class DeploymentServiceTest
         {
             Id = Ulid.NewUlid().ToString(),
             Sketch = sketch,
+            Channel = channel,
             PluginInstallation = new PluginInstallation
             {
-                ChannelId = Ulid.NewUlid().ToString(),
+                Channel = channel,
                 Plugin = new Plugin
                 {
                     Id = Ulid.NewUlid().ToString(),
@@ -139,7 +154,7 @@ public class DeploymentServiceTest
                 })
             },
             DeploymentStatus = DeploymentStatus.Created,
-            ChannelId = channelId
+            ChannelId = sketch.ChannelId
         };
         _databaseContext.DeploymentLogs.Add(deploymentLog);
         await _databaseContext.SaveChangesAsync();
@@ -147,7 +162,7 @@ public class DeploymentServiceTest
         // Do
         var result = await _deploymentService.ListDeploymentForChannelAsync(new List<string>
         {
-            channelId
+            channel.Id
         });
 
         // Check

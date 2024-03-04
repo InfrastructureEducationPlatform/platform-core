@@ -8,10 +8,19 @@ namespace BlockInfrastructure.Core.Models.Responses;
 public class DeploymentProjection
 {
     [Required]
+    public string ChannelId { get; set; }
+
+    [Required]
+    public string ChannelName { get; set; }
+
+    [Required]
     public string DeploymentId { get; set; }
 
     [Required]
     public string SketchId { get; set; }
+
+    [Required]
+    public string SketchName { get; set; }
 
     [Required]
     public string PluginId { get; set; }
@@ -29,12 +38,20 @@ public class DeploymentProjection
     {
         return new DeploymentProjection
         {
+            ChannelId = deploymentLog.ChannelId,
+            ChannelName = deploymentLog.Channel.Name,
             DeploymentId = deploymentLog.Id,
             SketchId = deploymentLog.SketchId,
+            SketchName = deploymentLog.Sketch.Name,
             PluginId = deploymentLog.PluginInstallation.PluginId,
             DeploymentStatus = deploymentLog.DeploymentStatus,
             DeploymentOutput = deploymentLog.DeploymentOutput,
             CreatedAt = deploymentLog.CreatedAt
         };
     }
+}
+
+public class LightDeploymentProjection
+{
+    public string DeploymentId { get; set; }
 }

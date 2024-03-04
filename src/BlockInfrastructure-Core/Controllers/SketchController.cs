@@ -102,11 +102,14 @@ public class SketchController(SketchService sketchService) : ControllerBase
     /// <response code="404">해당 스케치를 찾을 수 없을 때</response>
     [HttpPost("{sketchId}/deploy")]
     [ChannelRole(ChannelIdGetMode.Route, "channelId", ChannelPermissionType.Owner)]
-    [ProducesResponseType<DeploymentProjection>(StatusCodes.Status202Accepted)]
+    [ProducesResponseType<LightDeploymentProjection>(StatusCodes.Status202Accepted)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeploySketchAsync(string channelId, string sketchId, [FromQuery] string pluginId)
     {
         var deploymentLog = await sketchService.DeployAsync(sketchId, channelId, pluginId);
-        return Accepted(DeploymentProjection.FromDeploymentLog(deploymentLog));
+        return Accepted(new LightDeploymentProjection
+        {
+            DeploymentId = deploymentLog.Id
+        });
     }
 }

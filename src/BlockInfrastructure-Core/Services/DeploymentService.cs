@@ -18,6 +18,8 @@ public class DeploymentService(DatabaseContext databaseContext) : IDeploymentSer
     public async Task<DeploymentLog> GetDeploymentAsync(string deploymentId)
     {
         return await databaseContext.DeploymentLogs
+                                    .Include(a => a.Channel)
+                                    .Include(a => a.Sketch)
                                     .Include(a => a.PluginInstallation)
                                     .FirstOrDefaultAsync(x => x.Id == deploymentId) ??
                throw new ApiException(HttpStatusCode.NotFound, $"Cannot find Deployment ID {deploymentId}!",
@@ -27,6 +29,8 @@ public class DeploymentService(DatabaseContext databaseContext) : IDeploymentSer
     public async Task<List<DeploymentLog>> ListDeploymentForChannelAsync(IEnumerable<string> includedChannelId)
     {
         return await databaseContext.DeploymentLogs
+                                    .Include(a => a.Channel)
+                                    .Include(a => a.Sketch)
                                     .Include(a => a.PluginInstallation)
                                     .Where(x => includedChannelId.Contains(x.ChannelId))
                                     .ToListAsync();
