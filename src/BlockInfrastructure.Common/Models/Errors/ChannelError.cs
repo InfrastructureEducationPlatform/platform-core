@@ -11,6 +11,9 @@ public class ChannelError : IErrorTitle
     public static ChannelError CannotAddSelf => new(ErrorTitle.CannotAddSelf);
     public static ChannelError CannotAddDuplicatePermission => new(ErrorTitle.CannotAddDuplicatePermission);
 
+    public static ChannelError ChannelOwnershipTransferNeededBeforeDelete =>
+        new(ErrorTitle.ChannelOwnershipTransferNeededBeforeDelete);
+
     private ChannelError(ErrorTitle errorTitle)
     {
         _errorTitle = errorTitle;
@@ -51,6 +54,11 @@ public class ChannelError : IErrorTitle
         /// <summary>
         ///     채널에 이미 존재하는 사용자를 추가할 수 없는 경우
         /// </summary>
-        CannotAddDuplicatePermission
+        CannotAddDuplicatePermission,
+
+        /// <summary>
+        ///     채널 삭제 전 소유권 이전이 필요한 경우
+        /// </summary>
+        ChannelOwnershipTransferNeededBeforeDelete
     }
 }

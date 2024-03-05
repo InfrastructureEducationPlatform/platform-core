@@ -188,4 +188,39 @@ public class UserServiceTest
         Assert.Equal(user.Name, searchResponse.First().UserName);
         Assert.Equal(user.ProfilePictureImageUrl, searchResponse.First().ProfilePictureImageUrl);
     }
+
+    [Fact(DisplayName = "DeleteUserAsync: DeleteUserAsync는 만약 사용자를 찾을 수 없는 경우 ApiException을 던집니다.")]
+    public async Task Is_DeleteUserAsync_Throws_ApiException_When_User_Not_Found()
+    {
+        // Let
+        var userId = Ulid.NewUlid().ToString();
+
+        // Do
+        var exception = await Assert.ThrowsAnyAsync<ApiException>(() => _userService.DeleteUserAsync(userId));
+
+        // Check
+        Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
+        Assert.Equal(UserError.UserNotFound.ErrorTitleToString(), exception.ErrorTitle.ErrorTitleToString());
+    }
+
+    [Fact(DisplayName = "DeleteUserAsync: DeleteUserAsync는 사용자를 정상적으로 삭제합니다.")]
+    public async Task Is_DeleteUserAsync_Deletes_User_When_User_Found()
+    {
+        // Let
+        var user = new User
+        {
+            Id = Ulid.NewUlid().ToString(),
+            Name = "KangDroid",
+            Email = "Test",
+            ProfilePictureImageUrl = null
+        };
+        _databaseContext.Users.Add(user);
+        await _databaseContext.SaveChangesAsync();
+
+        // Do
+        await _userService.DeleteUserAsync(user.Id);
+
+        // Check
+        Assert.Empty(_databaseContext.Users);
+    }
 }

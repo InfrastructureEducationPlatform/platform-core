@@ -2,16 +2,18 @@ using BlockInfrastructure.Common.Extensions;
 using BlockInfrastructure.Common.Models.Internal;
 using BlockInfrastructure.Common.Models.Responses;
 using BlockInfrastructure.Common.Services;
+using BlockInfrastructure.Core.Models.MediatR.Requests;
 using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Models.Responses;
 using BlockInfrastructure.Core.Services;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlockInfrastructure.Core.Controllers;
 
 [ApiController]
 [Route("/users")]
-public class UsersController(IUserService userService) : ControllerBase
+public class UsersController(IUserService userService, IMediator mediator) : ControllerBase
 {
     /// <summary>
     ///     사용자의 현재 정보와, 소속되어 있는 채널 정보를 반환합니다.
@@ -62,5 +64,26 @@ public class UsersController(IUserService userService) : ControllerBase
     public async Task<IActionResult> SearchUserAsync(string query)
     {
         return Ok(await userService.SearchUserAsync(query));
+    }
+
+    /// <summary>
+    ///     사용자를 서비스에서 제거합니다.
+    /// </summary>
+    /// <returns></returns>
+    /// <remarks>해당 API는 이용자가 탈퇴하려는 본인 1명인 채널까지 모두 삭제합니다.</remarks>
+    /// <response code="400">여려명이 존재하는 채널에 본인이 소유자인 경우(소유자 제거 필요)</response>
+    /// <response code="401">사용자 인증에 실패한 경우</response>
+    /// <response code="204">사용자 삭제에 성공한 경우</response>
+    [JwtAuthenticationFilter]
+    [HttpDelete]
+    public async Task<IActionResult> DeleteUserAsync()
+    {
+        var userContext = HttpContext.GetUserContext();
+        await mediator.Send(new DeleteUserRequest
+        {
+            UserId = userContext.UserId
+        });
+
+        return NoContent();
     }
 }

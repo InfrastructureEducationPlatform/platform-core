@@ -106,7 +106,7 @@ builder.Services.AddHttpClient(HttpClientNames.DeploymentApi, (provider, client)
 });
 
 // Add Channel
-builder.Services.AddScoped<ChannelService>();
+builder.Services.AddScoped<IChannelService, ChannelService>();
 
 // Add User
 builder.Services.AddScoped<IUserService, UserService>();

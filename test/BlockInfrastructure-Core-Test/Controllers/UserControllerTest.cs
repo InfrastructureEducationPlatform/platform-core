@@ -1,8 +1,10 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using BlockInfrastructure.Common.Models.Data;
 using BlockInfrastructure.Common.Models.Internal;
 using BlockInfrastructure.Common.Models.Messages;
+using BlockInfrastructure.Common.Services;
 using BlockInfrastructure.Common.Test.Shared.Integrations;
 using BlockInfrastructure.Common.Test.Shared.Integrations.Fixtures;
 using BlockInfrastructure.Core.Models.Requests;
@@ -121,5 +123,55 @@ public class UserControllerTest(ContainerFixture containerFixture) : Integration
         Assert.Equal(users.Email, userSearchResponse.First().UserEmail);
         Assert.Equal(users.Name, userSearchResponse.First().UserName);
         Assert.Equal(users.ProfilePictureImageUrl, userSearchResponse.First().ProfilePictureImageUrl);
+    }
+
+    [Fact(DisplayName = "DELETE /users: DeleteUserAsync는 만약 인증되지 않은 사용자가 요청을 보낸 경우 401 Unauthorized를 반환합니다.")]
+    public async Task Is_DeleteUserAsync_Returns_401_When_No_Token()
+    {
+        // Let - N/A
+        // Do
+        var response = await WebRequestClient.DeleteAsync("/users");
+
+        // Check HTTP Status Code
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact(DisplayName = "DELETE /users: DeleteUserAsync는 만약 삭제하려고 하는 사용자가 2명 이상인 채널에 속해있는 경우 400 BadRequest를 반환합니다.")]
+    public async Task Is_DeleteUserAsync_Returns_400_When_User_In_Multiple_Channel()
+    {
+        // Let
+        var (users, tokenResponse) = await CreateAccountAsync();
+        var (secondUser, secondTokenResponse) = await CreateAccountAsync();
+        var channel = await CreateChannelAsync(tokenResponse.Token);
+        var databaseContext = GetRequiredService<DatabaseContext>();
+        var channelPermission = new ChannelPermission
+        {
+            ChannelId = channel.Id,
+            UserId = secondUser.Id,
+            ChannelPermissionType = ChannelPermissionType.Owner
+        };
+        databaseContext.ChannelPermissions.Add(channelPermission);
+        await databaseContext.SaveChangesAsync();
+
+        // Do
+        WebRequestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.Token);
+        var response = await WebRequestClient.DeleteAsync("/users");
+
+        // Check HTTP Status Code
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact(DisplayName = "DELETE /users: DeleteUserAsync는 만약 정상적인 사용자가 요청을 보낸 경우 204 NoContent를 반환합니다.")]
+    public async Task Is_DeleteUserAsync_Returns_204_When_Valid_User()
+    {
+        // Let
+        var (users, tokenResponse) = await CreateAccountAsync();
+        WebRequestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.Token);
+
+        // Do
+        var response = await WebRequestClient.DeleteAsync("/users");
+
+        // Check HTTP Status Code
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }
 }

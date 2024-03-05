@@ -14,6 +14,7 @@ public interface IUserService
     Task<MeProjection> GetMeAsync(ContextUser contextUser);
     Task UpdatePreferenceAsync(ContextUser contextUser, UpdateUserPreferenceRequest updateUserPreferenceRequest);
     Task<List<UserSearchResponse>> SearchUserAsync(string query);
+    Task DeleteUserAsync(string userId);
 }
 
 public class UserService(DatabaseContext databaseContext, ICacheService cacheService) : IUserService
@@ -55,5 +56,14 @@ public class UserService(DatabaseContext databaseContext, ICacheService cacheSer
                                             .ToListAsync();
 
         return userList.Select(UserSearchResponse.FromUser).ToList();
+    }
+
+    public async Task DeleteUserAsync(string userId)
+    {
+        var user = await databaseContext.Users.FindAsync(userId) ?? throw new ApiException(HttpStatusCode.NotFound,
+            "Unknown error: Cannot find user!", UserError.UserNotFound);
+
+        databaseContext.Users.Remove(user);
+        await databaseContext.SaveChangesAsync();
     }
 }

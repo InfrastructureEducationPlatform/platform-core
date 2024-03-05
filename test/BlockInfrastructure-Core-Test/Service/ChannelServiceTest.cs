@@ -16,7 +16,7 @@ namespace BlockInfrastructure.Core.Test.Service;
 public class ChannelServiceTest
 {
     private readonly Mock<ICacheService> _cacheService = new();
-    private readonly ChannelService _channelService;
+    private readonly IChannelService _channelService;
 
     private readonly UnitTestDatabaseContext _databaseContext =
         new(new DbContextOptionsBuilder<DatabaseContext>()
@@ -426,5 +426,72 @@ public class ChannelServiceTest
                                                              .SingleAsync();
         Assert.Equal(request.TargetUserId, updatedChannelPermission.UserId);
         Assert.Equal(request.ChannelPermissionType, updatedChannelPermission.ChannelPermissionType);
+    }
+
+    [Fact(DisplayName =
+        "CheckUserChannelPermissionForDeleteAsync: CheckUserChannelPermissionForDeleteAsync는 사용자가 소속된 채널에 본인만 있는 경우 true를 반환합니다.")]
+    public async Task Is_CheckUserChannelPermissionForDeleteAsync_Returns_True_When_User_Is_Only_One_In_Channel()
+    {
+        // Let
+        var channel = new Channel
+        {
+            Id = Ulid.NewUlid().ToString(),
+            Name = "TestChannel",
+            Description = "TestDescription",
+            ProfileImageUrl = null,
+            ChannelPermissionList = new List<ChannelPermission>
+            {
+                new()
+                {
+                    UserId = Ulid.NewUlid().ToString(),
+                    ChannelPermissionType = ChannelPermissionType.Owner
+                }
+            }
+        };
+        _databaseContext.Channels.Add(channel);
+        await _databaseContext.SaveChangesAsync();
+
+        // Do
+        var result =
+            await _channelService.CheckUserChannelPermissionForDeleteAsync(channel.ChannelPermissionList.First().UserId);
+
+        // Check
+        Assert.True(result);
+    }
+
+    [Fact(DisplayName =
+        "CheckUserChannelPermissionForDeleteAsync: CheckUserChannelPermissionForDeleteAsync는 사용자가 소속된 채널에 본인만 있는 것이 아닌 경우 false를 반환합니다.")]
+    public async Task Is_CheckUserChannelPermissionForDeleteAsync_Returns_False_When_User_Is_Not_Only_One_In_Channel()
+    {
+        // Let
+        var channel = new Channel
+        {
+            Id = Ulid.NewUlid().ToString(),
+            Name = "TestChannel",
+            Description = "TestDescription",
+            ProfileImageUrl = null,
+            ChannelPermissionList = new List<ChannelPermission>
+            {
+                new()
+                {
+                    UserId = Ulid.NewUlid().ToString(),
+                    ChannelPermissionType = ChannelPermissionType.Owner
+                },
+                new()
+                {
+                    UserId = Ulid.NewUlid().ToString(),
+                    ChannelPermissionType = ChannelPermissionType.Owner
+                }
+            }
+        };
+        _databaseContext.Channels.Add(channel);
+        await _databaseContext.SaveChangesAsync();
+
+        // Do
+        var result =
+            await _channelService.CheckUserChannelPermissionForDeleteAsync(channel.ChannelPermissionList.First().UserId);
+
+        // Check
+        Assert.False(result);
     }
 }
