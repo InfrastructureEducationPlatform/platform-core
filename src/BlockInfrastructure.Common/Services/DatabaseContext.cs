@@ -19,6 +19,9 @@ public class DatabaseContext : DbContext
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<BlockFile> BlockFiles { get; set; }
 
+    public DbSet<PricingInformation> PricingInformations { get; set; }
+    public DbSet<PriceInfoPerVendor> PriceInfoPerVendors { get; set; }
+
     public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
     {
     }
@@ -122,6 +125,20 @@ public class DatabaseContext : DbContext
         modelBuilder.Entity<Sketch>()
                     .Property(a => a.BlockSketch)
                     .HasColumnType("jsonb");
+
+        modelBuilder.Entity<PricingInformation>()
+                    .Property(a => a.MachineType)
+                    .HasConversion<string>();
+
+        modelBuilder.Entity<PriceInfoPerVendor>()
+                    .HasKey(a => new
+                    {
+                        a.PricingInformationId,
+                        a.Vendor
+                    });
+        modelBuilder.Entity<PriceInfoPerVendor>()
+                    .Property(a => a.Vendor)
+                    .HasConversion<string>();
 
         base.OnModelCreating(modelBuilder);
     }
