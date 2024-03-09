@@ -120,6 +120,9 @@ builder.Services.AddScoped<IDeploymentService, DeploymentService>();
 // Add Plugin Service
 builder.Services.AddScoped<PluginService>();
 
+// Add Pricing Service
+builder.Services.AddScoped<PricingService>();
+
 // Add Common
 builder.Services.AddCommonServices(builder.Configuration, builder.Environment);
 
