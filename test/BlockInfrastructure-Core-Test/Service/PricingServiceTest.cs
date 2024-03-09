@@ -33,7 +33,8 @@ public class PricingServiceTest
                 new()
                 {
                     Vendor = VendorType.AWS,
-                    PricePerHour = 0.5m
+                    PricePerHour = 0.5m,
+                    TierInformation = ""
                 }
             }
         };

@@ -22,6 +22,11 @@ public class PriceInfoPerVendor
 
     public VendorType Vendor { get; set; }
     public decimal PricePerHour { get; set; }
+
+    /// <summary>
+    ///     Platform Specific Information
+    /// </summary>
+    public string TierInformation { get; set; }
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]

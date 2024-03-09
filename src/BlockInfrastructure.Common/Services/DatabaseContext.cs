@@ -140,6 +140,138 @@ public class DatabaseContext : DbContext
                     .Property(a => a.Vendor)
                     .HasConversion<string>();
 
+        modelBuilder.Entity<PricingInformation>()
+                    .HasData(new List<PricingInformation>
+                    {
+                        // Virtual Machine Area
+                        new()
+                        {
+                            Id = "01HRHEMYZQ5WM2V0Q154QD0KVZ",
+                            MachineType = PricingMachineType.VirtualMachine,
+                            Tier = "low"
+                        },
+                        new()
+                        {
+                            Id = "01HRHEQHSDHBDGECX87C71GXDN",
+                            MachineType = PricingMachineType.VirtualMachine,
+                            Tier = "medium"
+                        },
+                        new()
+                        {
+                            Id = "01HRHEWE71FXN562K3F3QEX6DT",
+                            MachineType = PricingMachineType.VirtualMachine,
+                            Tier = "large"
+                        },
+
+                        // Database Area
+                        new()
+                        {
+                            Id = "01HRHEYBTNKH55TS6Z2ZE537VA",
+                            MachineType = PricingMachineType.DatabaseServer,
+                            Tier = "low"
+                        },
+                        new()
+                        {
+                            Id = "01HRHEYFN6DQG3R5CNYCRR3119",
+                            MachineType = PricingMachineType.DatabaseServer,
+                            Tier = "medium"
+                        },
+                        new()
+                        {
+                            Id = "01HRHEYK5AGZJF1TB21PZBA71W",
+                            MachineType = PricingMachineType.DatabaseServer,
+                            Tier = "large"
+                        },
+
+                        // Web Server Area
+                        new()
+                        {
+                            Id = "01HRHF445XG2CJHDWDYQAT1BPK",
+                            MachineType = PricingMachineType.WebServer,
+                            Tier = "low"
+                        },
+                        new()
+                        {
+                            Id = "01HRHF48DY1V8FQNG5X769XPTQ",
+                            MachineType = PricingMachineType.WebServer,
+                            Tier = "medium"
+                        },
+                        new()
+                        {
+                            Id = "01HRHF4C4HDVZ19KYRMC11BXEX",
+                            MachineType = PricingMachineType.WebServer,
+                            Tier = "large"
+                        }
+                    });
+
+        modelBuilder.Entity<PriceInfoPerVendor>()
+                    .HasData(new List<PriceInfoPerVendor>
+                    {
+                        new()
+                        {
+                            PricingInformationId = "01HRHEMYZQ5WM2V0Q154QD0KVZ",
+                            Vendor = VendorType.AWS,
+                            TierInformation = "t2.medium",
+                            PricePerHour = 0.0576m
+                        },
+                        new()
+                        {
+                            PricingInformationId = "01HRHEQHSDHBDGECX87C71GXDN",
+                            Vendor = VendorType.AWS,
+                            TierInformation = "t2.xlarge",
+                            PricePerHour = 0.2304m
+                        },
+                        new()
+                        {
+                            PricingInformationId = "01HRHEWE71FXN562K3F3QEX6DT",
+                            Vendor = VendorType.AWS,
+                            TierInformation = "r6i.2xlarge",
+                            PricePerHour = 0.5040m
+                        },
+                        new()
+                        {
+                            PricingInformationId = "01HRHEYBTNKH55TS6Z2ZE537VA",
+                            Vendor = VendorType.AWS,
+                            TierInformation = "t4g.medium",
+                            PricePerHour = 0.1020m
+                        },
+                        new()
+                        {
+                            PricingInformationId = "01HRHEYFN6DQG3R5CNYCRR3119",
+                            Vendor = VendorType.AWS,
+                            TierInformation = "t4g.large",
+                            PricePerHour = 0.2030m
+                        },
+                        new()
+                        {
+                            PricingInformationId = "01HRHEYK5AGZJF1TB21PZBA71W",
+                            Vendor = VendorType.AWS,
+                            TierInformation = "r6g.xlarge",
+                            PricePerHour = 0.5400m
+                        },
+                        new()
+                        {
+                            PricingInformationId = "01HRHF445XG2CJHDWDYQAT1BPK",
+                            Vendor = VendorType.AWS,
+                            TierInformation = "t2.medium",
+                            PricePerHour = 0.0576m
+                        },
+                        new()
+                        {
+                            PricingInformationId = "01HRHF48DY1V8FQNG5X769XPTQ",
+                            Vendor = VendorType.AWS,
+                            TierInformation = "t2.xlarge",
+                            PricePerHour = 0.2304m
+                        },
+                        new()
+                        {
+                            PricingInformationId = "01HRHF4C4HDVZ19KYRMC11BXEX",
+                            Vendor = VendorType.AWS,
+                            TierInformation = "r6i.2xlarge",
+                            PricePerHour = 0.5040m
+                        }
+                    });
+
         base.OnModelCreating(modelBuilder);
     }
 

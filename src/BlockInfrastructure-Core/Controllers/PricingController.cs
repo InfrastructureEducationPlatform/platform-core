@@ -1,6 +1,6 @@
-using BlockInfrastructure.Common.Models.Data;
 using BlockInfrastructure.Common.Models.Responses;
 using BlockInfrastructure.Common.Services;
+using BlockInfrastructure.Core.Models.Responses;
 using BlockInfrastructure.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,7 +18,7 @@ public class PricingController(PricingService pricingService) : ControllerBase
     /// <response code="401">인증 토큰이 없어 인증에 실패한 경우</response>
     [HttpGet]
     [JwtAuthenticationFilter]
-    [ProducesResponseType<List<PricingInformation>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<List<PricingInformationProjection>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetAllPricingInformationAsync()
     {
