@@ -9,6 +9,7 @@ using BlockInfrastructure.Core.Common;
 using BlockInfrastructure.Core.Configurations;
 using BlockInfrastructure.Core.Services;
 using BlockInfrastructure.Core.Services.Authentication;
+using BlockInfrastructure.Core.Services.Consumers;
 using BlockInfrastructure.Files.Extensions;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
@@ -130,6 +131,9 @@ builder.Services.AddCors();
 builder.Services.AddMassTransit(configurator =>
 {
     configurator.RegisterBackgroundCacheConsumers();
+    configurator.AddConsumer<DeploymentAcceptedEventConsumer>();
+    configurator.AddConsumer<DeploymentResultEventConsumer>();
+
     configurator.UsingRabbitMq((ctx, busFactoryConfigurator) =>
     {
         // MassTransit Default
@@ -146,6 +150,20 @@ builder.Services.AddMassTransit(configurator =>
 
         // Configure Cache Consumer(Worker)
         busFactoryConfigurator.ConfigureBackgroundCacheEndpoint(ctx);
+
+        busFactoryConfigurator.ReceiveEndpoint("deployment.accepted.core-update-status", cfg =>
+        {
+            // Setup Consumer
+            cfg.Bind("deployment.accepted");
+            cfg.ConfigureConsumer<DeploymentAcceptedEventConsumer>(ctx);
+        });
+
+        busFactoryConfigurator.ReceiveEndpoint("deployment.result.core-update-status", cfg =>
+        {
+            // Setup Consumer
+            cfg.Bind("deployment.result");
+            cfg.ConfigureConsumer<DeploymentResultEventConsumer>(ctx);
+        });
     });
 });
 builder.Services.AddMediatR(mediatRConfiguration =>
