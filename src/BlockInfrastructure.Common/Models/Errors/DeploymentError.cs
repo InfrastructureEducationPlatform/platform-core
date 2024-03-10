@@ -5,6 +5,7 @@ public class DeploymentError : IErrorTitle
     private readonly ErrorTitle _errorTitle;
 
     public static DeploymentError DeploymentNotFound => new(ErrorTitle.DeploymentNotFound);
+    public static DeploymentError CannotDeleteNonLatestDeployment => new(ErrorTitle.CannotDeleteNonLatestDeployment);
 
     private DeploymentError(ErrorTitle errorTitle)
     {
@@ -18,6 +19,7 @@ public class DeploymentError : IErrorTitle
 
     private enum ErrorTitle
     {
-        DeploymentNotFound
+        DeploymentNotFound,
+        CannotDeleteNonLatestDeployment
     }
 }

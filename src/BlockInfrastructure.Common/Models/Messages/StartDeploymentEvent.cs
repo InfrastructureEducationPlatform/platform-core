@@ -1,10 +1,8 @@
 using System.Text.Json;
 using BlockInfrastructure.Common.Models.Data;
-using MassTransit;
 
 namespace BlockInfrastructure.Common.Models.Messages;
 
-[EntityName("deployment.started")]
 public class StartDeploymentEvent
 {
     public string DeploymentLogId { get; set; }

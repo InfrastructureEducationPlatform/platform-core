@@ -55,4 +55,27 @@ public class DeploymentController(IDeploymentService deploymentService, IMediato
         });
         return Ok(response.Select(DeploymentProjection.FromDeploymentLog));
     }
+
+    /// <summary>
+    ///     특정 배포를 삭제합니다.
+    /// </summary>
+    /// <remarks>배포 리스트 중, 가장 최신만 지원합니다.</remarks>
+    /// <param name="deploymentId">삭제할 배포 Id</param>
+    /// <returns></returns>
+    /// '
+    /// <response code="204">배포 정보를 성공적으로 삭제한 경우</response>
+    /// <response code="400">삭제하려고 하는 배포가 최신이 아닌 경우</response>
+    /// <response code="401">인증이 실패한 경우</response>
+    /// <response code="404">배포 정보를 찾을 수 없는 경우</response>
+    [HttpDelete("{deploymentId}")]
+    [JwtAuthenticationFilter]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DestroyDeploymentAsync(string deploymentId)
+    {
+        await deploymentService.DestroyDeploymentAsync(deploymentId);
+        return NoContent();
+    }
 }
