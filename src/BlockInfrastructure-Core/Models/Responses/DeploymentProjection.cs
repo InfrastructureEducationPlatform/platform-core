@@ -34,6 +34,9 @@ public class DeploymentProjection
 
     public JsonDocument? DeploymentOutput { get; set; }
 
+    [Required]
+    public JsonDocument CapturedBlockSketch { get; set; }
+
     public static DeploymentProjection FromDeploymentLog(DeploymentLog deploymentLog)
     {
         return new DeploymentProjection
@@ -46,7 +49,8 @@ public class DeploymentProjection
             PluginId = deploymentLog.PluginInstallation.PluginId,
             DeploymentStatus = deploymentLog.DeploymentStatus,
             DeploymentOutput = deploymentLog.DeploymentOutput,
-            CreatedAt = deploymentLog.CreatedAt
+            CreatedAt = deploymentLog.CreatedAt,
+            CapturedBlockSketch = deploymentLog.CapturedBlockData
         };
     }
 }
