@@ -20,4 +20,9 @@ public class DeploymentLog : AutomaticAuditSupport
 
     public Channel Channel { get; set; }
     public string ChannelId { get; set; }
+
+    /// <summary>
+    ///     Captured Block Data(JSON Serialized)
+    /// </summary>
+    public JsonDocument CapturedBlockData { get; set; }
 }

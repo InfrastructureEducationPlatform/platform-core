@@ -166,6 +166,7 @@ public abstract class IntegrationsTestHelper : IDisposable
                                                                  string pluginInstallationId)
     {
         var databaseContext = GetRequiredService<DatabaseContext>();
+        var sketch = await databaseContext.Sketches.SingleAsync(x => x.Id == sketchId);
 
         var deploymentLog = new DeploymentLog
         {
@@ -173,7 +174,8 @@ public abstract class IntegrationsTestHelper : IDisposable
             SketchId = sketchId,
             PluginInstallationId = pluginInstallationId,
             DeploymentStatus = DeploymentStatus.Created,
-            ChannelId = channelId
+            ChannelId = channelId,
+            CapturedBlockData = sketch.BlockSketch
         };
         databaseContext.DeploymentLogs.Add(deploymentLog);
         await databaseContext.SaveChangesAsync();

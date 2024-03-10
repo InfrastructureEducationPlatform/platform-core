@@ -121,6 +121,9 @@ public class DatabaseContext : DbContext
         modelBuilder.Entity<DeploymentLog>()
                     .Property(a => a.DeploymentOutput)
                     .HasColumnType("jsonb");
+        modelBuilder.Entity<DeploymentLog>()
+                    .Property(a => a.CapturedBlockData)
+                    .HasColumnType("jsonb");
 
         modelBuilder.Entity<Sketch>()
                     .Property(a => a.BlockSketch)

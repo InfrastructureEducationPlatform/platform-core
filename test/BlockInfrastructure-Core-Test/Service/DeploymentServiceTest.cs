@@ -80,7 +80,8 @@ public class DeploymentServiceTest
                 })
             },
             DeploymentStatus = DeploymentStatus.Created,
-            ChannelId = sketch.ChannelId
+            ChannelId = sketch.ChannelId,
+            CapturedBlockData = sketch.BlockSketch
         };
         _databaseContext.DeploymentLogs.Add(deploymentLog);
         await _databaseContext.SaveChangesAsync();
@@ -154,7 +155,8 @@ public class DeploymentServiceTest
                 })
             },
             DeploymentStatus = DeploymentStatus.Created,
-            ChannelId = sketch.ChannelId
+            ChannelId = sketch.ChannelId,
+            CapturedBlockData = sketch.BlockSketch
         };
         _databaseContext.DeploymentLogs.Add(deploymentLog);
         await _databaseContext.SaveChangesAsync();

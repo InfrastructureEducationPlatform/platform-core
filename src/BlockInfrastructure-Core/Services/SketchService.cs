@@ -118,7 +118,8 @@ public class SketchService(DatabaseContext databaseContext, ISendEndpointProvide
             Sketch = sketch,
             DeploymentStatus = DeploymentStatus.Created,
             PluginInstallation = pluginInstallation,
-            ChannelId = sketch.ChannelId
+            ChannelId = sketch.ChannelId,
+            CapturedBlockData = sketch.BlockSketch
         };
         databaseContext.DeploymentLogs.Add(deploymentLog);
         await databaseContext.SaveChangesAsync();

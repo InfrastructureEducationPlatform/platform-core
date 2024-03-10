@@ -19,6 +19,12 @@ public class UnitTestDatabaseContext : DatabaseContext
                     .HasConversion(
                         v => JsonDocumentToString(v),
                         v => JsonDocument.Parse(v, new JsonDocumentOptions()));
+
+        modelBuilder.Entity<DeploymentLog>().Property(p => p.CapturedBlockData)
+                    .HasConversion(
+                        v => JsonDocumentToString(v),
+                        v => JsonDocument.Parse(v, new JsonDocumentOptions()));
+
         modelBuilder.Entity<Plugin>()
                     .Property(a => a.SamplePluginConfiguration)
                     .HasConversion(

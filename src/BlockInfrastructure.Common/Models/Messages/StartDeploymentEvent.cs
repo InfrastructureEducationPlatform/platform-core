@@ -18,7 +18,7 @@ public class StartDeploymentEvent
         return new StartDeploymentEvent
         {
             DeploymentLogId = deploymentLog.Id,
-            SketchProjection = SketchBlockProjection.FromSketch(deploymentLog.Sketch),
+            SketchProjection = SketchBlockProjection.FromSketch(deploymentLog.Sketch, deploymentLog.CapturedBlockData),
             PluginInstallationProjection =
                 PluginInstallationProjection.FromPluginInstallation(deploymentLog.PluginInstallation)
         };
@@ -32,14 +32,14 @@ public class SketchBlockProjection
     public string Description { get; set; }
     public JsonDocument BlockSketch { get; set; }
 
-    public static SketchBlockProjection FromSketch(Sketch sketch)
+    public static SketchBlockProjection FromSketch(Sketch sketch, JsonDocument? blockSketchOverride = null)
     {
         return new SketchBlockProjection
         {
             SketchId = sketch.Id,
             Name = sketch.Name,
             Description = sketch.Description,
-            BlockSketch = sketch.BlockSketch
+            BlockSketch = blockSketchOverride ?? sketch.BlockSketch
         };
     }
 }
