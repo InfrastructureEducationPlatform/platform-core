@@ -93,7 +93,11 @@ public static class ServiceCollectionExtension
                         .AddRuntimeInstrumentation()
                         .AddMeter("Microsoft.AspNetCore.Hosting")
                         .AddMeter("Microsoft.AspNetCore.Server.Kestrel")
-                        .AddPrometheusExporter();
+                        .AddOtlpExporter((option, metricReaderOptions) =>
+                        {
+                            option.Endpoint = new Uri(configuration["otlp"]);
+                            metricReaderOptions.PeriodicExportingMetricReaderOptions.ExportIntervalMilliseconds = 60 * 1000;
+                        });
                 });
 
 
