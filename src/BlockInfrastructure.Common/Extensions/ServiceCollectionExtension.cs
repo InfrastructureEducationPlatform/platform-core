@@ -93,6 +93,12 @@ public static class ServiceCollectionExtension
                         .AddRuntimeInstrumentation()
                         .AddMeter("Microsoft.AspNetCore.Hosting")
                         .AddMeter("Microsoft.AspNetCore.Server.Kestrel")
+                        .SetResourceBuilder(
+                            ResourceBuilder.CreateDefault()
+                                           .AddService("BlockInfrastructure-Core")
+                                           .AddEnvironmentVariableDetector()
+                                           .AddTelemetrySdk()
+                        )
                         .AddOtlpExporter((option, metricReaderOptions) =>
                         {
                             option.Endpoint = new Uri(configuration["otlp"]);
