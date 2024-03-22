@@ -28,7 +28,11 @@ builder.Host.UseSerilog((ctx, service, configuration) =>
                  .Enrich.WithProperty("Application", ctx.HostingEnvironment.ApplicationName)
                  .Enrich.WithProperty("Environment", ctx.HostingEnvironment.EnvironmentName)
                  .WriteTo.Console()
-                 .WriteTo.OpenTelemetry(ctx.Configuration["otlp"]);
+                 .WriteTo.OpenTelemetry(ctx.Configuration["otlp"], resourceAttributes: new Dictionary<string, object>
+                 {
+                     ["service.name"] = ctx.HostingEnvironment.ApplicationName,
+                     ["deployment.environment"] = ctx.HostingEnvironment.EnvironmentName
+                 });
 });
 
 // Add Controllers
