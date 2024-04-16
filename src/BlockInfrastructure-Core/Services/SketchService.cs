@@ -65,6 +65,8 @@ public class SketchService(DatabaseContext databaseContext, ISendEndpointProvide
                      throw new ApiException(HttpStatusCode.NotFound, "해당 스케치를 찾을 수 없습니다.", SketchError.SketchNotFound);
 
         sketch.BlockSketch = updateSketchRequest.BlockData;
+        sketch.Name = updateSketchRequest.Name;
+        sketch.Description = updateSketchRequest.Description;
         await databaseContext.SaveChangesAsync();
 
         return new SketchResponse
