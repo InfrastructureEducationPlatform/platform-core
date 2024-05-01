@@ -60,47 +60,104 @@ public class DatabaseContext : DbContext
 
         // Default Data Seed
         modelBuilder.Entity<Plugin>()
-                    .HasData(new Plugin
+                    .HasData(new List<Plugin>
                     {
-                        Id = "aws-static",
-                        Name = "Amazon Static Credential Provider Plugin",
-                        Description = "Amazon Access Key를 사용하는 Credential Provider Plugin",
-                        SamplePluginConfiguration = JsonSerializer.SerializeToDocument(new AwsStaticProviderConfig
+                        new()
                         {
-                            AccessKey = "Access Key ID",
-                            SecretKey = "Access Secret Key",
-                            Region = "Default Region Code(i.e: ap-northeast-2)"
-                        }),
-                        CreatedAt = DateTimeOffset.Parse("2024-02-25T00:00:00Z"),
-                        UpdatedAt = DateTimeOffset.Parse("2024-02-25T00:00:00Z"),
-                        PluginTypeDefinitions = new List<PluginTypeDefinition>
+                            Id = "aws-static",
+                            Name = "Amazon Static Credential Provider Plugin",
+                            Description = "Amazon Access Key를 사용하는 Credential Provider Plugin",
+                            SamplePluginConfiguration = JsonSerializer.SerializeToDocument(new AwsStaticProviderConfig
+                            {
+                                AccessKey = "Access Key ID",
+                                SecretKey = "Access Secret Key",
+                                Region = "Default Region Code(i.e: ap-northeast-2)"
+                            }),
+                            CreatedAt = DateTimeOffset.Parse("2024-02-25T00:00:00Z"),
+                            UpdatedAt = DateTimeOffset.Parse("2024-02-25T00:00:00Z"),
+                            PluginTypeDefinitions = new List<PluginTypeDefinition>
+                            {
+                                new()
+                                {
+                                    FieldName = "AccessKey",
+                                    FieldType = "string",
+                                    FieldDescription = "AWS Access Key",
+                                    IsRequired = true,
+                                    DefaultValue = "",
+                                    IsSecret = false
+                                },
+                                new()
+                                {
+                                    FieldName = "SecretKey",
+                                    FieldType = "string",
+                                    FieldDescription = "AWS Secret Key",
+                                    IsRequired = true,
+                                    DefaultValue = "",
+                                    IsSecret = true
+                                },
+                                new()
+                                {
+                                    FieldName = "Region",
+                                    FieldType = "string",
+                                    FieldDescription = "AWS Region",
+                                    IsRequired = true,
+                                    DefaultValue = "ap-northeast-2",
+                                    IsSecret = false
+                                }
+                            }
+                        },
+                        new()
                         {
-                            new()
+                            Id = "azure-static",
+                            Name = "Azure Static Credential Provider Plugin",
+                            Description = "Azure ClientID/Client Secret을 사용하는 Credential Provider Plugin",
+                            SamplePluginConfiguration = JsonSerializer.SerializeToDocument(new AzureStaticProviderConfig
                             {
-                                FieldName = "AccessKey",
-                                FieldType = "string",
-                                FieldDescription = "AWS Access Key",
-                                IsRequired = true,
-                                DefaultValue = "",
-                                IsSecret = false
-                            },
-                            new()
+                                ClientId = "Client ID",
+                                ClientSecret = "Client Secret",
+                                SubscriptionId = "Subscription ID",
+                                TenantId = "Tenant ID"
+                            }),
+                            CreatedAt = DateTimeOffset.Parse("2024-02-25T00:00:00Z"),
+                            UpdatedAt = DateTimeOffset.Parse("2024-02-25T00:00:00Z"),
+                            PluginTypeDefinitions = new List<PluginTypeDefinition>
                             {
-                                FieldName = "SecretKey",
-                                FieldType = "string",
-                                FieldDescription = "AWS Secret Key",
-                                IsRequired = true,
-                                DefaultValue = "",
-                                IsSecret = true
-                            },
-                            new()
-                            {
-                                FieldName = "Region",
-                                FieldType = "string",
-                                FieldDescription = "AWS Region",
-                                IsRequired = true,
-                                DefaultValue = "ap-northeast-2",
-                                IsSecret = false
+                                new()
+                                {
+                                    FieldName = "ClientId",
+                                    FieldType = "string",
+                                    FieldDescription = "Azure Client ID",
+                                    IsRequired = true,
+                                    DefaultValue = "",
+                                    IsSecret = false
+                                },
+                                new()
+                                {
+                                    FieldName = "ClientSecret",
+                                    FieldType = "string",
+                                    FieldDescription = "Azure Client Secret",
+                                    IsRequired = true,
+                                    DefaultValue = "",
+                                    IsSecret = true
+                                },
+                                new()
+                                {
+                                    FieldName = "SubscriptionId",
+                                    FieldType = "string",
+                                    FieldDescription = "Azure Subscription ID",
+                                    IsRequired = true,
+                                    DefaultValue = "",
+                                    IsSecret = false
+                                },
+                                new()
+                                {
+                                    FieldName = "TenantId",
+                                    FieldType = "string",
+                                    FieldDescription = "Azure Tenant ID",
+                                    IsRequired = true,
+                                    DefaultValue = "",
+                                    IsSecret = false
+                                }
                             }
                         }
                     });
