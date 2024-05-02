@@ -116,7 +116,8 @@ public class DatabaseContext : DbContext
                                 ClientId = "Client ID",
                                 ClientSecret = "Client Secret",
                                 SubscriptionId = "Subscription ID",
-                                TenantId = "Tenant ID"
+                                TenantId = "Tenant ID",
+                                Region = "Seoul"
                             }),
                             CreatedAt = DateTimeOffset.Parse("2024-02-25T00:00:00Z"),
                             UpdatedAt = DateTimeOffset.Parse("2024-02-25T00:00:00Z"),
@@ -154,6 +155,15 @@ public class DatabaseContext : DbContext
                                     FieldName = "TenantId",
                                     FieldType = "string",
                                     FieldDescription = "Azure Tenant ID",
+                                    IsRequired = true,
+                                    DefaultValue = "",
+                                    IsSecret = false
+                                },
+                                new()
+                                {
+                                    FieldName = "Region",
+                                    FieldType = "string",
+                                    FieldDescription = "Region",
                                     IsRequired = true,
                                     DefaultValue = "",
                                     IsSecret = false
