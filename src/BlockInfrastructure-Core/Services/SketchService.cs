@@ -25,7 +25,8 @@ public class SketchService(DatabaseContext databaseContext, ISendEndpointProvide
                                         ChannelId = sketch.ChannelId,
                                         BlockSketch = sketch.BlockSketch,
                                         CreatedAt = sketch.CreatedAt,
-                                        UpdatedAt = sketch.UpdatedAt
+                                        UpdatedAt = sketch.UpdatedAt,
+                                        ThumbnailUrl = sketch.ThumbnailImageUrl
                                     })
                                     .ToListAsync();
     }
@@ -52,7 +53,8 @@ public class SketchService(DatabaseContext databaseContext, ISendEndpointProvide
             ChannelId = sketch.ChannelId,
             BlockSketch = sketch.BlockSketch,
             CreatedAt = sketch.CreatedAt,
-            UpdatedAt = sketch.UpdatedAt
+            UpdatedAt = sketch.UpdatedAt,
+            ThumbnailUrl = sketch.ThumbnailImageUrl
         };
     }
 
@@ -78,7 +80,8 @@ public class SketchService(DatabaseContext databaseContext, ISendEndpointProvide
             ChannelId = sketch.ChannelId,
             BlockSketch = sketch.BlockSketch,
             CreatedAt = sketch.CreatedAt,
-            UpdatedAt = sketch.UpdatedAt
+            UpdatedAt = sketch.UpdatedAt,
+            ThumbnailUrl = sketch.ThumbnailImageUrl
         };
     }
 
@@ -97,7 +100,8 @@ public class SketchService(DatabaseContext databaseContext, ISendEndpointProvide
             ChannelId = sketch.ChannelId,
             BlockSketch = sketch.BlockSketch,
             CreatedAt = sketch.CreatedAt,
-            UpdatedAt = sketch.UpdatedAt
+            UpdatedAt = sketch.UpdatedAt,
+            ThumbnailUrl = sketch.ThumbnailImageUrl
         };
     }
 

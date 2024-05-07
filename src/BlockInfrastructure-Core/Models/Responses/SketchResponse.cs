@@ -47,4 +47,6 @@ public class SketchResponse
     /// </summary>
     [Required]
     public DateTimeOffset UpdatedAt { get; set; }
+
+    public string? ThumbnailUrl { get; set; }
 }
