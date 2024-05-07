@@ -85,6 +85,30 @@ public class SketchService(DatabaseContext databaseContext, ISendEndpointProvide
         };
     }
 
+    public async Task<SketchResponse> IncrementalUpdateSketchAsync(string channelId, string sketchId,
+                                                                   IncrementalDeploymentRequest updateSketchRequest)
+    {
+        var sketch = await databaseContext.Sketches
+                                          .Where(sketch => sketch.ChannelId == channelId)
+                                          .FirstOrDefaultAsync(sketch => sketch.Id == sketchId) ??
+                     throw new ApiException(HttpStatusCode.NotFound, "해당 스케치를 찾을 수 없습니다.", SketchError.SketchNotFound);
+
+        sketch.BlockSketch = updateSketchRequest.BlockData;
+        await databaseContext.SaveChangesAsync();
+
+        return new SketchResponse
+        {
+            SketchId = sketch.Id,
+            Name = sketch.Name,
+            Description = sketch.Description,
+            ChannelId = sketch.ChannelId,
+            BlockSketch = sketch.BlockSketch,
+            CreatedAt = sketch.CreatedAt,
+            UpdatedAt = sketch.UpdatedAt,
+            ThumbnailUrl = sketch.ThumbnailImageUrl
+        };
+    }
+
     public async Task<SketchResponse> GetSketchAsync(string channelId, string sketchId)
     {
         var sketch = await databaseContext.Sketches

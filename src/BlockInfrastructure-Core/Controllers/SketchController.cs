@@ -63,6 +63,7 @@ public class SketchController(SketchService sketchService) : ControllerBase
     /// <param name="updateSketchRequest">업데이트 할 스케치 내용</param>
     /// <returns></returns>
     [HttpPut("{sketchId}")]
+    [JwtAuthenticationFilter]
     [ChannelRole(ChannelIdGetMode.Route, "channelId", ChannelPermissionType.Owner)]
     [ProducesResponseType<SketchResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status404NotFound)]
@@ -114,5 +115,31 @@ public class SketchController(SketchService sketchService) : ControllerBase
         {
             DeploymentId = deploymentLog.Id
         });
+    }
+
+    [HttpPost("{sketchId}/incremental-deploy")]
+    public async Task<IActionResult> IncrementalDeploySketchAsync(string channelId, string sketchId,
+                                                                  IncrementalDeploymentRequest incrementalDeploymentRequest)
+    {
+        if (HttpContext.Request.Headers["X-Deploy-Auth"] != "kangdroidtest")
+        {
+            return BadRequest();
+        }
+
+        var sketchResponse =
+            await sketchService.IncrementalUpdateSketchAsync(channelId, sketchId, incrementalDeploymentRequest);
+        var deploymentLog = await sketchService.DeployAsync(sketchId, channelId, incrementalDeploymentRequest.PluginId);
+        return Accepted(new LightDeploymentProjection
+        {
+            DeploymentId = deploymentLog.Id
+        });
+    }
+
+    [HttpGet("{sketchId}/internal")]
+    [ProducesResponseType<SketchResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetSketchInternalAsync(string channelId, string sketchId)
+    {
+        return Ok(await sketchService.GetSketchAsync(channelId, sketchId));
     }
 }
