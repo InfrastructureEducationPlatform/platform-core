@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace BlockInfrastructure.Core.Controllers;
 
 [ApiController]
-[JwtAuthenticationFilter]
 [Route("/channels/{channelId}/sketches")]
 public class SketchController(SketchService sketchService) : ControllerBase
 {
@@ -26,6 +25,7 @@ public class SketchController(SketchService sketchService) : ControllerBase
     /// <response code="401">인증 토큰이 없어 인증에 실패한 경우</response>
     /// <response code="403">스케치를 가져오는데 채널 권한이 부족한 경우(해당 API에서는 소속되어 있지 않은 채널을 조회하려 했을 때 반환)</response>
     [HttpGet]
+    [JwtAuthenticationFilter]
     [ChannelRole(ChannelIdGetMode.Route, "channelId", ChannelPermissionType.Owner, ChannelPermissionType.Reader)]
     [ProducesResponseType<List<SketchResponse>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]
@@ -47,6 +47,7 @@ public class SketchController(SketchService sketchService) : ControllerBase
     /// <response code="200">스케치 생성에 성공한 경우.</response>
     /// <response code="403">스케치를 생성하는데 채널 권한이 부족한 경우(해당 API에서는 owner권한만 허용.)</response>
     [HttpPost]
+    [JwtAuthenticationFilter]
     [ChannelRole(ChannelIdGetMode.Route, "channelId", ChannelPermissionType.Owner)]
     [ProducesResponseType<SketchResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> CreateSketchAsync(string channelId, CreateSketchRequest createSketchRequest)
@@ -80,6 +81,7 @@ public class SketchController(SketchService sketchService) : ControllerBase
     /// <response code="200">정상적으로 데이터를 불러왔을 때</response>
     /// <response code="404">해당 스케치를 찾을 수 없을 때</response>
     [HttpGet("{sketchId}")]
+    [JwtAuthenticationFilter]
     [ChannelRole(ChannelIdGetMode.Route, "channelId", ChannelPermissionType.Owner, ChannelPermissionType.Reader)]
     [ProducesResponseType<SketchResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status404NotFound)]
@@ -101,6 +103,7 @@ public class SketchController(SketchService sketchService) : ControllerBase
     /// <response code="202">정상적으로 배포 시작에 성공한 경우</response>
     /// <response code="404">해당 스케치를 찾을 수 없을 때</response>
     [HttpPost("{sketchId}/deploy")]
+    [JwtAuthenticationFilter]
     [ChannelRole(ChannelIdGetMode.Route, "channelId", ChannelPermissionType.Owner)]
     [ProducesResponseType<LightDeploymentProjection>(StatusCodes.Status202Accepted)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status404NotFound)]
