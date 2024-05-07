@@ -67,6 +67,7 @@ public class SketchService(DatabaseContext databaseContext, ISendEndpointProvide
         sketch.BlockSketch = updateSketchRequest.BlockData;
         sketch.Name = updateSketchRequest.Name;
         sketch.Description = updateSketchRequest.Description;
+        sketch.ThumbnailImageUrl = updateSketchRequest.ThumbnailImageUrl;
         await databaseContext.SaveChangesAsync();
 
         return new SketchResponse

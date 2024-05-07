@@ -19,4 +19,6 @@ public class UpdateSketchRequest
 
     [Required]
     public JsonDocument BlockData { get; set; }
+
+    public string? ThumbnailImageUrl { get; set; }
 }

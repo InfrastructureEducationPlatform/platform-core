@@ -14,4 +14,6 @@ public class Sketch : AutomaticAuditSupport
     public string ChannelId { get; set; }
     public Channel Channel { get; set; }
     public JsonDocument BlockSketch { get; set; }
+
+    public string? ThumbnailImageUrl { get; set; }
 }
