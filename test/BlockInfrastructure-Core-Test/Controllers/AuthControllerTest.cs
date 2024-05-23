@@ -8,11 +8,13 @@ using BlockInfrastructure.Common.Test.Shared.Integrations.Fixtures;
 using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Models.Responses;
 using Newtonsoft.Json;
+using Xunit.Abstractions;
 
 namespace BlockInfrastructure.Core.Test.Controllers;
 
 [Collection("Container")]
-public class AuthControllerTest(ContainerFixture containerFixture) : IntegrationsTestHelper(containerFixture)
+public class AuthControllerTest(ContainerFixture containerFixture, ITestOutputHelper outputHelper)
+    : IntegrationsTestHelper(containerFixture, outputHelper)
 {
     [Fact(DisplayName = "POST /auth/login: LoginAsync은 OAuth 인증 정보를 가져오는데 실패한 경우 400 BadRequest를 반환합니다.")]
     public async Task Is_LoginAsync_Returns_BadRequest_When_OAuth_Request_Failed()

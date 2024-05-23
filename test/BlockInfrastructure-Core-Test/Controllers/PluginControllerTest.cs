@@ -7,11 +7,12 @@ using BlockInfrastructure.Common.Models.Internal.PluginConfigs;
 using BlockInfrastructure.Common.Test.Shared.Integrations;
 using BlockInfrastructure.Common.Test.Shared.Integrations.Fixtures;
 using BlockInfrastructure.Core.Models.Requests;
+using Xunit.Abstractions;
 
 namespace BlockInfrastructure.Core.Test.Controllers;
 
 [Collection("Container")]
-public class PluginControllerTest(ContainerFixture containerFixture) : IntegrationsTestHelper(containerFixture)
+public class PluginControllerTest(ContainerFixture containerFixture, ITestOutputHelper outputHelper) : IntegrationsTestHelper(containerFixture, outputHelper)
 {
     [Fact(DisplayName = "GET /channels/{channelId}/plugins/available: ListAvailablePlugins는 인증하지 않은 사용자에 대해 401을 반환합니다.")]
     public async Task Is_ListAvailablePlugins_Returns_401_For_Unauthorized_User()

@@ -8,10 +8,14 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Serilog;
+using Xunit.Abstractions;
 
 namespace BlockInfrastructure.Common.Test.Shared.Integrations;
 
-internal class BlockInfrastructureCoreWebApplicationFactory(ContainerFixture containerFixture) : WebApplicationFactory<Program>
+internal class BlockInfrastructureCoreWebApplicationFactory(ContainerFixture containerFixture, ITestOutputHelper outputHelper)
+    : WebApplicationFactory<Program>
 {
     public readonly IConfiguration Configuration = TestConfiguration.Create(containerFixture);
 
@@ -56,5 +60,14 @@ internal class BlockInfrastructureCoreWebApplicationFactory(ContainerFixture con
             });
         });
         base.ConfigureWebHost(builder);
+    }
+
+    protected override IHost CreateHost(IHostBuilder builder)
+    {
+        builder.UseSerilog((_, configuration) =>
+        {
+            configuration.WriteTo.TestOutput(outputHelper);
+        });
+        return base.CreateHost(builder);
     }
 }

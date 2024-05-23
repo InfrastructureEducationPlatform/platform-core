@@ -11,11 +11,12 @@ using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Models.Responses;
 using MassTransit.Testing;
 using Newtonsoft.Json;
+using Xunit.Abstractions;
 
 namespace BlockInfrastructure.Core.Test.Controllers;
 
 [Collection("Container")]
-public class UserControllerTest(ContainerFixture containerFixture) : IntegrationsTestHelper(containerFixture)
+public class UserControllerTest(ContainerFixture containerFixture, ITestOutputHelper outputHelper) : IntegrationsTestHelper(containerFixture, outputHelper)
 {
     [Fact(DisplayName = "GET /users/me: GetUsersDetailProjectionAsync는 만약 인증되지 않은 사용자가 요청을 보낸 경우 401 Unauthorized를 반환합니다.")]
     public async Task Is_GetUsersDetailProjectionAsync_Returns_401_When_No_Token()

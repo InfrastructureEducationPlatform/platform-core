@@ -2,11 +2,12 @@ using System.Net;
 using System.Net.Http.Headers;
 using BlockInfrastructure.Common.Test.Shared.Integrations;
 using BlockInfrastructure.Common.Test.Shared.Integrations.Fixtures;
+using Xunit.Abstractions;
 
 namespace BlockInfrastructure.Core.Test.Controllers;
 
 [Collection("Container")]
-public class PricingControllerTest(ContainerFixture containerFixture) : IntegrationsTestHelper(containerFixture)
+public class PricingControllerTest(ContainerFixture containerFixture, ITestOutputHelper outputHelper) : IntegrationsTestHelper(containerFixture, outputHelper)
 {
     [Fact(DisplayName =
         "GET /pricing: GetAllPricingInformationAsync는 만약 인증되지 않은 사용자가 요청할 경우 401 Unauthorized를 반환합니다.")]

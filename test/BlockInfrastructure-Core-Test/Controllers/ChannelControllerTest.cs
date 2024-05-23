@@ -10,11 +10,12 @@ using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Models.Responses;
 using MassTransit.Testing;
 using Microsoft.EntityFrameworkCore;
+using Xunit.Abstractions;
 
 namespace BlockInfrastructure.Core.Test.Controllers;
 
 [Collection("Container")]
-public class ChannelControllerTest(ContainerFixture containerFixture) : IntegrationsTestHelper(containerFixture)
+public class ChannelControllerTest(ContainerFixture containerFixture, ITestOutputHelper outputHelper) : IntegrationsTestHelper(containerFixture, outputHelper)
 {
     [Fact(DisplayName =
         "POST /channels: CreateChannelAsync는 만약 인증되지 않은 사용자가 요청한 경우 401 Unauthorized를 반환합니다.")]

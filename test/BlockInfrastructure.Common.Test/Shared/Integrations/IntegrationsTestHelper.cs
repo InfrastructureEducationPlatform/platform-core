@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Newtonsoft.Json;
+using Xunit.Abstractions;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace BlockInfrastructure.Common.Test.Shared.Integrations;
@@ -20,9 +21,9 @@ public abstract class IntegrationsTestHelper : IDisposable
     private readonly BlockInfrastructureCoreWebApplicationFactory _webApplicationFactory;
     protected readonly HttpClient WebRequestClient;
 
-    protected IntegrationsTestHelper(ContainerFixture containerFixture)
+    protected IntegrationsTestHelper(ContainerFixture containerFixture, ITestOutputHelper testOutputHelper)
     {
-        _webApplicationFactory = new BlockInfrastructureCoreWebApplicationFactory(containerFixture);
+        _webApplicationFactory = new BlockInfrastructureCoreWebApplicationFactory(containerFixture, testOutputHelper);
         _serviceScope = _webApplicationFactory.Services.CreateScope();
         WebRequestClient = _webApplicationFactory.CreateClient();
     }

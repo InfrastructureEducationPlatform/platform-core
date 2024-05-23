@@ -196,6 +196,8 @@ app.UseCors(a => a.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 
 app.MapHealthChecks("/healthz");
 
+app.UseMiddleware<AuthenticationMiddleware>();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

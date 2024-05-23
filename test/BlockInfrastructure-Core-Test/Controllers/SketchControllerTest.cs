@@ -6,12 +6,13 @@ using BlockInfrastructure.Common.Test.Shared.Integrations.Fixtures;
 using BlockInfrastructure.Core.Models.Requests;
 using BlockInfrastructure.Core.Models.Responses;
 using Newtonsoft.Json;
+using Xunit.Abstractions;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace BlockInfrastructure.Core.Test.Controllers;
 
 [Collection("Container")]
-public class SketchControllerTest(ContainerFixture containerFixture) : IntegrationsTestHelper(containerFixture)
+public class SketchControllerTest(ContainerFixture containerFixture, ITestOutputHelper outputHelper) : IntegrationsTestHelper(containerFixture, outputHelper)
 {
     [Fact(DisplayName = "GET /channels/{channelId}/sketches: ListSketchesAsync는 인증하지 않은 사용자에 대해 401을 반환합니다.")]
     public async Task Is_ListSketchesAsync_Returns_401_For_Unauthorized_User()

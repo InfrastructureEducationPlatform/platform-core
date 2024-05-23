@@ -13,8 +13,8 @@ public static class HttpContextExtensions
         httpContext.Items[ContextUserKey] = JsonConvert.SerializeObject(contextUser);
     }
 
-    public static ContextUser GetUserContext(this HttpContext httpContext)
+    public static ContextUser? GetUserContext(this HttpContext httpContext)
     {
-        return JsonConvert.DeserializeObject<ContextUser>(httpContext.Items[ContextUserKey].ToString());
+        return JsonConvert.DeserializeObject<ContextUser>(httpContext.Items[ContextUserKey]?.ToString() ?? "");
     }
 }
