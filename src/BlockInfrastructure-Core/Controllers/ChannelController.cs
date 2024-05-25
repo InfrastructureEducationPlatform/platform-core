@@ -22,6 +22,7 @@ public class ChannelController(IChannelService channelService) : ControllerBase
     /// <response code="204">채널 생성에 성공한 경우</response>
     [HttpPost]
     [JwtAuthenticationFilter]
+    [UserAction(ActionName = "CreateChannel")]
     public async Task<IActionResult> CreateChannelAsync(CreateChannelRequest createChannelRequest)
     {
         var contextUser = HttpContext.GetUserContext();
@@ -39,6 +40,7 @@ public class ChannelController(IChannelService channelService) : ControllerBase
     /// <response code="403">채널 조회 권한이 없는 경우</response>
     /// <response code="404">채널 정보가 존재하지 않는 경우</response>
     [JwtAuthenticationFilter]
+    [UserAction(ActionName = "GetChannelInformation")]
     [HttpGet("{channelId}")]
     [ProducesResponseType<ChannelInformationResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]
@@ -61,6 +63,7 @@ public class ChannelController(IChannelService channelService) : ControllerBase
     /// <response code="403">채널 수정 권한이 없는 경우</response>
     /// <response code="404">채널 정보가 존재하지 않는 경우</response>
     [JwtAuthenticationFilter]
+    [UserAction(ActionName = "UpdateChannelInformation")]
     [HttpPut("{channelId}")]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status403Forbidden)]
@@ -86,6 +89,7 @@ public class ChannelController(IChannelService channelService) : ControllerBase
     /// <response code="403">채널 수정 권한이 없는 경우</response>
     /// <response code="404">채널 정보가 존재하지 않는 경우</response>
     [JwtAuthenticationFilter]
+    [UserAction(ActionName = "UpdateUserChannelRole")]
     [HttpPut("{channelId}/users")]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]
@@ -112,6 +116,7 @@ public class ChannelController(IChannelService channelService) : ControllerBase
     /// <response code="403">채널 수정 권한이 없는 경우</response>
     /// <response code="404">채널 정보가 존재하지 않는 경우</response>
     [JwtAuthenticationFilter]
+    [UserAction(ActionName = "RemoveUserFromChannel")]
     [HttpDelete("{channelId}/users/{userId}")]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]
@@ -137,6 +142,7 @@ public class ChannelController(IChannelService channelService) : ControllerBase
     /// <response code="403">채널 수정 권한이 없는 경우</response>
     /// <response code="409">만약 이미 채널에 사용자가 있는 경우</response>
     [JwtAuthenticationFilter]
+    [UserAction(ActionName = "AddUserToChannel")]
     [HttpPost("{channelId}/users")]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]

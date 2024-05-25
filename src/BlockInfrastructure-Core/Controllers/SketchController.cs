@@ -26,6 +26,7 @@ public class SketchController(SketchService sketchService) : ControllerBase
     /// <response code="403">스케치를 가져오는데 채널 권한이 부족한 경우(해당 API에서는 소속되어 있지 않은 채널을 조회하려 했을 때 반환)</response>
     [HttpGet]
     [JwtAuthenticationFilter]
+    [UserAction(ActionName = "ListSketchesInChannel")]
     [ChannelRole(ChannelIdGetMode.Route, "channelId", ChannelPermissionType.Owner, ChannelPermissionType.Reader)]
     [ProducesResponseType<List<SketchResponse>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]
@@ -48,6 +49,7 @@ public class SketchController(SketchService sketchService) : ControllerBase
     /// <response code="403">스케치를 생성하는데 채널 권한이 부족한 경우(해당 API에서는 owner권한만 허용.)</response>
     [HttpPost]
     [JwtAuthenticationFilter]
+    [UserAction(ActionName = "CreateSketchInChannel")]
     [ChannelRole(ChannelIdGetMode.Route, "channelId", ChannelPermissionType.Owner)]
     [ProducesResponseType<SketchResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> CreateSketchAsync(string channelId, CreateSketchRequest createSketchRequest)
@@ -64,6 +66,7 @@ public class SketchController(SketchService sketchService) : ControllerBase
     /// <returns></returns>
     [HttpPut("{sketchId}")]
     [JwtAuthenticationFilter]
+    [UserAction(ActionName = "UpdateSketchInChannel")]
     [ChannelRole(ChannelIdGetMode.Route, "channelId", ChannelPermissionType.Owner)]
     [ProducesResponseType<SketchResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status404NotFound)]
@@ -83,6 +86,7 @@ public class SketchController(SketchService sketchService) : ControllerBase
     /// <response code="404">해당 스케치를 찾을 수 없을 때</response>
     [HttpGet("{sketchId}")]
     [JwtAuthenticationFilter]
+    [UserAction(ActionName = "GetSketchInChannel")]
     [ChannelRole(ChannelIdGetMode.Route, "channelId", ChannelPermissionType.Owner, ChannelPermissionType.Reader)]
     [ProducesResponseType<SketchResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status404NotFound)]
@@ -105,6 +109,7 @@ public class SketchController(SketchService sketchService) : ControllerBase
     /// <response code="404">해당 스케치를 찾을 수 없을 때</response>
     [HttpPost("{sketchId}/deploy")]
     [JwtAuthenticationFilter]
+    [UserAction(ActionName = "DeploySketchInChannel")]
     [ChannelRole(ChannelIdGetMode.Route, "channelId", ChannelPermissionType.Owner)]
     [ProducesResponseType<LightDeploymentProjection>(StatusCodes.Status202Accepted)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status404NotFound)]

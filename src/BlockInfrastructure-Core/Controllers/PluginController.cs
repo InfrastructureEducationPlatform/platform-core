@@ -21,6 +21,7 @@ public class PluginController(PluginService pluginService) : ControllerBase
     /// <response code="401">인증 실패 시</response>
     [HttpGet("available")]
     [JwtAuthenticationFilter]
+    [UserAction(ActionName = "ListAvailablePlugins")]
     [ChannelRole(ChannelIdGetMode.Route, "channelId", ChannelPermissionType.Owner)]
     [ProducesResponseType<List<PluginProjection>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]
@@ -41,6 +42,7 @@ public class PluginController(PluginService pluginService) : ControllerBase
     /// <response code="403">채널에 대한 권한이 없는 경우</response>
     [HttpPost("install")]
     [JwtAuthenticationFilter]
+    [UserAction(ActionName = "InstallPlugin")]
     [ChannelRole(ChannelIdGetMode.Route, "channelId", ChannelPermissionType.Owner)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]

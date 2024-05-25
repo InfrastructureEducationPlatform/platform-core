@@ -41,6 +41,7 @@ public class UsersController(IUserService userService, IMediator mediator) : Con
     /// <response code="401">사용자 인증에 실패한 경우</response>
     /// <response code="404">알 수 없는 에러로 사용자 정보를 찾을 수 없는 경우</response>
     [JwtAuthenticationFilter]
+    [UserAction(ActionName = "UpdateUserPreference")]
     [HttpPost("preferences")]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status404NotFound)]
@@ -75,6 +76,7 @@ public class UsersController(IUserService userService, IMediator mediator) : Con
     /// <response code="401">사용자 인증에 실패한 경우</response>
     /// <response code="204">사용자 삭제에 성공한 경우</response>
     [JwtAuthenticationFilter]
+    [UserAction(ActionName = "DeleteUser")]
     [HttpDelete]
     public async Task<IActionResult> DeleteUserAsync()
     {

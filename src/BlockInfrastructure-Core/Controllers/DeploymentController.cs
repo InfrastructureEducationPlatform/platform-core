@@ -25,6 +25,7 @@ public class DeploymentController(IDeploymentService deploymentService, IMediato
     /// <response code="401">인증이 실패한 경우</response>
     /// <response code="404">배포 정보를 찾을 수 없는 경우</response>
     [JwtAuthenticationFilter]
+    [UserAction(ActionName = "GetDeploymentInformation")]
     [HttpGet("{deploymentId}")]
     [ProducesResponseType<DeploymentProjection>(StatusCodes.Status200OK)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]
@@ -44,6 +45,7 @@ public class DeploymentController(IDeploymentService deploymentService, IMediato
     /// <response code="401">인증이 실패한 경우</response>
     [HttpGet]
     [JwtAuthenticationFilter]
+    [UserAction(ActionName = "GetDeploymentInformationList")]
     [ProducesResponseType<List<DeploymentProjection>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetDeploymentInformationListAsync()
@@ -69,6 +71,7 @@ public class DeploymentController(IDeploymentService deploymentService, IMediato
     /// <response code="404">배포 정보를 찾을 수 없는 경우</response>
     [HttpDelete("{deploymentId}")]
     [JwtAuthenticationFilter]
+    [UserAction(ActionName = "DestroyDeployment")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]
