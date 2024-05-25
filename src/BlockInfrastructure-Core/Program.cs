@@ -145,6 +145,7 @@ builder.Services.AddMassTransit(configurator =>
         // Configure Message
         busFactoryConfigurator.Message<UserStateModifiedEvent>(a => a.SetEntityName("user.modified"));
         busFactoryConfigurator.Message<StartDeploymentEvent>(a => a.SetEntityName("deployment.started"));
+        busFactoryConfigurator.Message<UserActionEvent>(a => a.SetEntityName("user.acted"));
 
         // Configure Cache Consumer(Worker)
         busFactoryConfigurator.ConfigureBackgroundCacheEndpoint(ctx);
@@ -161,6 +162,13 @@ builder.Services.AddMassTransit(configurator =>
             // Setup Consumer
             cfg.Bind("deployment.result");
             cfg.ConfigureConsumer<DeploymentResultEventConsumer>(ctx);
+        });
+
+        // Configure User Action Consumer
+        busFactoryConfigurator.ReceiveEndpoint("user.action.core-update-status", cfg =>
+        {
+            cfg.Bind("user.action");
+            cfg.ConfigureConsumer<UserActionEventConsumer>(ctx);
         });
     });
 });

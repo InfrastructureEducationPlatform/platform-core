@@ -18,6 +18,7 @@ public class DatabaseContext : DbContext
     public DbSet<DeploymentLog> DeploymentLogs { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<BlockFile> BlockFiles { get; set; }
+    public DbSet<UserAction> UserActions { get; set; }
 
     public DbSet<PricingInformation> PricingInformations { get; set; }
     public DbSet<PriceInfoPerVendor> PriceInfoPerVendors { get; set; }
