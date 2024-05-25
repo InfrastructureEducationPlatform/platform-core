@@ -131,6 +131,7 @@ builder.Services.AddMassTransit(configurator =>
     configurator.RegisterBackgroundCacheConsumers();
     configurator.AddConsumer<DeploymentAcceptedEventConsumer>();
     configurator.AddConsumer<DeploymentResultEventConsumer>();
+    configurator.AddConsumer<UserActionEventConsumer>();
 
     configurator.UsingRabbitMq((ctx, busFactoryConfigurator) =>
     {
