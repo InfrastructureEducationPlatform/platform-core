@@ -15,6 +15,7 @@ public interface IUserService
     Task UpdatePreferenceAsync(ContextUser contextUser, UpdateUserPreferenceRequest updateUserPreferenceRequest);
     Task<List<UserSearchResponse>> SearchUserAsync(string query);
     Task DeleteUserAsync(string userId);
+    Task<List<AuditLog>> GetAuditLogAsync(string userId);
 }
 
 public class UserService(DatabaseContext databaseContext, ICacheService cacheService) : IUserService
@@ -65,5 +66,17 @@ public class UserService(DatabaseContext databaseContext, ICacheService cacheSer
 
         databaseContext.Users.Remove(user);
         await databaseContext.SaveChangesAsync();
+    }
+
+    public async Task<List<AuditLog>> GetAuditLogAsync(string userId)
+    {
+        return await databaseContext.UserActions
+                                    .Where(a => a.UserId == userId)
+                                    .Select(a => new AuditLog
+                                    {
+                                        AuditName = a.ActionName,
+                                        AuditTime = a.ActedAt
+                                    })
+                                    .ToListAsync();
     }
 }

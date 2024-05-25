@@ -88,4 +88,15 @@ public class UsersController(IUserService userService, IMediator mediator) : Con
 
         return NoContent();
     }
+
+    [JwtAuthenticationFilter]
+    [UserAction(ActionName = "GetUserAuditLog")]
+    [HttpGet("audit")]
+    [ProducesResponseType<List<AuditLog>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetUserAuditLogAsync()
+    {
+        var userContext = HttpContext.GetUserContext();
+        return Ok(await userService.GetAuditLogAsync(userContext.UserId));
+    }
 }
